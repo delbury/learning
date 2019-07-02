@@ -27,7 +27,13 @@
 
     let particleIndex = 0,
         particles = {},
-        particleNum = 0.2;
+        particleNum = 0.2,
+        center = [undefined, undefined];
+
+    canvas.onclick = ev => {
+      const { offsetX, offsetY } = ev;
+      center = [offsetX, offsetY];
+    }
 
     class Particle {
       constructor(ox = canvas.width / 2, oy = canvas.height / 2) {
@@ -78,6 +84,7 @@
         new Particle(
           // canvas.width * Math.random(),
           // canvas.height * Math.random()
+          ...center
         );
       }
       for(let key in particles) {
