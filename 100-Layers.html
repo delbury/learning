@@ -16,6 +16,12 @@
       width: fit-content;
       font-size: 0;
     }
+    #canvas {
+      cursor: grab;
+    }
+    #canvas:active {
+      cursor: grabbing;
+    }
   </style>
 </head>
 <body>
@@ -29,7 +35,7 @@
         this.ctx = this.canvas.getContext('2d');
         this.boxSize = {
           width: 600,
-          height: 800
+          height: 600
         };
         this.bgData = null;
         this.nextBgData = null;
@@ -68,25 +74,51 @@
       // 重绘背景
       repaintBackground() {
         const { width, height } = this.canvas;
-        const disH = 1;
+        const disH = 5;
         const worker = new Worker('./works/bg-scroll.js');
         worker.onmessage = ev => {
           const data = ev.data;
-          this.nextBgData = data;
-          // this.ctx.putImageData(data, 0, 0);
+          // this.nextBgData = data;
+          this.ctx.drawImage(data, 0, 0);
         };
-        const imageData = this.ctx.getImageData(0, 0, width, height);
-        worker.postMessage({ img: imageData, step: disH });
-        this.reflashBackground();
-      }
 
-      // 更新背景
-      reflashBackground() {
-        window.requestAnimationFrame(() => {
-          if(this.nextBgData) {
-            this.ctx.putImageData(this.nextBgData, 0, 0);
+        // 交互
+        canvas.onmouseenter = ev => {
+          worker.postMessage({ type: 'enter' });
+        };
+        let timer = null;
+        canvas.onmousemove = ev => {
+          if(!timer) {
+            timer = setTimeout(() => {
+              worker.postMessage({
+                type: 'move',
+                offsetX: ev.offsetX,
+                offsetY: ev.offsetY
+              });
+              timer = null;
+            }, 12);
           }
-          return this.reflashBackground();
+        };
+        canvas.onmouseleave = ev => {
+          worker.postMessage({ type: 'leave' });
+        };
+        canvas.onmousedown = ev => {
+          worker.postMessage({
+            type: 'down',
+            offsetX: ev.offsetX,
+            offsetY: ev.offsetY
+          });
+        }
+        document.onmouseup = ev => {
+          worker.postMessage({ type: 'up' });
+        }
+
+
+        const imageData = this.ctx.getImageData(0, 0, width, height);
+        worker.postMessage({
+          img: imageData,
+          step: disH,
+          type: 'init'
         });
       }
     }
