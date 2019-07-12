@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    .container {
+      margin: 100px auto 0;
+      width: 1000px;
+      height: 500px;
+      background-color: rgba(221, 221, 221, 0.5);
+      user-select: none;
+    }
+    .box {
+      position: relative;
+      transform-style: preserve-3d;
+      perspective: 500px;
+      perspective-origin: top left;
+      font-size: 0;
+    }
+    .box section {
+      position: absolute;
+    }
+    .box section:nth-child(1) {
+      left: 200px;
+      top: 200px;
+    }
+    .box section:nth-child(2) {
+      left: 400px;
+      top: 200px;
+    }
+    .box section:nth-child(3) {
+      left: 600px;
+      top: 200px;
+    }
+    .box div {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      color: #fff;
+      font-size: 24px;
+      opacity: 0.75;
+      /* backface-visibility: hidden; */
+    }
+    .box section div:nth-child(1) {
+      background-color: skyblue;
+    }
+    .box section div:nth-child(2) {
+      background-color: yellowgreen;
+      transform-origin: left center;
+      transform: translate(100px) rotateY(90deg);
+    }
+    .box section div:nth-child(3) {
+      background-color: pink;
+      transform-origin: right center;
+      transform: translate(-100px) rotateY(-90deg);
+    }
+    .box section div:nth-child(4) {
+      background-color: burlywood;
+      transform-origin: center bottom;
+      transform: translate(0, -100px) rotateX(90deg);
+    }
+    .box section div:nth-child(5) {
+      background-color: peru;
+      transform-origin: center top;
+      transform: translate(0, 100px) rotateX(-90deg);
+    }
+    .box section div:nth-child(6) {
+      background-color: orange;
+      transform: translateZ(-100px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="box">
+      <section>
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>4</div>
+        <div>5</div>
+        <div>6</div>
+      </section>
+      <section>
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>4</div>
+        <div>5</div>
+        <div>6</div>
+      </section>
+      <section>
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>4</div>
+        <div>5</div>
+        <div>6</div>
+      </section>
+    </div>
+  </div>
+  <script>
+    const container = document.getElementsByClassName('container')[0];
+    const box = document.getElementsByClassName('box')[0];
+    let flag = true;
+    const current = [0, 0];
+    box.style.perspectiveOrigin = `${current[0]}px ${current[1]}px`;
+    container.onmousedown = ev => {
+      const { offsetX: ox, offsetY: oy } = ev;
+      let dx, dy;
+      container.onmousemove = ev => {
+        if(flag && ev.target === container) {
+          const { offsetX: x, offsetY: y } = ev;
+          dx = x - ox + current[0];
+          dy = y - oy + current[1];
+          // current[0] += dx;
+          // current[1] += dy;
+          flag = false;
+          requestAnimationFrame(() => {
+            box.style.perspectiveOrigin = `${dx}px ${dy}px`;
+            flag = true;
+          });
+        }
+      }
+      document.onmouseup = ev => {
+        container.onmousemove = null;
+        document.onmouseup = null;
+        current[0] = dx;
+        current[1] = dy;
+      }
+    }
+    
+  </script>
+</body>
+</html>
