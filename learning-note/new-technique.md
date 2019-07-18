@@ -1282,6 +1282,7 @@
       - transform-style 父级属性，其子元素位于 2d 空间 / 3d 平面中
         - 值：preserve-3d | flat
       - backface-visibility: visible | hidden
+      - transform-box
     - transition
       - 缩写：transition: property duration timing-function delay, ... ... ... ..., ......;
       - transition-property
@@ -1289,7 +1290,7 @@
       - transition-timing-function
       - transition-delay
     - animation
-      - 缩写：animation: name duration timing-function delay iteration-count direction;
+      - 缩写：animation: name duration timing-function delay iteration-count direction fill-mode play-state;
       - animation-name
       - animation-duration
       - animation-timing-function

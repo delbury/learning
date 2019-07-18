@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    html {
+      overflow: hidden;
+    }
+    .container {
+      margin: 50px;
+      text-align: center;
+      transform-style: preserve-3d;
+      perspective: 500px;
+    }
+    .track {
+      position: relative;
+      margin: auto;
+      width: 600px;
+      height: 600px;
+      border: 3px dashed skyblue;
+      border-radius: 50%;
+      transform: translateZ(-100px) rotateY(-20deg);
+    }
+    .track span {
+      display: inline-block;
+      position: absolute;
+      left: 0;
+      top: 0;
+      border: 5px solid currentColor;
+      width: 100px;
+      height: 100px;
+      color: orange;
+      background-color: currentColor;
+      border-radius: 50%;
+      background-clip: content-box;
+      padding: 10px;
+      animation: growth 1s ease infinite alternate;
+    }
+    @keyframes growth {
+      from {
+        padding: 30px;
+      }
+      to {
+        padding: 10px;
+      }
+    }
+    @keyframes span {
+      from {
+        transform: rotateZ(0deg);
+      }
+      to {
+        transform: rotateZ(360deg);
+      }
+    }
+    .spans {
+      width: inherit;
+      height: inherit;
+      /* border: 3px dashed skyblue;
+      border-radius: 50%; */
+      animation: span 8s linear infinite;
+    }
+    .track span:nth-child(1) {
+      color: hsl(80, 61%, 50%, 0.8);
+      transform: translate(250px, -50px);
+    }
+    .track span:nth-child(2) {
+      color: hsl(200, 61%, 50%, 0.8);
+      transform: translate(-10px, 400px);
+    }
+    .track span:nth-child(3) {
+      color: hsl(320, 61%, 50%, 0.8);
+      transform: translate(510px, 400px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="track">
+      <div class="spans">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
