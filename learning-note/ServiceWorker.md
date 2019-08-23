@@ -1,4 +1,9 @@
 # Service Worker
+## 功能
+  1. 离线缓存
+  2. 推送提醒
+  3. 后台同步
+
 ## 生命周期
 - 类
     1. ServiceWorkerContainer // navigator.serviceWorker
@@ -73,10 +78,39 @@
 
 - Clients
   - Methods
-    1. get()
-    2. matchAll()
-    3. openWindow()
+    1. get(clientId)
+    2. matchAll({ includeUncontrolled = false, type = ['all', 'window', 'shareworker'] })
+    3. openWindow(url)
     4. claim()
+
+- PushManager
+  - Methods
+    1. getSubscription()
+    2. permissionState()
+    3. subscribe({ userVisibleOnly: Boolean, applicationServerKey: [DOMString, ArrayBuffer] })
+
+- Notification
+  - Constructor: new Notification(title, options)
+    - options: { dir = auto | ltr | rtl, lang, body, tag, icon }
+  - Static Attributes
+    1. permission
+  - Static Methods
+    1. requestPermission()
+  - Instance Attributes
+    1. title
+    2. dir
+    3. lang
+    4. body
+    5. tag
+    6. icon
+  - Instance Mehods
+    1. close()
+  - INstance Events
+    1. onclick
+    2. onshow
+    3. onerror
+    4. onclose
+
 
 ### About Cache
 - CacheStorage

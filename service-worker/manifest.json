@@ -1,0 +1,20 @@
+{
+  "short_name": "demo",
+  "name": "service worker demo",
+  "start_url": "./service_worker.html",
+  "icons": [
+    {
+      "src": "./cache/apple-icon-400x400.png",
+      "type": "image/png",
+      "sizes": "400x400"
+    },
+    {
+      "src": "./cache/apple-icon-128x128.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    }
+  ],
+  "display": "standalone",
+  "background_color": "#287fc5",
+  "theme_color": "#999"
+}

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="manifest" href="./manifest.json">
+  <title>Document</title>
+  <style>
+    img {
+      width: 200px;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    <img src="./cache/apple-icon-128x128.png" alt="1">
+    <img id="img" src="./cache/apple-icon-400x400.png" alt="2">
+  </div>
+  <script>
+    window.onload = async ev => {
+      navigator.serviceWorker.addEventListener('message', ev => {
+        console.log('message: ', ev.data);
+      });
+      navigator.serviceWorker.addEventListener('controllerchange', ev => {
+        console.log('controllerchange');
+      });
+
+      window.registration = await createRegistration();
+
+      // 订阅通知
+      registration.pushManager.getSubscription().then(async sub => {
+        if(!sub) {
+          sub = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array('BC21fA4DIGmpLLMHDCcdJDfuytliEghSk_O0Sds5ou7wSlvZq_NYkq7K3pMHOQb2NwVwfJnG-DiTh0sy7hdgtWs')
+          });
+        }
+        console.log(sub);
+        fetch('http://127.0.0.1:4000/subscription', {
+          method: 'post',
+          body: JSON.stringify({ subscription: sub }),
+          // mode: 'cors'
+        })
+      });
+
+      // 消息提醒
+      // Notification.requestPermission().then(res => {
+      //   if(res !== 'granted') {
+      //     console.log('notification is not allowed');
+      //   } else {
+      //     registration.showNotification('这是一条提示！', {
+      //       body: '提示提示提示提示。。。',
+      //       dir: 'ltr',
+      //       tag: 'Notification',
+      //       // silent: true,
+      //       // sticky: true
+      //       icon: './cache/apple-icon-128x128.png',
+      //       renotify: true,
+      //       image: './cache/2.jpg',
+      //       actions: [
+      //         { title: '确定', action: 'confirm' },
+      //         { title: '取消', action: 'cancel' },
+      //         // { title: '3', action: '3' },
+      //         // { title: '4', action: '4' }
+      //       ]
+      //     });
+      //   }
+      // });
+
+
+      registration.addEventListener('updatefound', ev => {
+        console.log('updatefound: ', ev);
+      });
+
+      // 后台同步
+      let tag = '!test,' + Math.random();
+      registration.sync.register(tag).then(() => {
+        // console.log('sync send: ', tag);
+        registration.sync.getTags().then(res => console.log(res));
+      }).catch(err => console.log(err));
+
+      // window.sw = navigator.serviceWorker.controller;
+      window.sw = registration.installing || registration.waiting || registration.active;
+      sw && sw.addEventListener('statechange', ev => {
+        console.log('statechange: ', ev.target.state);
+      });
+     
+      console.log(registration);
+      console.log(sw);
+
+      // setTimeout(() => {
+      //   img.src = './cache/5.jpg';
+      // }, 2000);
+    };
+
+    function createRegistration() {
+      try {
+        return navigator.serviceWorker.register('./serviceWorker.js', {
+          scope: './'
+        }); // 路径决定控制权限，sw.scope
+      } catch {
+        throw new Error();
+      }
+    }
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+    
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+    
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    }
+  </script>
+</body>
+
+</html>
