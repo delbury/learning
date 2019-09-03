@@ -264,5 +264,200 @@
         - 所有的js对象通过堆来进行分配，process.memoryUsage()
     4. V8的垃圾回收机制
         1. 主要的垃圾回收算法
-            - 内存分代：新生代、老生代
+            - 内存分代（64位/32位）：新生代（32MB/16MB）、老生代（1400MB/700MB）
+            - Scavenge算法，具体实现主要采用Cheney算法，内存一分为二（From/To）；多次复制后，新生代晋升（条件：1. 经历过Scavenge回收；2. To空间内存占用比超过限制）到老生代
+            - Mark-Sweep（标记清除） & Mark-Compact（标记整理）
+            - Incremental Marking（增量标记） & Lazy Sweeping（延迟清理）
 
+- 高效使用内存
+    1. 作用域(scope)：函数调用、with、全局作用域
+        1. 标识符查找
+        2. 作用域链
+        3. 变量的主动释放
+    2. 闭包
+
+- 内存指标
+    1. 查看内存的使用情况
+        1. 查看进程的内存占用
+            - process.memoryUsage() （rss: resident set size 常驻内存）
+        2. 查看系统的内存占用
+            - os.totalmen() & os.freemem()
+    2. 堆外内存
+        - 堆内存的用量用量总小于进程常驻内存用量，不是通过V8分配的内存称为堆外内存
+        - Buffer对象不经V8的内存分配机制，不在堆内存中
+
+- 内存泄漏
+    1. 缓存
+        - 慎将内存当做缓存，缓存限制，进程外的缓存
+    2. 队列消费不及时
+        - 生产速度大于消费速度
+    3. 作用域未释放
+
+- 内存泄漏排查
+    1. node-heapdump
+    2. node-memwatch
+
+- 大内存应用
+    - ```js
+        const reader = fs.createReadStream('in.txt');
+        const writer = fs.createWriteStream('out.txt');
+        reader.pipe(writer);
+      ```
+
+---
+## 理解Buffer
+- Buffer结构
+    - javascript与C++结合
+    - 堆外内存
+
+- Buffer对象
+    - Buffer.from()
+    - Buffer.alloc()
+
+- Buffer内存分配
+    - C++ 层面申请内存，JS中分配内存
+    - Node采用slab分配机制
+        1. full，完全分配状态
+        2. partial，部分分配状态
+        3. empty， 没有被分配状态
+
+- Buffer的转换
+    - 类型：ASCII | UTF-8 | UTF-16LE/UCS-2 | Base64 | Binary | Hex
+    - 转字符串：buffer.toString()
+
+- Buffer的拼接
+    1. 字符串形式拼接
+        - buffer1 + buffer2 => buffer1.toString() + buffer2.toString() 宽字符可能产生乱码
+        - readble.setEncoding(encoding)
+        - fs.createReadStream(path, { encoding })
+    2. Buffer拼接
+        - Buffer.concat(chunks, size)
+
+- Buffer与性能
+    - 文件读取
+        - 字符串转换有性能损耗
+        - highWaterMark 过大或过小都会影响性能
+
+---
+## 网络编程
+- TCP (net)
+    - 传输层协议
+    - 套接字 scoket = IP:PORT
+    - net.createServer()
+    - TCP服务事件
+        1. 服务器事件
+            1. listening
+            2. connection
+            3. close
+            4. error
+        2. 连接事件
+            1. data
+            2. end
+            3. connect
+            4. drain
+            5. error
+            6. close
+            7. timeout
+    - Nagle小数据包优化算法，禁止：socket.setNoDelay(Boolean)
+
+- UDP (dgram)
+    - 无连接协议
+    - dgram.createSocket()
+    - UDP套接字事件
+        1. message
+        2. listening
+        3. close
+        4. error
+
+- HTTP (http / http2)
+    - 应用层协议
+    - 服务端
+        - http.createServer()
+        - HTTP服务事件
+            1. connection
+            2. request
+            3. close
+            4. checkContinue
+            5. connect
+            6. upgrade
+            7. clientError
+    - 客户端
+        - http.request()
+        - HTTP客户端事件
+            1. response
+            2. socket
+            3. connect
+            4. upgrade
+            5. continue
+
+- HTTPS (https)
+
+- WebSocket
+    - 优点
+        1. 客户端与服务端只建立一个TCP连接，使用更少的连接
+        2. 服务端可以推送数据到客户端
+        3. 更轻量级的协议头
+    - WebSocket握手
+        - 客户端建立连接时，通过HTTP发起请求报文
+        - 握手完成后，不再进行HTTP交互，开始WebSocket数据帧协议
+
+- 网络服务与安全
+    1. TLS/SSL
+        1. 密钥
+            - TLS/SSL是一个公钥/私钥的结构，是一个非对称的结构，每个服务端都有自己的公私钥
+            - 公钥用来加密要传输的数据，私钥用来解密接收到的数据
+            - 公钥和私钥是配对的，建立安全传输之前，客户端和服务端要互换公钥
+            - Node在底层采用openssl实现TLS/SSL
+        2. 数字证书
+            - 数据传输过程中还需要对得到的公钥进行认证
+            - 数字证书中包含了服务器的名称和主机名、服务器的公钥、签名颁发机构的名称、来自签名颁发机构的签名
+            - 引入第三方 CA （Certificate Authority，数字证书认证中心），CA作用是为站点颁发证书，证书中有CA通过自己的公钥私钥实现的签名
+            - 为了得到签名证书，服务器端需要通过自己的私钥生成CSR（Certificate Signing Request，证书签名请求）文件；CA机构通过该文件颁发属于该服务器端的签名证书
+            - 自签名证书，自己扮演CA机构，给自己的服务器端颁发签名证书
+    2. TLS服务
+        1. TLS服务端
+            - tls.createServer()
+        2. TLS客户端
+    3. HTTPS服务
+        1. 准备证书
+        2. 创建HTTPS服务
+        3. HTTPS客户端
+
+---
+## 构建Web应用
+- 缓存
+    1. 添加Expires（过期日期） 或 Cache-Control（max-age：过期剩余时间） 到 Header
+    2. 配置ETags
+    3. 让Ajax可缓存
+    4. If-Modified-Since/Last-Modified
+    5. If-None-Math/ETag
+
+- Basic认证
+    - 请求头中的 Authorization 字段内容
+
+- 数据上传
+    - 数据格式
+        1. content-type: application/x-www-form-urlencoded
+        2. content-type: application/json; charset=utf-8
+        3. content-type: application/xml
+        4. content-type: multipart/form-data; boundary=xxxxxxxx
+    - 数据上传与安全
+        1. 内存限制
+        2. CSRF
+
+- 路径解析
+    1. 文件路径型
+        1. 静态文件
+        2. 动态文件
+    2. MVC
+        1. 手工映射
+            - 正则匹配
+            - 参数解析
+        2. 自然映射
+        3. RESTful
+
+- 中间件
+    1. 异常处理
+    2. 中间件与性能
+        1. 编写高效的中间件
+        2. 合理利用路由
