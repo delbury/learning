@@ -461,3 +461,196 @@
     2. 中间件与性能
         1. 编写高效的中间件
         2. 合理利用路由
+
+- 页面渲染
+    1. 内容响应
+        - ```text
+            Content-Encoding: gzip
+            Content-Length: 21170
+            Content-Type: text/javascript; charset=utf-8
+
+            Content-Disposition: inline
+            Content-Disposition: attachment; filename="xxxx.xx"
+            Content-Disposition: form-data; name="yyyy"; filename="xxxx.xx"
+          ```
+        1. MIME (Multipurpose Internet Mail Extensions)
+            - 浏览器通过 Content-Type 的 MIME 值来决定采用不同的渲染方式
+            - mime 包
+        2. 附件下载
+            - 通过设置 Content-Disposition
+        3. 响应JSON
+        4. 响应跳转
+            - Status: 302
+            - Location: url
+    2. 视图渲染
+        - 视图由模板和数据共同生成出来
+    3. 模板
+        - 服务端动态网页技术：ASP、PHP、JSP
+        - 动态语言通过特殊的标签（ASP和JSP：`<% %>`，PHP：`<? ?>`）包含起来
+        - 要素
+            1. 模板语言
+            2. 包含模板语言的模板文件
+            3. 拥有动态数据的数据对象
+            4. 模板引擎
+        - 模板引擎步骤
+            1. 语法分解
+            2. 处理表达式
+            3. 生成待执行语句
+            4. 与数据一起执行，生成最终字符串
+- Bagpipe
+    1. 页面布局框架
+    2. 后端持续性的数据输出
+    3. 前端渲染
+
+---
+## 进程
+- 服务模型的变迁
+    - 同步 --> 复制进程 --> 多线程 --> 事件驱动
+
+- 多进程架构
+    - ```js
+        const os = require('os');
+        const child_process = require('child_process');
+        const cpus = os.cpus();
+        child_process.fork('xxx.js');
+      ```
+    1. 创建子进程
+        - ```js
+            // 执行 node worker.js
+            const cp = require('child_process');
+            cp.spawn('node', ['worker.js']);
+            cp.exec('node worker.js', function(err, stdout, stderr) {
+                // code...
+            });
+            cp.execFile('worker.js', function(err, stout, stderr) {
+                // code...
+            });
+            cp.fork('./worker.js');
+          ```
+        1. spawn() 启动一个子进程来执行命令
+        2. exec() 启动一个子进程来执行命令，回调函数获取子进程状况
+        3. execFile() 启动一个子进程来执行可执行文件
+        4. fork() 指定要执行的js文件即可创建子进程
+    2. 进程间通信(IPC: Inter-Process Communication)
+        - 事件：message
+        - 方法：send(message, sendHandle)
+        - 进程间通信原理
+    3. 句柄（标识资源的引用）传递
+        1. 句柄发送与还原
+            - 可发送的句柄类型
+                1. net.Socket TCP套接字
+                2. net.Server TCP服务器
+                3. net.Native C++层面的TCP套接字或IPC管道
+                4. dgram.Socket UDP套接字
+                5. dgram.Native C++层面的UPD套接字
+            - send() 在将消息发送到 IPC 管道之前，将消息组装成两个对象，一个参数是 handle，另一个是 message，如下
+                - ```js
+                    {
+                        cmd: 'NODE_HANDLE',
+                        type: 'net.Server',
+                        msg: message
+                    }
+                  ```
+        2. 端口共同监听
+            - SO_REUSEADDR，不同进程可以就相同的网卡和端口进行监听，这个服务端套接字可以被不同的进程复用
+            - 多个应用监听相同端口时，文件描述符同一时间只能被某个进程所用
+
+- 集群稳定
+    1. 进程事件
+        - 事件
+            1. error
+            2. exit
+            3. close
+            4. disconnect 父进程或子进程中调用 disconnect() 方法时触发，关闭监听IPC通道
+            5. message
+        - 信号事件
+        - 关闭进程
+            - child.kill([signal])，默认为 SIGTERM
+            - process.kill(pid, [signal])，默认为 SIGTERM
+    2. 自动重启
+        1. 自杀信号
+            - 等待所有连接断开前，先向主进程发送一个自杀信号，通知主进程创建新的子进程
+            - 设置超时时间，记录日志
+        2. 限量重启
+    3. 负载均衡
+        - 多个处理单元工作量公平的策略
+        - Node 默认提供的机制采用操作系统的抢占式策略，空闲的进程对到来的请求进行争抢，谁抢到谁服务
+    4. 状态共享
+        1. 第三方数据存储
+        2. 主动通知
+
+- Cluster模块
+    1. 工作原理
+        - child_process和net模块的组合应用
+    2. Cluster事件
+        1. fork
+        2. online
+        3. listening
+        4. disconnect
+        5. exit
+        6. setup
+
+---
+## 测试
+- 单元测试
+    1. 意义
+        - 单一职责
+        - 接口抽象
+        - 层次分离
+    2. 介绍
+        1. 断言 (assert)
+            - 单元测试中保证最小单元是否正常的检测方法
+            - 没有对输出结果做任何断言检查的代码都不是测试代码，没有测试代码的代码都是不可信赖的代码
+            - 断言规范，assert模块
+                1. ok() 判断结果是否为真
+                2. equal() 判断实际值与期望值是否相等
+                3. notEqual() 判断实际值与期望值是否不相等
+                4. deepEqual() 判断实际值与期望值是否深度相等
+                5. notDeepEqual()
+                6. strictEqual() 是否严格相等
+                7. notStrictEqual()
+                8. throws() 判断代码是否抛出异常
+                9. doesNotThrows()
+                10. isError() 是否为假值
+        2. 测试框架
+            - 测试风格
+                1. TDD（测试驱动开发）
+                    - 关注所有功能是否被正确实现，每一个功能都具备对应的测试用例；表达方式偏向于功能说明书风格
+                    - 主要采用 suite 和 test 完成
+                    - 提供 setup、teardown 钩子函数
+                2. BDD（行为驱动开发）
+                    - 关注整体行为是否符合预期，适合自顶向下的设计方式；接近于自然语言的习惯
+                    - 主要采用 describe 和 it 进行组织
+                    - 提供 before、after、beforeEach、afterEach 钩子函数，用于协助 describe 中测试用例的准备、安装、卸载、回收等工作
+            - 测试报告
+        3. 测试用例
+            - 一个测试用例至少包含一个断言
+            - 测试用例最少需要通过正向测试和反向测试来保证测试对功能的覆盖
+            - 异步测试
+            - 超时设置
+        4. 测试覆盖率
+            - jscover
+            - blanket
+        5. mock
+            - before()/after()、beforeEach()/afterEach() 构造异常
+            - 模拟异步方法时，调用 process.nextTick() 使得回调方法能够异步执行即可
+        6. 持续集成
+        7. 异步代码测试
+        8. 私有方法测试
+            - rewire模块，`__set__()`、`__get__()` 利用闭包，eval() 实现对模块内局部变量的访问
+    3. 工程化与自动化
+        1. 工程化
+        2. 持续集成
+
+- 性能测试
+    1. 基准测试
+    2. 压力测试
+        - 指标
+            1. 吞吐率
+            2. 响应时间
+            3. 并发数
+    3. 基准测试驱动开发
+    4. 测试数据与业务数据的转换
+
+---
+## 产品化
