@@ -1,22 +1,24 @@
 # Learning Objects
+<!-- level: practiced > demo > well > basic > concept > none -->
+<!-- state: review -->
 ## Documents
-  - [ ] JSDoc
+  - [x] <small style="color:red;">basic</small> JSDoc
 
 ---
 ## Web
   - [ ] WebWorkers
-    - [x] Worker
-    - [x] ServiceWorker
-    - [ ] SharedWorker
-  - [x] Canvas
-  - [ ] SVG
+    - [x] <small style="color:red;">demo</small> Worker
+    - [x] <small style="color:red;">demo</small> ServiceWorker
+    - [ ] <small style="color:red;">concept</small> SharedWorker
+  - [x] <small style="color:red;">demo</small> Canvas
+  - [x] <small style="color:red;">demo</small> SVG
 
 ---
 ## Node.js
 ### Modules
 ### Tools
-  - [ ] Redis
-  - [ ] Memcached
+  - [ ] <small style="color:red;"></small> Redis
+  - [ ] <small style="color:red;"></small> Memcached
 
 ---
 ## Code
@@ -25,7 +27,8 @@
 
 ---
 ## Languages
-  - [ ] C/C++
-  - [ ] Java
-  - [ ] bash/shell
-  - [ ] yml
+  - [ ] <small style="color:red;">review</small> C/C++
+  - [ ] <small style="color:red;"></small> Java
+  - [x] <small style="color:red;">basic</small> bash/shell
+  - [ ] <small style="color:red;"></small> yml
+  - [ ] <small style="color:red;"></small> Python
