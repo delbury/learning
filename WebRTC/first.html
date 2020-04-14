@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>First WebRTC Demo</title>
+  <style>
+    .container {
+      display: flex;
+      justify-content: center;
+    }
+
+    .stream {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hide {
+      display: none;
+    }
+
+    .btn-box {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    video,
+    .photo {
+      margin: 0 10px;
+      width: 320px;
+      height: 240px;
+    }
+
+    video,
+    .photo,
+    canvas {
+      border: 1px solid skyblue;
+    }
+
+    .ctrl-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ctrl-list label {
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="ctrl-list">
+      <label>blur(px): <input type="range" min="0" max="50" step="1" data-default="0" data-name="blur"
+          data-unit="px"></label>
+      <label>brightness(%): <input type="range" min="0" max="100" step="1" data-default="100" data-name="brightness"
+          data-unit="%"></label>
+      <label>contrast(%): <input type="range" min="0" max="100" step="1" data-default="100" data-name="contrast"
+          data-unit="%"></label>
+      <!-- <label>drop-shadow(%): <input type="range"></label> -->
+      <label>grayscale(%): <input type="range" min="0" max="100" step="1" data-default="0" data-name="grayscale"
+          data-unit="%"></label>
+      <label>hue-rotate(deg): <input type="range" min="0" max="360" step="1" data-default="0" data-name="hue-rotate"
+          data-unit="deg"></label>
+      <label>invert(%): <input type="range" min="0" max="100" step="1" data-default="0" data-name="invert"
+          data-unit="%"></label>
+      <label>opacity(%): <input type="range" min="0" max="100" step="1" data-default="100" data-name="opacity"
+          data-unit="%"></label>
+      <label>saturate(%): <input type="range" min="0" max="100" step="1" data-default="100" data-name="saturate"
+          data-unit="%"></label>
+      <label>sepia(%): <input type="range" min="0" max="100" step="1" data-default="0" data-name="sepia"
+          data-unit="%"></label>
+      <button id="reset">reset</button>
+    </div>
+    <div class="stream">
+      <div class="video-box">
+        <video id="video"></video>
+        <canvas id="video-canvas" width="320" height="240"></canvas>
+      </div>
+      <div class="btn-box">
+        <button id="btn-video">视频</button>
+        <button id="btn-shot">截屏</button>
+      </div>
+    </div>
+    <div class="photo">
+      <img id="photo">
+    </div>
+  </div>
+  <script>
+    window.onload = () => {
+      const filters = {};
+      const ranges = document.querySelectorAll('.ctrl-list input[type="range"]');
+      const resetFn = ctx => {
+        ranges.forEach(ele => {
+          filters[ele.dataset.name] = ele.dataset.default+'' + ele.dataset.unit;
+          ele.value = ele.dataset.default;
+        });
+        setFilters(ctx, filters);
+      };
+
+
+      const video = document.getElementById('video');
+      const photo = document.getElementById('photo');
+      let streaming = false;
+      let mediaStream = null;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 320;
+      canvas.height = 240;
+      // const canvas = new OffscreenCanvas(320, 240);
+      const ctx = canvas.getContext('2d');
+
+      const vcanvas = document.getElementById('video-canvas');
+      const vctx = vcanvas.getContext('2d');
+
+      resetFn(vctx);
+      document.getElementById('reset').onclick = () => {
+        resetFn(vctx);
+      };
+      document.querySelector('.ctrl-list').onchange = ev => {
+        const ele = ev.target;
+        filters[ele.dataset.name] = ele.value + ele.dataset.unit;
+        setFilters(vctx, filters);
+      };
+      // 视频
+      document.getElementById('btn-video').onclick = ev => {
+        if (!streaming) {
+          navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false
+          }).then(media => {
+            mediaStream = media;
+            video.srcObject = media;
+            video.play();
+
+            streaming = true;
+          }).catch(err => {});
+        } else {
+          mediaStream.getTracks().forEach(track => {
+            track.stop();
+            mediaStream.removeTrack(track);
+          });
+          streaming = false;
+        }
+      };
+      video.addEventListener('canplay', ev => {
+        // vctx.filter = 'sepia(50)';
+
+        tick();
+      });
+
+      // 截屏
+      document.getElementById('btn-shot').onclick = ev => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        photo.src = canvas.toDataURL('image/png');
+      };
+
+      function tick() {
+        vctx.clearRect(0, 0, canvas.width, canvas.height);
+        vctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        requestAnimationFrame(tick);
+      }
+
+      function setFilters(ctx, filters) {
+        const arr = [];
+        for (let [k, v] of Object.entries(filters)) {
+          arr.push(`${k}(${v})`);
+        }
+        ctx.filter = arr.join(' ');
+        // console.log(ctx.filter);
+      }
+    }
+  </script>
+</body>
+
+</html>
