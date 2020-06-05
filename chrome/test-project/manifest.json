@@ -1,0 +1,32 @@
+{
+  "manifest_version": 2,
+  "version": "0.0.1",
+  "name": "Test Demo",
+  "description": "the first chrome extension demo",
+  "icons": {
+    "16": "assets/icons/icon_16.png",
+    "48": "assets/icons/icon_48.png",
+    "128": "assets/icons/icon_128.png"
+  },
+  "browser_action": {
+    "default_title": "The Demo",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "19": "assets/icons/icon_19.png",
+      "38": "assets/icons/icon_38.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://127.0.0.1:82/*",
+        "http://localhost:82/*"
+      ],
+      "js": [
+        "js/content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
+}
