@@ -20,7 +20,9 @@
     {
       "matches": [
         "http://127.0.0.1:82/*",
-        "http://localhost:82/*"
+        "http://localhost:82/*",
+        "http://127.0.0.1:80/*",
+        "http://localhost:80/*"
       ],
       "js": [
         "js/content.js"
