@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description" content="环境光事件，感知光强的变化">
+  <meta name="author" content="delbury">
+  <meta name="keywords" content="前端，Web API，光强，环境光">
+  <title>Light Events</title>
+</head>
+
+<body>
+  <div>
+    <span>当前光强：</span>
+    <span id="info">null</span>
+  </div>
+  <script>
+    const info = document.getElementById('info');
+    window.ondevicelight = ev => {
+      const value = ev.value;
+      info.innerHTML = value;
+    };
+  </script>
+</body>
+
+</html>

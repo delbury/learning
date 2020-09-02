@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description"
+    content="CSS Object Model 是一组允许用JavaScript操纵CSS的API。 它是继DOM和HTML API之后，又一个操纵CSS的接口，从而能够动态地读取和修改CSS样式。">
+  <meta name="author" content="delbury">
+  <meta name="keywords" content="前端，Web API，CSS，CSSOM">
+  <title>CSS Object Model</title>
+
+  <style>
+    .info {
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      /* grid-auto-flow: column; */
+      /* justify-content: center; */
+      /* grid-template-columns: repeat(auto-fill, 20em); */
+      grid-auto-rows: 1.6em;
+
+      counter-reset: count 0;
+    }
+
+    ul>li {
+      counter-increment: count 1;
+      display: flex;
+    }
+
+    ul>li>span:nth-of-type(2) {
+      margin-left: 1em;
+    }
+
+    ul>li::before {
+      content: counter(count)'.';
+      display: inline-block;
+      text-align: right;
+      width: 2em;
+      margin-right: 0.5em;
+    }
+
+    ul>li>span:nth-of-type(1) {
+      font-weight: bold;
+    }
+
+    ul>li>span:nth-of-type(1)::after {
+      content: ':';
+    }
+  </style>
+</head>
+
+<body>
+  <div class="info">
+    <section>
+      <h3>API</h3>
+      <ul>
+        <li>
+          <span>AnimationEvent</span>
+          <span>接口表示提供与动画相关的信息的事件</span>
+        </li>
+        <li>
+          <span>CaretPosition</span>
+          <span>表示插入符号位置，即文本插入点的指示符</span>
+        </li>
+        <li>
+          <span>CSS</span>
+          <span>CSS接口涵盖CSS相关的实用方法。尚且不存在实现这个接口的对象：它仅仅包含静态的方法，因此也是一个使用接口</span>
+        </li>
+        <li>
+          <span>CSSCharsetRule</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>CSSConditionRule</span>
+          <span>对象表示单个条件 CSS 规则, 由条件和语句块组成。继承至 CSSGroupingRule</span>
+        </li>
+        <li>
+          <span>CSSCounterStyleRule</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>CSSFontFaceRule</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>CSSFontFeatureValuesMap</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>CSSFontFeatureValuesRule</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>CSSGroupingRule</span>
+          <span>任何实现了 CSSGroupingRule 接口的对象表示任何可以包含或嵌套其他规则的的 CSS @ 规则</span>
+        </li>
+        <li>
+          <span>CSSImportRule</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>CSSKeyframeRule</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>CSSKeyframesRule</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>CSSMarginRule</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>CSSMediaRule</span>
+          <span>是一个表示单个CSS @media 规则的接口。它实现了 CSSConditionRule 接口，因此也是 CSSGroupingRule</span>
+        </li>
+        <li>
+          <span>CSSNamespaceRule</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>CSSPageRule</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>CSSRule</span>
+          <span>接口表示一条 CSS 规则。有几种不同的规则类型</span>
+        </li>
+        <li>
+          <span>CSSRuleList</span>
+          <span>CSS 规则列表 CSSRuleList 是一个（只允许间接更改的）类数组对象，包含着一个 CSSRule 对象的有序集合</span>
+        </li>
+        <li>
+          <span>CSSStylesheet</span>
+          <span>接口代表一个 CSS 样式表，并允许检查和编辑样式表中的规则列表。它从父类型 StyleSheet 继承属性和方法</span>
+        </li>
+        <li>
+          <span>CSSStyleDeclaration</span>
+          <span>接口表示一个对象，它是一个 CSS 声明块，CSS 属性键值对的集合。它暴露了样式信息和各种与样式相关的方法和属性</span>
+        </li>
+        <li>
+          <span>CSSSupportsRule</span>
+          <span>接口描述了代表一个 CSS 对象@supports at-rule. 它实现了 CSSConditionRule 接口</span>
+        </li>
+        <li>
+          <span>CSSVariablesMap</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>CSSViewportRule</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>ElementCSSInlineStyle</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>GeometryUtils</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>GetStyleUtils</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>LinkStyle</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>MediaList</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>MediaQueryList</span>
+          <span>一个MediaQueryList对象在一个document上维持着一系列的媒体查询，并负责处理当媒体查询在其document上发生变化时向监听器进行通知的发送</span>
+        </li>
+        <li>
+          <span>PseudoElement</span>
+          <span>-</span>
+        </li>
+        <li>
+          <span>Screen</span>
+          <span>Screen 接口表示一个屏幕窗口，往往指的是当前正在被渲染的window对象，可以使用 window.screen 获取它</span>
+        </li>
+        <li>
+          <span>Stylesheet</span>
+          <span>表示一个实现StyleSheet接口的对象样式表。 CSS样式表将进一步实现更专业的 CSSStyleSheet 接口</span>
+        </li>
+        <li>
+          <span>StylesheetList</span>
+          <span>StyleSheetLists 接口表示一个StyleSheet的列表</span>
+        </li>
+        <li>
+          <span>TransitionEvent</span>
+          <span>接口指那些提供了与 transition 有关信息的事件</span>
+        </li>
+      </ul>
+    </section>
+    <section>
+      <h3>扩展接口</h3>
+      <ul>
+        <li>Document</li>
+        <li>Window</li>
+        <li>Element</li>
+        <li>HTMLElement</li>
+        <li>HTMLImageElement</li>
+        <li>Range</li>
+        <li>MouseEvent</li>
+        <li>SVGElement</li>
+      </ul>
+    </section>
+  </div>
+  <script>
+    /**
+     * FontFace 表示单个可用的字体
+     * FontFaceSet: document.fonts 字体API的一个接口，支持检测它们（字体文件）的下载状态
+     * FontFaceSource 提供混合了所有的字体相关操作
+     * FontFaceSetLoadEvent 加载时触发的事件
+     */
+  </script>
+</body>
+
+</html>

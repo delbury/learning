@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description" content="canvas api">
+  <meta name="author" content="delbury">
+  <meta name="keywords" content="前端，Web API，canvas">
+  <title>Canvas API</title>
+
+  <style>
+    .container {
+      display: flex;
+      flex-direction: column;
+      width: fit-content;
+      margin: auto;
+    }
+
+    canvas {
+      border: 1px solid skyblue;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <canvas id="canvas2d"></canvas>
+    <canvas id="canvaswebgl"></canvas>
+    <canvas id="canvaswebgl2"></canvas>
+    <canvas id="canvasrenderer"></canvas>
+  </div>
+  <script>
+    /**
+     * Canvas 相关接口
+     * HTMLCanvasElement
+     * CanvasRenderingContext2D
+     * CanvasGradient
+     * CanvasPattern
+     * ImageBitmap
+     * ImageData
+     * TextMetrics
+     * Path2D
+     */
+
+    const ctx2d = canvas2d.getContext('2d');
+    console.log(ctx2d);
+
+    const ctxwebgl = canvaswebgl.getContext('webgl');
+    console.log(ctxwebgl);
+
+    const ctxwebgl2 = canvaswebgl2.getContext('webgl2');
+    console.log(ctxwebgl2);
+
+    const ctxrender = canvasrenderer.getContext('bitmaprenderer');
+    console.log(ctxrender);
+  </script>
+</body>
+
+</html>

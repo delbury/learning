@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description" content="提供系统充电级别的信息，电池相关状态信息">
+  <meta name="author" content="delbury">
+  <meta name="keywords" content="前端，Web API，电池">
+  <title>Battery Status API</title>
+</head>
+
+<body>
+  <script>
+    /**
+     * BatterManager
+     * navigator.getBatter()
+     */
+
+    navigator.getBattery().then(battery => {
+      console.log(battery);
+      consoleStatus(battery);
+
+      // 电池充电状态更新时调用
+      battery.onchargingchange = ev => {
+        console.log('chargingchange', ev);
+      };
+
+      // 电池充电时间更新时调用
+      battery.onchargingtimechange = ev => {
+        console.log('chargingtimechange', ev);
+      };
+
+      // 电池断开充电时间更新时调用
+      battery.ondischargingtimechange = ev => {
+        console.log('dischargingtimechange', ev);
+      };
+
+      // 电池电量更新时调用
+      battery.onlevelchange = ev => {
+        console.log('levelchange', ev);
+      };
+    });
+
+    function consoleStatus(battery) {
+      const {
+        charging,
+        chargingTime,
+        dischargingTime,
+        level
+      } = battery;
+      console.log('是否正在充电：', charging);
+      console.log('距离充电完毕：', chargingTime);
+      console.log('距离电池耗电至空且挂起：', dischargingTime);
+      console.log('电量百分比', level);
+    }
+  </script>
+</body>
+
+</html>

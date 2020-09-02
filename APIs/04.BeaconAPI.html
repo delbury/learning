@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description"
+    content="Beacon接口用于将异步和非阻塞请求发送到服务器。信标（Beacon ）请求使用HTTP协议中的POST方法，请求通常不需要响应。这个请求被保证在页面的unload状态从发起到完成之前被发送。而并不需要一个阻塞请求，例 XMLHttpRequest">
+  <meta name="author" content="delbury">
+  <meta name="keywords" content="前端，Web API，信标">
+  <title>Beacon API</title>
+</head>
+
+<body>
+  <script>
+    /**
+     * navigator.sendBeacon(url, data)
+     */
+
+    window.onbeforeunload = ev => {
+      console.log(ev);
+      // syncFetch('http://127.0.0.1:82/test/APIs/04.BeaconAPI.html');
+      navigator.sendBeacon('http://127.0.0.1:82/test/APIs/04.BeaconAPI.html', 'this is onbeforeunload')
+    };
+    window.onunload = ev => {
+      console.log(ev);
+      // syncFetch('http://127.0.0.1:82/test/APIs/04.BeaconAPI.html');
+      navigator.sendBeacon('http://127.0.0.1:82/test/APIs/04.BeaconAPI.html', 'this is onunload')
+    };
+
+    function syncFetch(url) {
+      const xml = new XMLHttpRequest();
+      xml.open('get', url, false);
+      xml.onload = ev => {
+        console.log(ev);
+      };
+
+      xml.send();
+    }
+  </script>
+</body>
+
+</html>

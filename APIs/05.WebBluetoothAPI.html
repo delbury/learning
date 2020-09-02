@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description" content="设备蓝牙相关API">
+  <meta name="author" content="delbury">
+  <meta name="keywords" content="前端，Web API，蓝牙">
+  <title>Web Bluetooth API</title>
+</head>
+
+<body>
+  <button id="btn">请求蓝牙</button>
+  <script>
+    /**
+     * navigator.bluetooth
+     * Bluetooth.requestDevice(options).then(bluetoothDevice => {})
+     * options: { filters[], optionalServices[], acceptAllDevices: [] }
+     * 需要打开设备的蓝牙，必须用户操作后才可请求蓝牙权限
+     */
+
+    document.getElementById('btn').onclick = ev => {
+      navigator.bluetooth.requestDevice({
+        // filters: [{
+        //   namePrefix: 'DESKTOP'
+        // }],
+        // optionalServices: [],
+        acceptAllDevices: true
+      }).then(bluetoothDevice => {
+        console.log(bluetoothDevice);
+      });
+    };
+  </script>
+</body>
+
+</html>

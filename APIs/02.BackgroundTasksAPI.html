@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description"
+    content="幕后任务协作调度API，(也叫幕后任务 API 或者简单称为 requestIdleCallback() API) 提供了由用户代理决定，在空闲时间自动执行队列任务的能力">
+  <meta name="author" content="delbury">
+  <meta name="keywords" content="前端，Web API，任务，幕后">
+  <title>Background Tasks API</title>
+</head>
+
+<body>
+  <script>
+    /**
+     * window.requestIdleCallback()
+     * window.cancelIdleCallback()
+     */
+    const tasks = Array.from({
+      length: 3
+    }, (v, k) => () => console.log(k));
+
+    let handle = window.requestIdleCallback((idleDeadLine) => {
+      console.log(idleDeadLine);
+      console.log(idleDeadLine.didTimeout, idleDeadLine.timeRemaining());
+
+      let i = 99;
+      while (i--) {
+        Math.sqrt(i)
+      }
+    }, {
+      timeout: 0
+    });
+
+    let i = 9;
+    while (i--) {
+      const temp = Math.sqrt(i);
+    }
+
+    work();
+
+    function work() {
+      let task = tasks.shift();
+      task && window.requestIdleCallback(idl => {
+        task();
+        console.log(idl.didTimeout, idl.timeRemaining());
+        return work();
+      });
+    }
+  </script>
+</body>
+
+</html>

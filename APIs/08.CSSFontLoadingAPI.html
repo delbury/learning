@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description" content="动态加载字体资源时的事件和接口">
+  <meta name="author" content="delbury">
+  <meta name="keywords" content="前端，Web API，字体，动态">
+  <title>CSS Font Loading API</title>
+
+  <style>
+    p {
+      font-size: 24px;
+      font-family: Arial;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="info">
+    <p>Hello World</p>
+    <p id="change">Hello World</p>
+    <div>
+      <button id="load">load</button>
+    </div>
+  </div>
+  <script>
+    /**
+     * FontFace 表示单个可用的字体
+     * FontFaceSet: document.fonts 字体API的一个接口，支持检测它们（字体文件）的下载状态
+     * FontFaceSource 提供混合了所有的字体相关操作
+     * FontFaceSetLoadEvent 加载时触发的事件
+     */
+
+    document.fonts.onloading = ev => {
+      console.log('loading', ev);
+    };
+    document.fonts.onloadingdone = ev => {
+      console.log('loadingerror', ev);
+    };
+    document.fonts.onloadingerror = ev => {
+      console.log('loadingerror', ev);
+    };
+
+    const fontFace = new FontFace('custom', 'url(./resource/consola.ttf)', {
+      // family: '',
+      // weight: '',
+      // stretch: '',
+      // unicodeRange: '',
+      // variant: '',
+      // featureSetting: '',
+    });
+
+    console.log(document.fonts);
+    fontFace.load().then(res => {
+      console.log(res);
+      document.fonts.add(res);
+
+      setTimeout(() => {
+        change.style.cssText = 'font-family: custom;';
+      }, 1000);
+    });
+
+    load.onclick = ev => {
+      document.fonts.load('16px custom', 'Hujiqing').then(res => console.log(res));
+    };
+  </script>
+</body>
+
+</html>

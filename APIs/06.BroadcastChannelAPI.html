@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description" content="Broadcast Channel API 可以实现同 源 下浏览器不同窗口，Tab页，frame或者 iframe 下的 浏览器上下文">
+  <meta name="author" content="delbury">
+  <meta name="keywords" content="前端，Web API，广播">
+  <title>Broadcast Channel API</title>
+</head>
+
+<body>
+  <div>
+    <button id="btn">发送</button>
+    <button id="close">断开</button>
+  </div>
+  <script>
+    /**
+     * BroadcastChannel
+     */
+
+    let bc = new BroadcastChannel('test_channel');
+
+    bc.onmessage = ev => {
+      console.log(ev);
+    };
+
+    document.getElementById('btn').onclick = ev => {
+      if (!bc) {
+        bc = new BroadcastChannel('test_channel');
+        bc.onmessage = ev => {
+          console.log(ev);
+        };
+      }
+      bc.postMessage('Hello World');
+    };
+    document.getElementById('close').onclick = ev => {
+      bc.close();
+      bc = null;
+    };
+  </script>
+</body>
+
+</html>
