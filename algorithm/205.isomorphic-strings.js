@@ -47,22 +47,21 @@ var isIsomorphic = function (s, t) {
   const tempt = {};
 
   for (let i = 0; i < s.length; i++) {
-    if (!temps[s[i]]) {
-      temps[s[i]] = i;
+    if (temps[s[i]] !== tempt[t[i]]) {
+      return false
+    } else {
+      if(temps[s[i]] === undefined) {
+        temps[s[i]] = i + 1;
+        tempt[t[i]] = i + 1;
+      }
     }
-
-    if (!tempt[t[i]]) {
-      tempt[t[i]] = i;
-    }
-
-    if (temps[s[i]] !== tempt[t[i]]) return false;
   }
 
   return true;
-}
+} 
 
 
 console.log(isIsomorphic('ab', 'aa'));
-// console.log(isIsomorphic('aba', 'baa'));
+console.log(isIsomorphic('aba', 'baa'));
 // console.log(isIsomorphic('egg', 'add'));
 // console.log(isIsomorphic('paper', 'title'));
