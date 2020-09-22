@@ -146,3 +146,11 @@
     - **510** *Not Extended* 获取资源所需要的策略并没有被满足
   - 6xx 同 5xx
     - **600** *Unparseable Response Headers* 源站没有返回响应头部，只返回实体内容
+
+5. ### HTTPS 加密过程
+  - HTTP： 直接通过明文在浏览器和服务器之间传递信息
+  - HTTPS： 采用 对称加密 和 非对称加密 结合的方式来保护浏览器和服务端之间的通信安全。对称加密算法加密数据+非对称加密算法交换密钥+数字证书验证身份=安全
+    >- 对称加密: 加密和解密的秘钥使用的是同一个
+    >- 非对称加密: 与对称加密算法不同，非对称加密算法需要两个密钥：公开密钥（publickey）和私有密钥（privatekey）
+  - HTTPS = HTTP + TLS/SSL
+  ![HTTPS加密过程](./reference/https-hand-shake.png)
