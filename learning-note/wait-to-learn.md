@@ -12,6 +12,7 @@
     - [ ] <small style="color:red;">concept</small> SharedWorker
   - [x] <small style="color:red;">demo</small> Canvas
   - [x] <small style="color:red;">demo</small> SVG
+  - [x] <small style="color:red;">demo</small> Web Components
 
 ---
 ## Node.js

@@ -154,3 +154,51 @@
     >- 非对称加密: 与对称加密算法不同，非对称加密算法需要两个密钥：公开密钥（publickey）和私有密钥（privatekey）
   - HTTPS = HTTP + TLS/SSL
   ![HTTPS加密过程](./reference/https-hand-shake.png)
+
+6. ### 防抖和节流
+  - 防抖
+  ```js
+    function debounce(fn, wait) {
+      let timer = null;
+      
+      return () => {
+        if(timer) {
+          clearTimetout(timer);
+        }
+        timer = setTimeout(() => {
+          fn();
+          timer = null
+        }, wait);
+      };
+    }
+  ```
+  - 节流
+  ```js
+    // 首部执行
+    function throttleTail(fn, wait) {
+      let timer = null;
+
+      return () => {
+        if(!timer) {
+          fn();
+          timer = setTimeout(() => {
+            timer = null;
+          }, wait)
+        }
+      };
+    }
+
+    // 尾部执行
+    function throttleTail(fn, wait) {
+      let timer = null;
+
+      return () => {
+        if(!timer) {
+          timer = setTimeout(() => {
+            fn();
+            timer = null;
+          }, wait)
+        }
+      };
+    }
+  ```

@@ -1,4 +1,12 @@
 # ECMAScript
+## ES2020
+  1. Class 私有变量 #name
+  2. Promise.allSettled 所有Promise完成时完成
+  3. 合并空运算符 ??
+  4. 可选连接操作符 ?.
+  5. BigInt
+  6. import() 动态引入
+---
 ## ES2019
   1. Catch Binding
   2. JSON 超集

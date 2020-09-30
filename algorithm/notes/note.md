@@ -11,4 +11,4 @@
     - LFU (Least Frequently Used)（最少使用）
     - LRU (Least Recently Used) （最近最少使用）：如果数据最近被访问过，那么将来被访问的几率也更高 ，优先淘汰最近没有被访问到的数据
 
-![前端算法思维导图](./javascript-algorithms.png)
+![前端算法思维导图](./reference/javascript-algorithms.png)
