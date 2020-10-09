@@ -202,3 +202,50 @@
       };
     }
   ```
+
+7. ### 响应式原理
+  - 概念
+    - 意思就是在改变数据的时候，视图会跟着更新
+  - 模式
+    - 观察者模式（Observer），又叫发布-订阅模式（Publish/Subscribe）
+  - React
+    - React是通过this.setState去改变数据，然后根据新的数据重新渲染出虚拟DOM，最后通过对比虚拟DOM找到需要更新的节点进行更新
+  - Vue
+    - 2.x 利用了 Object.defineProperty 的方法里面的 setter 与 getter 方法的观察者模式来实现
+    - 3.x 使用了 Proxy 实现
+
+8. ### JavaScript 数组
+  - JSArray 继承自 JSObject，所以在 JavaScript 中，数组可以是一个特殊的对象，内部也是以 key-value 形式存储数据，所以 JavaScript 中的数组可以存放不同类型的值
+  - JSArray 有两种存储方式：
+    > fast：存储结构是 FixedArray ，并且数组长度 <= elements.length() ，push 或 pop 时可能会伴随着动态扩容或减容
+    > slow：存储结构是 HashTable（哈希表），并且数组下标作为 key
+  - 数组类型
+    - 快数组（FastElements）
+      > FixedArray 是 V8 实现的一个类似于数组的类，它表示一段连续的内存，可以使用索引直接定位。新创建的空数组默认就是快数组。当数组满（数组的长度达到数组在内存中申请的内存容量最大值）的时候，继续 push 时， JSArray 会进行动态的扩容，以存储更多的元素
+    - 慢数组（SlowElements）
+      > 慢数组以哈希表的形式存储在内存空间里，它不需要开辟连续的存储空间，但需要额外维护一个哈希表，与快数组相比，性能相对较差
+  - 数组类型转换
+    - fast 转换为 slow
+      > 当加入的索引值 index 比当前容量 capacity 差值大于等于 1024 时（index - capacity >= 1024）
+      > 快数组新容量是扩容后的容量 3 倍之多时
+    - slow 转换为 fast
+      > 当慢数组的元素可存放在快数组中且长度在 smi 之间且仅节省了50%的空间，则会转变为快数组
+  - 数组的动态扩容（FastElements）
+    - 在 JavaScript 中，当数组执行 push 操作时，一旦发现数组内存不足，将进行扩容，公式：`new_capacity = old_capacity /2 + old_capacity + 16`
+    - 步骤：
+      1. push 操作时，发现数组内存不足
+      2. 申请 new_capacity = old_capacity /2 + old_capacity + 16 长度的内存空间
+      3. 将数组拷贝到新内存中
+      4. 把新元素放在当前 length 位置
+      5. 数组的 length + 1
+      6. 返回 length
+  - 数组的动态减容（FastElements）
+    - 当数组 pop 后，如果数组容量大于等于 length 的 2 倍，则进行容量调整，使用 RightTrimFixedArray 函数，计算出需要释放的空间大小，做好标记，等待 GC 回收；如果数组容量小于 length 的 2 倍，则用 holes 对象填充
+    - 步骤：
+      1. pop 操作时，获取数组 length
+      2. 获取 length - 1 上的元素（要删除的元素）
+      3. 数组 length - 1
+      4. 判断数组的总容量是否大于等于 length - 1 的 2 倍
+      5. 是的话，使用 RightTrimFixedArray 函数，计算出需要释放的空间大小，并做好标记，等待 GC 回收
+      6. 不是的话，用 holes 对象填充
+      7. 返回要删除的元素
