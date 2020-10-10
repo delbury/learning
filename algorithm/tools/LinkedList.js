@@ -41,6 +41,8 @@ class LinkedList {
       p.next = new ListNode(value);
     }
     this.increase();
+
+    return this;
   }
 
   insert(position, value) {
@@ -107,17 +109,17 @@ class LinkedList {
   }
 }
 
-const list = new LinkedList();
-list.append(1);
-list.append(2);
-list.append(3);
-list.append(2);
-list.append(4);
-list.append(5);
-list.remove(2);
-list.remove(1);
-list.insert(3, 1);
-console.log(JSON.stringify(list.getList()));
+// const list = new LinkedList();
+// list.append(1);
+// list.append(2);
+// list.append(3);
+// list.append(2);
+// list.append(4);
+// list.append(5);
+// list.remove(2);
+// list.remove(1);
+// list.insert(3, 1);
+// console.log(JSON.stringify(list.getList()));
 // console.log(JSON.stringify(list.search(4)));
 // console.log(JSON.stringify(list.has(2)));
-console.log(list.size);
+// console.log(list.size);
