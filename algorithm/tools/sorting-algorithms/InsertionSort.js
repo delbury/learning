@@ -17,11 +17,17 @@
 const insertionSort = function(arr) {
   for(let i = 1; i < arr.length; i++) {
     for(let j = i - 1; j >= 0; j--) {
+      /** 另一种判断方式
       if(arr[i] > arr[j]) {
         arr.splice(j + 1, 0, ...arr.splice(i, 1));
         break;
       } else if(j === 0) {
         arr.unshift(...arr.splice(i, 1));
+      }
+      */
+
+      if(arr[j + 1] < arr[j]) {
+        [arr[j + 1], arr[j]] = [arr[j], arr[j + 1]];
       }
     }
   }
