@@ -15,8 +15,12 @@ const shuffle = (n) => {
   return arr;
 }
 
-console.log(shuffle(9).toString());
-console.log(shuffle(9).toString());
-console.log(shuffle(9).toString());
-console.log(shuffle(9).toString());
-console.log(shuffle(9).toString());
+module.exports = {
+  shuffle
+};
+
+// console.log(shuffle(9).toString());
+// console.log(shuffle(9).toString());
+// console.log(shuffle(9).toString());
+// console.log(shuffle(9).toString());
+// console.log(shuffle(9).toString());
