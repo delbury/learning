@@ -80,8 +80,9 @@ generateSequence = function (length, type = 1) {
   }
 };
 
+// 希尔排序
 const shellSort = function (arr, seq = generateSequence(arr.length, 1)) {
-  let count = 0;
+  // let count = 0;
   for (let k = seq.length - 1; k >= 0; k--) {
     const div = seq[k];
 
@@ -90,12 +91,12 @@ const shellSort = function (arr, seq = generateSequence(arr.length, 1)) {
       for (let j = i - 1; j >= 0; j--) {
         if (arr[j + div] < arr[j]) {
           [arr[j + div], arr[j]] = [arr[j], arr[j + div]];
-          count++;
+          // count++;
         }
       }
     }
   }
-  console.log(count, JSON.stringify(seq));
+  // console.log(count, JSON.stringify(seq));
   return arr;
 };
 
