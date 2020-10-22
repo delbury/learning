@@ -1,3 +1,7 @@
+/**
+ * 二叉树
+ */
+
 // 二叉树节点
 class BinaryTreeNode {
   constructor(data = null, lchild = null, rchild = null) {

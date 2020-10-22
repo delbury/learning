@@ -1,3 +1,7 @@
+/**
+ * 双向链表
+ */
+
 class ListNode {
   constructor(value) {
     this.value = value;
