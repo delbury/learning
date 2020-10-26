@@ -37,7 +37,7 @@ class MaxHeap {
     const left = 2 * i + 1 >= length ? -Infinity : arr[2 * i + 1]; // 左子节点
     const right = 2 * i + 2 >= length ? -Infinity : arr[2 * i + 2]; // 右子节点
 
-    if (left > arr[i] && left > right) {
+    if (left > arr[i] && left >= right) {
       // 若左子节点最大
       [arr[i], arr[2 * i + 1]] = [arr[2 * i + 1], arr[i]];
       this.adjustHeapBottomToTop(arr, length, 2 * i + 1);

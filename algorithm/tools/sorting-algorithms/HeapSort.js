@@ -18,8 +18,8 @@
  */
 
 // 建堆，大顶堆
-const buildMaxHeap = function(arr) {
-  for(let i = Math.floor(arr.length / 2) - 1; i >= 0; i--) {
+const buildMaxHeap = function (arr) {
+  for (let i = Math.floor(arr.length / 2) - 1; i >= 0; i--) {
     adjustMaxHeap(arr, arr.length, i);
   }
 
@@ -27,18 +27,18 @@ const buildMaxHeap = function(arr) {
 };
 
 // 堆调整，大顶堆
-const adjustMaxHeap = function(arr, length, i) {
-  if(i >= length) return;
+const adjustMaxHeap = function (arr, length, i) {
+  if (i >= length) return;
 
   const left = i * 2 + 1 >= length ? -Infinity : arr[i * 2 + 1];
   const right = i * 2 + 2 >= length ? -Infinity : arr[i * 2 + 2];
 
-  if(arr[i] < left && left > right) {
+  if (arr[i] < left && left >= right) {
     // 左子节点最大
     [arr[i], arr[i * 2 + 1]] = [arr[i * 2 + 1], arr[i]];
     adjustMaxHeap(arr, length, i * 2 + 1);
-    
-  } else if(arr[i] < right && right > left) {
+
+  } else if (arr[i] < right && right > left) {
     // 右子节点最大
     [arr[i], arr[i * 2 + 2]] = [arr[i * 2 + 2], arr[i]];
     adjustMaxHeap(arr, length, i * 2 + 2);
@@ -46,10 +46,10 @@ const adjustMaxHeap = function(arr, length, i) {
 };
 
 // 升序
-const heapSort = function(arr) {
+const heapSort = function (arr) {
   buildMaxHeap(arr);
 
-  for(let i = arr.length; i > 0; i--) {
+  for (let i = arr.length; i > 0; i--) {
     [arr[0], arr[i - 1]] = [arr[i - 1], arr[0]];
 
     adjustMaxHeap(arr, i - 1, 0);

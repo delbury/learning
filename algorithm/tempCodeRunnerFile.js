@@ -1,1 +1,0 @@
-dequeue.length && dequeue[0] <= i - k

@@ -16,39 +16,71 @@
  * 3. 递归地（recursive）把小于基准值元素的子数列和大于基准值元素的子数列排序。
  */
 
-// 递归
-const quickSort = function(arr) {
-  if(arr.length <= 1) return arr;
+// 原地递归
+const quickSort = function (arr, left = 0, right = arr.length - 1) {
+  if (left >= right) return;
 
-  const base = arr[0];
-  const left = [];
-  const right = [];
+  const bl = left;
+  const rl = right;
+  const base = arr[left];
+  while (left < right) {
+    while (arr[right] > base && right > left) {
+      right--;
+    }
+    if (left < right) {
+      arr[left++] = arr[right];
+    }
 
-  for(let i = 1; i < arr.length; i++) {
-    if(arr[i] < base) {
-      left.push(arr[i]);
-    } else {
-      right.push(arr[i]);
+    while (arr[left] <= base && right > left) {
+      left++;
+    }
+    if (left < right) {
+      arr[right--] = arr[left];
     }
   }
 
-  return [...quickSort(left), base, ...quickSort(right)];
+  arr[left] = base;
+  quickSort(arr, bl, left - 1);
+  quickSort(arr, right + 1, rl);
+
+  return arr;
+};
+
+// 递归，辅助数组
+const quickSortHelp = function (arr) {
+  if (arr.length <= 1) return arr;
+
+  const base = [arr[0]];
+  const left = [];
+  const right = [];
+
+  for (let i = 1; i < arr.length; i++) {
+    if (arr[i] < base[0]) {
+      left.push(arr[i]);
+    } else if (arr[i] > base[0]) {
+      right.push(arr[i]);
+    } else {
+      base.push(arr[i]);
+    }
+  }
+
+  return [...quickSort(left), ...base, ...quickSort(right)];
 };
 
 // 迭代，辅助数组
-const quickSortIteration = function(arr) {
+const quickSortIteration = function (arr) {
   const res = [arr];
 
   let i = 0;
-  while(i < res.length) {
-    if(typeof res[i] === 'object') {
-      if(res[i].length > 1) {
+  while (i < res.length) {
+    if (typeof res[i] === 'object') {
+      if (res[i].length > 1) {
         const base = res[i][0];
         const left = [];
         const right = [];
 
-        for(let j = 1; j < res[i].length; j++) {
-          if(res[i][j] < base) {
+        for (let j = 1; j < res[i].length; j++) {
+          if (res[i][j] < base) {
             left.push(res[i][j]);
           } else {
             right.push(res[i][j]);
@@ -69,4 +101,5 @@ const quickSortIteration = function(arr) {
 }
 
 // console.log(quickSort([3, 6, 7, -2, 4, -123, 0, 54, 32, 6]));
-console.log(quickSortIteration([3, 6, 7, -2, 4, -123, 0, 54, 32, 6]));
+console.log(quickSort([3, 3, 3, 6, 7, -2, 4, -123, 0, 54, 32, 6]));
+// console.log(count);

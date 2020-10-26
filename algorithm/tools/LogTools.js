@@ -27,19 +27,28 @@ const logHeapTree = function (heap) {
     let dividerArr = [];
     const max = Math.min(2 ** i - 1, heap.length);
     for (let j = 2 ** (i - 1) - 1; j < max; j++) {
-      stringArr.push(heap[j].toString().padStart(eachItemWith, fillSymbol)); // 不同深度每项宽度相同
+      let str = heap[j].toString();
+      const pad = eachItemWith - str.length;
+      const pStart = Math.ceil(pad / 2);
+
+      str = str.padStart(pStart + str.length, fillSymbol);
+      str = str.padEnd(pad - pStart + str.length, fillSymbol);
+
+      stringArr.push(str); // 不同深度每项宽度相同
 
       if (j !== 0) {
-        dividerArr.push('-'.padStart(eachItemWith, '-')); // 不同深度每项宽度相同
+
+        dividerArr.push('-'.repeat(str.length)); // 不同深度每项宽度相同
       }
     }
 
     // 每层的字符间隔不同
+    const gapSymbol = fillSymbol;
     const k = 2 ** (i - 1);
-    const gap = deep === i ? lastRowGap : Math.floor((totalWith - k * eachItemWith) / k);
-    const preGap = deep === i ? '' : fillSymbol.repeat(Math.ceil(gap / 2));
+    const gap = deep === i ? lastRowGap : Math.round((totalWith - k * eachItemWith) / k);
+    const preGap = deep === i ? '' : gapSymbol.repeat(Math.ceil(gap / 2));
 
-    resRows.unshift(preGap + stringArr.join(fillSymbol.repeat(gap)));
+    resRows.unshift(preGap + stringArr.join(gapSymbol.repeat(gap)));
     if (dividerArr.length) {
       resRows.unshift(preGap + dividerArr.reduce((string, item, index) => {
         if (index === 0) {
@@ -62,4 +71,4 @@ module.exports = {
   logHeapTree
 };
 
-// console.log(logHeapTree([1111, 2222, 3333, 4444, 5555, 6666, 7777, 8888, 9999]))
+// console.log(logHeapTree([1, 2, 3333, 4, 5555, 6, 7, 8, 9999, 10, 11, 12, 13, 1444, 15, 1666, 17, 18, 19, 200, 211]))
