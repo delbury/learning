@@ -40,12 +40,12 @@ MedianFinder.prototype.maxHeapify = function (arr, i) {
   if (left > arr[i] && left >= right) {
     // 若左子节点最大
     [arr[i], arr[2 * i + 1]] = [arr[2 * i + 1], arr[i]];
-    this.maxHeapify(arr, length, 2 * i + 1);
+    return this.maxHeapify(arr, 2 * i + 1);
 
   } else if (right > arr[i] && right > left) {
     // 若右子节点最大
     [arr[i], arr[2 * i + 2]] = [arr[2 * i + 2], arr[i]];
-    this.maxHeapify(arr, length, 2 * i + 2);
+    return this.maxHeapify(arr, 2 * i + 2);
   }
 };
 
@@ -59,12 +59,12 @@ MedianFinder.prototype.minHeapify = function (arr, i) {
   if (left < arr[i] && left <= right) {
     // 若左子节点最小
     [arr[i], arr[2 * i + 1]] = [arr[2 * i + 1], arr[i]];
-    this.minHeapify(arr, length, 2 * i + 1);
+    return this.minHeapify(arr, 2 * i + 1);
 
   } else if (right < arr[i] && right < left) {
     // 若右子节点最小
     [arr[i], arr[2 * i + 2]] = [arr[2 * i + 2], arr[i]];
-    this.minHeapify(arr, length, 2 * i + 2);
+    return this.minHeapify(arr, 2 * i + 2);
   }
 };
 
@@ -78,6 +78,7 @@ MedianFinder.prototype.addNum = function (num) {
     if (num <= this.maxHeap[0]) {
       this.maxHeap[0] = num;
       this.maxHeapify(this.maxHeap, 0);
+
     } else {
       this.minHeap[0] = num;
       this.minHeapify(this.minHeap, 0);
@@ -115,18 +116,23 @@ MedianFinder.prototype.addNum = function (num) {
   }
 
   this.size++;
+
+  return this;
 };
 
-MedianFinder.prototype.rebuild = function (type) {
-  const start = Math.floor(this.minHeap.length / 2) - 1;
-
+// 可以优化
+MedianFinder.prototype.rebuild = function (type, log = false) {
   if (type === 'min') {
-    for (let i = start; i >= 0; i--) {
+    const start = Math.floor(this.minHeap.length / 2) - 1;
+
+    for (let i = start; i >= 0; i = Math.floor((i - 1) / 2)) {
       this.minHeapify(this.minHeap, i);
     }
 
   } else if (type === 'max') {
-    for (let i = start; i >= 0; i--) {
+    const start = Math.floor(this.maxHeap.length / 2) - 1;
+
+    for (let i = start; i >= 0; i = Math.floor((i - 1) / 2)) {
       this.maxHeapify(this.maxHeap, i);
     }
   }
@@ -152,28 +158,70 @@ MedianFinder.prototype.findMedian = function () {
  * var param_2 = obj.findMedian()
  */
 
-const { logHeapTree } = require('./tools/LogTools.js');
-const mf = new MedianFinder();
-mf.addNum(1);
-console.log(mf.findMedian());
-mf.addNum(2);
-console.log(mf.findMedian());
-mf.addNum(3);
-console.log(mf.findMedian());
-mf.addNum(4);
-console.log(mf.findMedian());
-mf.addNum(5);
-console.log(mf.findMedian());
+// 2. API 式
+class MedianFinderAPI {
+  constructor() {
+    this.arr = [];
+  }
+
+  addNum(num) {
+    if (!this.arr.length) return this.arr.push(num);
+
+    for (let i = 0; i < this.arr.length; i++) {
+      if (i === 0 && num <= this.arr[i]) {
+        this.arr.unshift(num);
+        return;
+
+      } else if (i === this.arr.length - 1 && num >= this.arr[i]) {
+        this.arr.push(num);
+        return;
+
+      } else if (i !== 0 && num >= this.arr[i - 1] && num <= this.arr[i]) {
+        this.arr.splice(i, 0, num);
+        return;
+      }
+    }
+
+    return this;
+  }
+
+  findMedian() {
+    if (this.arr.length % 2 === 1) {
+      return this.arr[(this.arr.length - 1) / 2];
+    } else {
+      const index = this.arr.length / 2;
+      return (this.arr[index] + this.arr[index - 1]) / 2;
+    }
+  }
+}
+
+// const { logHeapTree } = require('./tools/LogTools.js');
+const mf = new MedianFinderAPI();
 mf.addNum(6);
-console.log(mf.findMedian());
-mf.addNum(7);
-console.log(mf.findMedian());
-mf.addNum(8);
-console.log(mf.findMedian());
-mf.addNum(9);
 console.log(mf.findMedian());
 mf.addNum(10);
 console.log(mf.findMedian());
+mf.addNum(2);
+console.log(mf.findMedian());
+mf.addNum(6);
+console.log(mf.findMedian());
+mf.addNum(5);
+console.log(mf.findMedian());
+mf.addNum(0);
+console.log(mf.findMedian());
+mf.addNum(6);
+console.log(mf.findMedian());
+mf.addNum(3);
+console.log(mf.findMedian());
+mf.addNum(1);
+console.log(mf.findMedian());
+mf.addNum(0);
+console.log(mf.findMedian());
+mf.addNum(0);
+console.log(mf.findMedian());
+// mf.addNum(40).addNum(12).addNum(16).addNum(14).addNum(35).addNum(19).addNum(34).addNum(35).addNum(28).addNum(35);
+// mf.addNum(26).addNum(6);
+// console.log(mf.findMedian());
+// logHeapTree(mf.maxHeap);
+// logHeapTree(mf.minHeap);
 
-logHeapTree(mf.maxHeap);
-logHeapTree(mf.minHeap);

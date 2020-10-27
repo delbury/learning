@@ -1,77 +1,76 @@
 /**
  * 堆
+ * 默认为大顶堆
  */
 
-// 大顶堆
-class MaxHeap {
-  constructor(arr) {
-    this.heap = arr;
-    // this.heapify(arr);
-  }
+class Heap {
+  constructor(type = 'max') {
+    this.heap = [];
+    this.type = type;
 
-  // 建堆
-  heapify(arr, type = 1) {
     switch (type) {
-      case 1:
-        return this.heapifyBottomToTop(arr);
-      case 2:
-        return this.heapifyTopToBottom(arr);
+      case 'min':
+        this.isSwitch = (c, p) => p >= c
+        break;
+
+      case 'max':
       default:
-        return false;
+        this.isSwitch = (c, p) => p <= c
+        break;
     }
   }
 
-  // 堆化
-  heapifyBottomToTop(arr) {
-    for (let i = Math.floor(arr.length / 2) - 1; i >= 0; i--) {
-      this.adjustHeapBottomToTop(arr, arr.length, i);
-    }
-
-    return arr;
+  // 堆顶元素
+  top() {
+    return this.heap[0];
   }
 
-  // 调整堆，从后往前
-  adjustHeapBottomToTop(arr, length, i) {
-    if (i >= length) return;
+  // 弹出堆顶元素
+  pop() {
+    [this.heap[0], this.heap[this.size - 1]] = [this.heap[this.size - 1], this.heap[0]];
+    const element = this.heap.pop();
+    this.down();
 
-    const left = 2 * i + 1 >= length ? -Infinity : arr[2 * i + 1]; // 左子节点
-    const right = 2 * i + 2 >= length ? -Infinity : arr[2 * i + 2]; // 右子节点
+    return element;
+  }
 
-    if (left > arr[i] && left >= right) {
-      // 若左子节点最大
-      [arr[i], arr[2 * i + 1]] = [arr[2 * i + 1], arr[i]];
-      this.adjustHeapBottomToTop(arr, length, 2 * i + 1);
+  // 弹出更新堆
+  down(pi = 0) {
+    if (pi >= this.size) return;
+    const edge = this.type === 'min' ? Infinity : -Infinity;
+    const left = 2 * pi + 1 >= this.heap.length ? edge : this.heap[2 * pi + 1]; // 左子节点
+    const right = 2 * pi + 2 >= this.heap.length ? edge : this.heap[2 * pi + 2]; // 右子节点
 
-    } else if (right > arr[i] && right > left) {
-      // 若右子节点最大
-      [arr[i], arr[2 * i + 2]] = [arr[2 * i + 2], arr[i]];
-      this.adjustHeapBottomToTop(arr, length, 2 * i + 2);
+    if (this.isSwitch(left, this.heap[pi]) && this.isSwitch(left, right)) {
+      // 比较左子节点
+      [this.heap[pi], this.heap[2 * pi + 1]] = [this.heap[2 * pi + 1], this.heap[pi]];
+      return this.down(2 * pi + 1);
+
+    } else if (this.isSwitch(right, this.heap[pi]) && this.isSwitch(right, left)) {
+      // 比较右子节点
+      [this.heap[pi], this.heap[2 * pi + 2]] = [this.heap[2 * pi + 2], this.heap[pi]];
+      return this.down(2 * pi + 2);
     }
   }
 
-  // 堆化
-  heapifyTopToBottom(arr) {
-    for (let i = 1; i < arr.length; i++) {
-      this.adjustHeapTopToBottom(arr, arr.length, i);
-    }
+  // 插入元素
+  push(element) {
+    this.heap.push(element);
+    this.up();
 
-    return arr;
+    return this;
   }
 
-  // 调整堆，从前往后
-  adjustHeapTopToBottom(arr, length, i) {
-    if (i <= 0) return;
-
-    let p = Math.floor((i - 1) / 2);
-    if (p >= 0 && arr[i] > arr[p]) {
-      [arr[i], arr[p]] = [arr[p], arr[i]];
-      return this.adjustHeapTopToBottom(arr, length, p);
+  // 插入更新堆
+  up(ci = this.heap.length - 1) {
+    // 父元素 parentIndex = Math.floor((childIndex - 1) / 2)
+    let pi = Math.floor((ci - 1) / 2);
+    while (pi >= 0 && this.isSwitch(this.heap[ci], this.heap[pi])) {
+      [this.heap[ci], this.heap[pi]] = [this.heap[pi], this.heap[ci]];
+      ci = pi;
+      pi = Math.floor((ci - 1) / 2);
     }
-    return;
   }
-
-  // 排序
-  sort() { }
 
   get size() {
     return this.heap.length;
@@ -79,11 +78,12 @@ class MaxHeap {
 }
 
 const { logHeapTree } = require('../LogTools.js');
-
-const maxHeap1 = new MaxHeap([3, 6, 7, -2, 4, -123, 0, 54, 32, 6]);
-maxHeap1.heapify(maxHeap1.heap, 1);
-logHeapTree(maxHeap1.heap);
-
-const maxHeap2 = new MaxHeap([3, 6, 7, -2, 4, -123, 0, 54, 32, 6]);
-maxHeap2.heapify(maxHeap2.heap, 2);
-logHeapTree(maxHeap2.heap);
+const heap = new Heap('min');
+heap.push(5).push(2).push(1).push(3).push(8).push(4);
+logHeapTree(heap.heap);
+heap.pop();
+logHeapTree(heap.heap);
+heap.push(11).push(0);
+logHeapTree(heap.heap);
+heap.pop();
+logHeapTree(heap.heap);
