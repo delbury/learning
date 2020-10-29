@@ -11,7 +11,7 @@
  *       12123   43123
  */
 const logHeapTree = function (heap) {
-  if (!heap.length) return null;
+  if (!heap.length) return console.log(null);
 
   let deep = Math.floor(Math.log2(heap.length) + 1); // 树的深度
   const eachItemWith = 4;
@@ -67,8 +67,40 @@ const logHeapTree = function (heap) {
   console.log(resRows.join('\n'));
 };
 
+/**
+ * 打印二叉树链表
+ */
+const logBinaryTree = function (root, valueKey = 'value', leftKey = 'lchild', rightKey = 'rchild') {
+  if (!root) return console.log(null);
+
+  const stack = [root];
+  const values = [];
+
+  while (stack.filter(node => node).length) {
+    const node = stack.shift();
+
+    if (node) {
+      values.push(node[valueKey]);
+      stack.push(node[leftKey], node[rightKey]);
+
+    } else {
+      stack.push(null, null);
+      values.push('');
+    }
+  }
+  logHeapTree(values);
+}
+
 module.exports = {
-  logHeapTree
+  logHeapTree,
+  logBinaryTree,
 };
 
 // console.log(logHeapTree([1, 2, 3333, 4, 5555, 6, 7, 8, 9999, 10, 11, 12, 13, 1444, 15, 1666, 17, 18, 19, 200, 211]))
+// const { BinaryTreeNode } = require('./data-structures/BinaryTree.js');
+// const A = new BinaryTreeNode(1);
+// const B = new BinaryTreeNode(2);
+// const C = new BinaryTreeNode(3);
+// A.rchild = B;
+// B.rchild = C;
+// logBinaryTree(A);
