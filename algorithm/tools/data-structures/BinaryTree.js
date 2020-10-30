@@ -8,12 +8,15 @@ class BinaryTreeNode {
     this.value = value;
     this.lchild = lchild;
     this.rchild = rchild;
+    this.parent = null;
+    this.childType = null;
   }
 }
 
 class BinaryTree {
   constructor() {
     this.rootNode = null;
+    this.size = 0;
   }
 
   // 前序遍历、先根遍历 Preorder Traversal (DLR)
@@ -41,6 +44,13 @@ class BinaryTree {
     this.LRD(cb, node.lchild);
     this.LRD(cb, node.rchild);
     cb(node);
+  }
+
+  // 节点的高度
+  height(node = this.rootNode) {
+    if (!node) return 0;
+
+    return 1 + Math.max(this.height(node.lchild), this.height(node.rchild));
   }
 }
 

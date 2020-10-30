@@ -88,4 +88,62 @@ var majorityElementMoore = function (nums) {
   return res;
 };
 
-console.log(majorityElementMoore([3, 2, 3]));
+// 3. 选出超过 ⌊ n/k ⌋ 次的元素
+var majorityElementMooreK = function (nums, k) {
+  const counts = Array(k - 1).fill(0);
+  const currents = Array(k - 1).fill(null);
+
+  for (let i = nums.length; i >= 0; i--) {
+    let pairFlag = false;
+    // 是否投票相同
+    for (let j = 0; j < k - 1; j++) {
+      if (currents[j] === nums[i]) {
+        pairFlag = true;
+        counts[j]++;
+        break;
+      }
+    }
+
+    if (!pairFlag) { // 未匹配时
+      let countFlag = false;
+      for (let j = 0; j < k - 1; j++) {
+        if (counts[j] === 0) {
+          countFlag = true;
+          currents[j] = nums[i];
+          counts[j]++;
+          break;
+        }
+      }
+
+      if (!countFlag) {
+        counts.forEach((count, index) => counts[index]--);
+      }
+    }
+  }
+
+  // 结果计数
+  counts.forEach((c, i) => counts[i] = 0); // 结果计数重置
+  for (let i = nums.length - 1; i >= 0; i--) {
+    for (let j = 0; j < k - 1; j++) {
+      if (nums[i] === currents[j]) {
+        counts[j]++;
+      }
+    }
+  }
+
+  const res = [];
+  const max = Math.floor(nums.length / k);
+  for (let j = 0; j < k - 1; j++) {
+    if (counts[j] > max) {
+      res.push(currents[j]);
+    }
+  }
+
+  return res;
+}
+
+// console.log(majorityElementMoore([3, 3, 3, 3, 3, 3]));
+// console.log(majorityElementMoore([1, 2, 3, 4, 5, 6]));
+// console.log(majorityElementMooreK([1, 2, 3, 3, 3, 3, 5, 5, 5, 5, 6, 7, 7, 7, 4, 8], 4));
+console.log(majorityElementMooreK([1, 1, 2, 2, 3, 3, 4, 4, 5, 6], 6));
+

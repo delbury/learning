@@ -91,6 +91,7 @@ const logBinaryTree = function (root, valueKey = 'value', leftKey = 'lchild', ri
   logHeapTree(values);
 }
 
+
 module.exports = {
   logHeapTree,
   logBinaryTree,

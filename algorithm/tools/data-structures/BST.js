@@ -7,6 +7,8 @@ const { BinaryTreeNode, BinaryTree } = require('./BinaryTree.js');
 class BinarySearchTree extends BinaryTree {
   constructor() {
     super();
+
+    this.TreeNode = BinaryTreeNode;
   }
 
   // 查找
@@ -40,9 +42,14 @@ class BinarySearchTree extends BinaryTree {
   }
 
   // 插入
-  insert(value, node = this.rootNode) {
+  insert(value) {
+    return this.#insert(value);
+  }
+
+  #insert(value, node = this.rootNode) {
     if (!this.rootNode) {
-      this.rootNode = new BinaryTreeNode(value);
+      this.rootNode = new this.TreeNode(value);
+      this.size = 1;
       return this;
     }
 
@@ -50,37 +57,49 @@ class BinarySearchTree extends BinaryTree {
 
     if (value < node.value) {
       if (!node.lchild) {
-        node.lchild = new BinaryTreeNode(value);
+        node.lchild = new this.TreeNode(value);
+        this.size++;
+        node.lchild.parent = node;
+        node.lchild.childType = 'lchild';
+        return node.lchild;
+
       } else {
-        return this.insert(value, node.lchild);
+        return this.#insert(value, node.lchild);
       }
     } else {
       if (!node.rchild) {
-        node.rchild = new BinaryTreeNode(value);
+        node.rchild = new this.TreeNode(value);
+        this.size++;
+        node.rchild.parent = node;
+        node.rchild.childType = 'rchild';
+        return node.rchild;
+
       } else {
-        return this.insert(value, node.rchild);
+        return this.#insert(value, node.rchild);
       }
     }
-
-    return this;
   }
 
   // 删除
-  delete(value, node = this.rootNode, parent = null, key = '') {
+  delete(value) {
+    return this.#delete(value);
+  }
+
+  #delete(value, node = this.rootNode, parent = null, key = '') {
     if (!node) return false;
 
     if (value < node.value) { // 左子树
-      return this.delete(value, node.lchild, node, 'lchild');
+      return this.#delete(value, node.lchild, node, 'lchild');
 
     } else if (value > node.value) { // 右子树
-      return this.delete(value, node.rchild, node, 'rchild');
+      return this.#delete(value, node.rchild, node, 'rchild');
 
     } else { // 当前节点
       if (node.lchild && node.rchild) { // 左右都非空
         const target = this.getMaxNode(node.lchild, node, 'lchild');
         node.value = target.node.value;
 
-        this.delete(target.node.value, target.node, target.parent, target.key);
+        this.#delete(target.node.value, target.node, target.parent, target.key);
 
       } else if (!node.lchild && !node.rchild) { // 删除的为叶子节点
         if (!parent) {
@@ -104,7 +123,7 @@ class BinarySearchTree extends BinaryTree {
         }
 
       }
-
+      this.size--;
       return node;
     }
   }
@@ -140,21 +159,18 @@ class BinarySearchTree extends BinaryTree {
   }
 }
 
-const { logBinaryTree } = require('../LogTools.js');
-const bst = new BinarySearchTree();
-let count = 6;
-while (count--) {
-  bst.insert(Math.floor(Math.random() * 50));
-}
-// bst
-//   .insert(20)
-//   .insert(44)
-//   .insert(34)
-//   .insert(47)
-//   .insert(36)
-//   .insert(35);
-logBinaryTree(bst.rootNode);
-bst.LDR(node => console.log(node.value));
+module.exports = {
+  BinarySearchTree,
+};
+
+// const { logBinaryTree } = require('../LogTools.js');
+// const bst = new BinarySearchTree();
+// let count = 6;
+// while (count--) {
+//   bst.insert(Math.floor(Math.random() * 50));
+// }
+// logBinaryTree(bst.rootNode);
+// bst.LDR(node => console.log(node.value));
 
 // bst.delete(20);
 // logBinaryTree(bst.rootNode);
