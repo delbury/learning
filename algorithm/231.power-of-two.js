@@ -36,8 +36,13 @@ var isPowerOfTwoII = function (n) {
   return n <= 0 ? false : !(n & (n - 1));
 };
 
-console.log(isPowerOfTwoII(1));
-console.log(isPowerOfTwoII(16));
-console.log(isPowerOfTwoII(218));
-console.log(isPowerOfTwoII(0));
-console.log(isPowerOfTwoII(-16));
+// 3. 位运算2
+var isPowerOfTwoIII = function (n) {
+  return n <= 0 ? false : n === (n & -n);
+};
+
+console.log(isPowerOfTwoIII(1));
+console.log(isPowerOfTwoIII(16));
+console.log(isPowerOfTwoIII(218));
+console.log(isPowerOfTwoIII(0));
+console.log(isPowerOfTwoIII(-16));
