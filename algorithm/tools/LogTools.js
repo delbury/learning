@@ -101,7 +101,7 @@ const logBinaryTree = function (root, valueKey = 'value', leftKey = 'lchild', ri
  */
 const logAssert = function (fn, input, output) {
   const res = fn(input);
-  console.log('input: ', input, ' is ', _.isEqual(res, output));
+  console.log('input: ', input, ' result: ', res, ' is ', _.isEqual(res, output));
   // if (typeof output === 'number' || typeof output === 'string') {
   //   console.log(res === output);
   // } else if (output.constructor === Array) {
