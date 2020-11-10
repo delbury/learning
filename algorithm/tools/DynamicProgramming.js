@@ -27,15 +27,15 @@ const fibonacci = function (n) {
  * 从 (0, 0) 走到 (m, n) 的路径方案
  */
 const robot = function (m, n) {
-  const steps = Array.from({ length: m }, () => Array(n).fill(1));
+  // const steps = Array.from({ length: m }, () => Array(n).fill(1));
+  const steps = Array(n).fill(1);
 
   for (let i = 1; i < m; i++) {
     for (let j = 1; j < n; j++) {
-      steps[i][j] = (i > 0 ? steps[i - 1][j] : 0) + (j > 0 ? steps[i][j - 1] : 0);
+      steps[j] = steps[j] + (j > 0 ? steps[j - 1] : 0);
     }
   }
-  console.log(steps)
-  return steps[m - 1][n - 1];
+  return steps[n - 1];
 };
 
-// console.log(robot(7, 3)); // 28
+console.log(robot(7, 3)); // 28
