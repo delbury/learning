@@ -99,29 +99,17 @@ const logBinaryTree = function (root, valueKey = 'value', leftKey = 'lchild', ri
  * @param {any} input 输入
  * @param {any} output 输出
  */
-const logAssert = function (fn, input, output) {
-  const res = fn(input);
-  console.log('input: ', input, ' result: ', res, ' is ', _.isEqual(res, output));
-  // if (typeof output === 'number' || typeof output === 'string') {
-  //   console.log(res === output);
-  // } else if (output.constructor === Array) {
-  //   console.log(_.equalArrays(res, output));
-  // } else if (output.constructor === Object) {
-  //   console.log(_.equalObjects(res, output));
-  // }
+const logAssert = function (fn, ...args) {
+  input = args.slice(0, args.length - 1);
+  output = args[args.length - 1];
+  const res = fn(...input);
+  console.log('expect: ', output, ', result: ', res, ', is ', _.isEqual(res, output));
 };
 
+
+// exports
 module.exports = {
   logHeapTree,
   logBinaryTree,
   logAssert,
 };
-
-// console.log(logHeapTree([1, 2, 3333, 4, 5555, 6, 7, 8, 9999, 10, 11, 12, 13, 1444, 15, 1666, 17, 18, 19, 200, 211]))
-// const { BinaryTreeNode } = require('./data-structures/BinaryTree.js');
-// const A = new BinaryTreeNode(1);
-// const B = new BinaryTreeNode(2);
-// const C = new BinaryTreeNode(3);
-// A.rchild = B;
-// B.rchild = C;
-// logBinaryTree(A);
