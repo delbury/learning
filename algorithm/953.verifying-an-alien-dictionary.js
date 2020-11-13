@@ -16,7 +16,9 @@
  * 示例 3：
  * 输入：words = ["apple","app"], order = "abcdefghijklmnopqrstuvwxyz"
  * 输出：false
- * 解释：当前三个字符 "app" 匹配时，第二个字符串相对短一些，然后根据词典编纂规则 "apple" > "app"，因为 'l' > '∅'，其中 '∅' 是空白字符，定义为比任何其他字符都小（更多信息）。
+ * 解释：当前三个字符 "app" 匹配时，第二个字符串相对短一些，
+ * 然后根据词典编纂规则 "apple" > "app"，
+ * 因为 'l' > '∅'，其中 '∅' 是空白字符，定义为比任何其他字符都小（更多信息）。
  *  
  * 提示：
  * 1 <= words.length <= 100
@@ -29,6 +31,51 @@
  * @param {string} order
  * @return {boolean}
  */
-var isAlienSorted = function (words, order) {
 
+// 1. hash
+const ascend = function (map, ws1, ws2) {
+  for (let i = 0; i < ws1.length; i++) {
+    if (ws1[i] && !ws2[i]) return false;
+
+    if (map.get(ws1[i]) > map.get(ws2[i])) return false;
+
+    if (map.get(ws1[i]) < map.get(ws2[i])) return true;
+
+  }
+
+  return true;
 };
+
+var isAlienSorted = function (words, order) {
+  const map = new Map();
+  for (let i = 0; i < order.length; i++) {
+    map.set(order[i], i);
+  }
+
+  for (let i = 0; i < words.length - 1; i++) {
+    if (!ascend(map, words[i], words[i + 1])) return false;
+  }
+
+  return true;
+};
+
+// 2.
+var isAlienSortedII = function (words, order) {
+  for (let i = 0; i < words.length - 1; i++) {
+    for (let j = 0; j < words[i].length; j++) {
+      if (words[i][j] && !words[i + 1][j]) return false;
+
+      const index1 = order.indexOf(words[i][j]);
+      const index2 = order.indexOf(words[i + 1][j]);
+      if (index1 > index2) return false;
+      if (index1 < index2) break;
+    }
+  }
+  return true;
+};
+
+const { logAssert } = require('./tools/LogTools.js');
+logAssert(isAlienSortedII, ["hello", "leetcode"], "hlabcdefgijkmnopqrstuvwxyz", true);
+logAssert(isAlienSortedII, ["word", "world", "row"], "worldabcefghijkmnpqstuvxyz", false);
+logAssert(isAlienSortedII, ["apple", "app"], "abcdefghijklmnopqrstuvwxyz", false);
+
