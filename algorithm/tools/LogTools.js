@@ -94,7 +94,7 @@ const logBinaryTree = function (root, valueKey = 'value', leftKey = 'lchild', ri
 }
 
 /**
- * 
+ * 函数结果断言
  * @param {Function} fn 需要调试的函数
  * @param {any} input 输入
  * @param {any} output 输出
@@ -106,10 +106,47 @@ const logAssert = function (fn, ...args) {
   console.log('expect: ', output, ', result: ', res, ', is ', _.isEqual(res, output));
 };
 
+/**
+ * 根据属猪创建链表
+ * @param {Array} arr 链表节点
+ */
+const createLinkedListByArray = function (arr, valueKey = 'val', nextKey = 'next') {
+  const root = { [nextKey]: null };
+  let current = root;
+  for (let i = 0; i < arr.length; i++) {
+    current[nextKey] = {
+      [valueKey]: arr[i],
+      [nextKey]: null,
+    };
+    current = current[nextKey];
+  }
+  return root[nextKey];
+};
+
+
+/**
+ * 根据数据创建树
+ * @param {Array} arr 树的节点
+ */
+const createNode = function (arr, index, valueKey, leftKey, rightKey) {
+  if (index >= arr.length || arr[index] === null) return null;
+
+  return {
+    [valueKey]: arr[index],
+    [leftKey]: createNode(arr, index * 2 + 1, valueKey, leftKey, rightKey),
+    [rightKey]: createNode(arr, index * 2 + 2, valueKey, leftKey, rightKey),
+  };
+};
+const createTreeByArray = function (arr, valueKey = 'val', leftKey = 'left', rightKey = 'right') {
+  return createNode(arr, 0, valueKey, leftKey, rightKey);
+};
+
 
 // exports
 module.exports = {
   logHeapTree,
   logBinaryTree,
   logAssert,
+  createLinkedListByArray,
+  createTreeByArray,
 };
