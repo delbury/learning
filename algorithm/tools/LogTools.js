@@ -106,6 +106,18 @@ const logAssert = function (fn, ...args) {
   console.log('expect: ', output, ', result: ', res, ', is ', _.isEqual(res, output));
 };
 
+const logAssertDisorder = function (fn, ...args) {
+  input = args.slice(0, args.length - 1);
+  output = args[args.length - 1];
+  const res = fn(...input);
+  console.log('expect: ', output, ', result: ', res, ', is ',
+    _.isEqual(
+      res.constructor === Array ? Array.prototype.sort.call(_.cloneDeep(res)) : res,
+      output.constructor === Array ? Array.prototype.sort.call(_.cloneDeep(output)) : output,
+    )
+  );
+};
+
 /**
  * 根据属猪创建链表
  * @param {Array} arr 链表节点
@@ -147,6 +159,7 @@ module.exports = {
   logHeapTree,
   logBinaryTree,
   logAssert,
+  logAssertDisorder,
   createLinkedListByArray,
   createTreeByArray,
 };
