@@ -150,6 +150,8 @@ const createNode = function (arr, index, valueKey, leftKey, rightKey) {
   };
 };
 const createTreeByArray = function (arr, valueKey = 'val', leftKey = 'left', rightKey = 'right') {
+  if (typeof arr !== 'object' || !('length' in arr)) throw (new TypeError('value must be an array'));
+
   return createNode(arr, 0, valueKey, leftKey, rightKey);
 };
 
