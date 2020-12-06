@@ -72,7 +72,7 @@ const logHeapTree = function (heap) {
 /**
  * 打印二叉树链表
  */
-const logBinaryTree = function (root, valueKey = 'value', leftKey = 'lchild', rightKey = 'rchild') {
+const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightKey = 'right') {
   if (!root) return console.log(null);
 
   const stack = [root];
