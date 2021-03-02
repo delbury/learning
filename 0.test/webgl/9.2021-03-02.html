@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    <canvas id="canvas" width="800" height="800"></canvas>
+  </div>
+  <div class="info"></div>
+
+  <script src="./lib/cuon-matrix.js"></script>
+  <script src="./lib/cuon-utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const gl = canvas.getContext('webgl2');
+
+    const vSource = `
+      attribute vec4 a_Position;
+      uniform mat4 a_Matrix;
+      attribute vec4 a_Color;
+      varying vec4 v_Color;
+
+      void main(void) {
+        v_Color = a_Color;
+        gl_Position = a_Matrix * a_Position;
+        gl_PointSize = 20.0;
+      }
+    `;
+    const fSource = `
+      precision mediump float;
+
+      varying vec4 v_Color;
+
+      void main() {
+        gl_FragColor = v_Color;
+      }
+    `;
+    
+    let flag = initShaders(gl, vSource, fSource);
+    if(!flag) throw(new Error());
+    
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.enable(gl.DEPTH_TEST); // 开启深度比较
+    // gl.enable(gl.POLYGON_OFFSET_FILL); // 开启多边形深度值偏移
+    // gl.polygonOffset(1.0, 1.0); // 计算偏移量的参数
+
+    const data = new Float32Array([
+      -1, 1, 1, 1, 0, 0,
+      -1, -1, 1, 0, 1, 0,
+      1, -1, 1, 0, 0 , 1,
+      1, 1, 1, 1, 1, 0,
+      1, 1, -1, 1, 0, 1,
+      1, -1, -1, 0, 1, 1,
+      -1, -1, -1, 0.25, 0.25, 0.25,
+      -1, 1, -1, 1, 1, 1,
+
+      // 同色
+      // -1, 1, 1, 1, 1, 1,
+      // -1, -1, 1, 1, 1, 1,
+      // 1, -1, 1, 1, 1, 1,
+      // 1, 1, 1, 1, 1, 1,
+      // 1, 1, -1, 1, 1, 1,
+      // 1, -1, -1, 1, 1, 1,
+      // -1, -1, -1, 1, 1, 1,
+      // -1, 1, -1, 1, 1, 1,
+    ]);
+    const indices = new Uint8Array([
+      8, 9, 10, 8, 11, 10,
+      0, 1, 2, 0, 3, 2,
+      0, 1, 6, 0, 7, 6,
+      0, 3, 4, 0, 7, 4,
+      5, 2, 3, 5, 4, 3,
+      5, 2, 1, 5, 6, 1,
+      5, 6, 7, 5, 4, 7,
+    ]);
+    const n = indices.length;
+    const FSIZE = data.BYTES_PER_ELEMENT;
+
+    const buffer = gl.createBuffer();
+    const indexBuffer = gl.createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+    const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+    const a_Color = gl.getAttribLocation(gl.program, 'a_Color');
+    gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 6, 0);
+    gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
+    gl.enableVertexAttribArray(a_Position);
+    gl.enableVertexAttribArray(a_Color);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+
+    const mat4 = new Matrix4();
+    const a_Matrix = gl.getUniformLocation(gl.program, 'a_Matrix');
+    
+    /*
+      <正投影矩阵 | 透视投影矩阵> * <视图矩阵> * <模型矩阵> * <顶点坐标>
+    */
+    let zAxis = 10;
+    let xAxis = 0;
+    let yAxis = 0;
+    const draw = () => {
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+      mat4.setPerspective(30, canvas.width / canvas.height, 1, 100)
+        .lookAt(xAxis, yAxis, zAxis, 0, 0, -10, 0, 1, 0);
+        
+      gl.uniformMatrix4fv(a_Matrix, false, mat4.elements);
+      gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
+    };
+
+    draw();
+
+    canvas.onmousemove = ev => {
+      const scale = 10;
+      const x = (ev.offsetX - 400) / -400 * scale;
+      const y = (ev.offsetY - 400) / 400 * scale;
+      xAxis = x;
+      yAxis = y;
+      draw();
+    };
+  </script>
+</body>
+</html>

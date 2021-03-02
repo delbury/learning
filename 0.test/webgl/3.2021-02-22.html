@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    <canvas id="canvas" width="600" height="600"></canvas>
+  </div>
+
+  <script src="./lib/cuon-matrix.js"></script>
+  <script src="./lib/cuon-utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const gl = canvas.getContext('webgl2');
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const vSource = `
+      attribute vec4 a_Position;
+      uniform mat4 u_xformMatrix;
+
+      void main() {
+        gl_Position = u_xformMatrix * a_Position;
+      }
+    `;
+    const fSource = `
+      void main() {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+      }
+    `;
+
+    const flag = initShaders(gl, vSource, fSource);
+    if(!flag) throw(new Error());
+
+    // 创建缓冲区 buffer
+    const n = initVertexbuffers(gl);
+    if(n < 0) throw(new Error());
+
+    const u_xformMatrix = gl.getUniformLocation(gl.program, 'u_xformMatrix');
+    
+    const xm = new Matrix4();
+    // xm.setRotate(45, 0, 0, 1);
+    // xm.translate(0.5, 0.5, 0);
+    // gl.uniformMatrix4fv(u_xformMatrix, false, xm.elements);
+    // gl.drawArrays(gl.LINE_LOOP, 0, n);
+
+    let deg = 0;
+    let lastTime = performance.now();
+    tick(lastTime);
+    
+    function tick(current) {
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      xm.setRotate(deg, 0, 0, 1);
+      xm.translate(0.5, 0, 0);
+
+      deg = (deg + (current - lastTime) / 20) % 360;
+      lastTime = current;
+      
+      gl.uniformMatrix4fv(u_xformMatrix, false, xm.elements);
+      gl.drawArrays(gl.LINE_LOOP, 0, n);
+
+      return requestAnimationFrame(tick);
+    }
+
+    // 设置 buffer
+    function initVertexbuffers(gl) {
+      const arr = [];
+      const l = 0.5;
+      const step = 0.5;
+      let n = 0;
+      for(let i = 0; i <= 270; i += step) {
+        arr.push(l * Math.sin(i / 180 * Math.PI));
+        arr.push(l * Math.cos(i / 180 * Math.PI));
+        n++;
+      }
+      const vertices = new Float32Array(arr);
+
+      const vertexBuffer = gl.createBuffer(); // 创建缓冲区对象，删除：gl.deleteBuffer(buffer)
+      if(!vertexBuffer) return -1;
+      gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); // 绑定缓冲区对象
+
+      gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW); // 将数据写入缓冲区对象
+
+      const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+      gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0); // 将缓冲区对象分配给一个 attribute 变量
+      gl.enableVertexAttribArray(a_Position); // 开启 attribute 变量，关闭：gl.disableVertexAttribArray(position)
+
+      return n;
+    }
+  </script>
+</body>
+</html>

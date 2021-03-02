@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    <canvas id="canvas" width="600" height="600"></canvas>
+  </div>
+
+  <script src="./lib/cuon-utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const gl = canvas.getContext('webgl2');
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const vSource = `
+      attribute vec4 a_Position;
+      // uniform vec4 u_Translation;
+      // uniform float u_CosB, u_SinB;
+      // uniform vec2 u_CSB;
+
+      uniform mat4 u_xformMatrix; // 变换矩阵
+
+      void main() {
+        // gl_Position.x = a_Position.x * u_CSB.x - a_Position.y * u_CSB.y + u_Translation.x;
+        // gl_Position.y = a_Position.x * u_CSB.y + a_Position.y * u_CSB.x + u_Translation.y;
+        // gl_Position.z = a_Position.z + u_Translation.z;
+        // gl_Position.w = a_Position.w + u_Translation.w;
+
+        gl_Position = u_xformMatrix * a_Position;
+      }
+    `;
+
+    const fSource = `
+      void main() {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+      }
+    `;
+    
+    const flag = initShaders(gl, vSource, fSource);
+    if(!flag) throw(new Error());
+
+    // 创建缓冲区 buffer
+    const n = initVertexbuffers(gl);
+    if(n < 0) throw(new Error());
+
+    // // 设置平移
+    // const u_Translation = gl.getUniformLocation(gl.program, 'u_Translation');
+    // gl.uniform4f(u_Translation, -0.5, -0.5, 0.0, 0.0);
+
+    // // 设置旋转
+    // const rotate = (deg) => {
+    //   const rad = deg / 180 * Math.PI;
+    //   const sinB = Math.sin(rad);
+    //   const cosB = Math.cos(rad);
+    //   // const u_SinB = gl.getUniformLocation(gl.program, 'u_SinB');
+    //   // gl.uniform1f(u_SinB, sinB);
+    //   // const u_CosB = gl.getUniformLocation(gl.program, 'u_CosB');
+    //   // gl.uniform1f(u_CosB, cosB);
+    //   const u_CSB = gl.getUniformLocation(gl.program, 'u_CSB');
+    //   gl.uniform2f(u_CSB, cosB, sinB);
+    // };
+    // rotate(90);
+
+    // 变换矩阵
+    const deg = 200;
+    const rad = deg / 180 * Math.PI;
+    const sinB = Math.sin(rad);
+    const cosB = Math.cos(rad);
+    const xformMatrix = new Float32Array([
+      cosB, sinB, 0.0, 0.0,
+      -sinB, cosB, 0.0, 0.0,
+      0.0, 0.0, 1.0, 0.0,
+      0.5, 0.5, 0.0, 1.0,
+    ]);
+    const xformMatrixT = new Float32Array([
+      1.5 * cosB, -sinB, 0.0, 0.5,
+      sinB, 1.5 * cosB, 0.0, 0.5,
+      0.0, 0.0, 1.0, 0.0,
+      0.0, 0.0, 0.0, 1.0,
+    ]);
+    const u_xformMatrix = gl.getUniformLocation(gl.program, 'u_xformMatrix');
+    gl.uniformMatrix4fv(u_xformMatrix, true, xformMatrixT);
+
+    gl.drawArrays(gl.LINE_LOOP, 0, n);
+    
+    // 设置 buffer
+    function initVertexbuffers(gl) {
+      const arr = [];
+      const l = 0.25;
+      const step = 0.5;
+      let n = 0;
+      for(let i = 0; i <= 270; i += step) {
+        arr.push(l * Math.sin(i / 180 * Math.PI));
+        arr.push(l * Math.cos(i / 180 * Math.PI));
+        n++;
+      }
+      const vertices = new Float32Array(arr);
+
+      const vertexBuffer = gl.createBuffer(); // 创建缓冲区对象，删除：gl.deleteBuffer(buffer)
+      if(!vertexBuffer) return -1;
+      gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); // 绑定缓冲区对象
+
+      gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW); // 将数据写入缓冲区对象
+
+      const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+      gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0); // 将缓冲区对象分配给一个 attribute 变量
+      gl.enableVertexAttribArray(a_Position); // 开启 attribute 变量，关闭：gl.disableVertexAttribArray(position)
+
+      return n;
+    }
+  </script>
+</body>
+</html>

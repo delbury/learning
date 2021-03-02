@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGL</title>
+  <style>
+    #canvas {
+      border: 1px dashed skyblue;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <canvas id="canvas" width="800" height="600"></canvas>
+  </div>
+
+  <script src="./gl-matrix-min.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const gl = canvas.getContext('webgl2'); // webgl 上下文
+
+    // gl.clearColor(0, 0, 0, 1); // 设置 clear 的填充颜色
+    // gl.clear(gl.COLOR_BUFFER_BIT); // 使用设置的颜色，清除（填充）绘图空间
+
+    const vsSource = `
+      attribute vec4 aVertexPosition;
+
+      uniform mat4 uModelViewMatrix;
+      uniform mat4 uProjectionMatrix;
+
+      void main() {
+        gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+      }
+    `;
+    const fsSource = `
+      void main() {
+        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+      }
+    `;
+
+    const shaderProgram = initShaderProgram(gl, vsSource, fsSource); // 创建着色器程序
+
+    const programInfo = {
+      program: shaderProgram,
+      attribLocations: {
+        vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'), // 返回给定 program 中某 attribute 的下标指向位置
+      },
+      uniformLocations: {
+        projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'), // 返回给定 program 中某 uniform 的下标指向位置
+        modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+      }
+    };
+
+    const buffers = initBuffers(gl);
+
+    drawScene(gl, programInfo, buffers);
+
+
+    // 绘制场景
+    function drawScene(gl, programInfo, buffers) {
+      gl.clearColor(0.0, 0.0, 0.0, 1.0); // 设置清除颜色，黑色，不透明
+      gl.clearDepth(1.0); // 设置清除深度缓冲区的深度值
+      gl.enable(gl.DEPTH_TEST); // 启用深度比较
+      gl.depthFunc(gl.LEQUAL); // 指定将输入像素深度与当前深度缓冲区值进行比较的函数
+
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // 清除
+
+      // 创建视图矩阵，模拟摄像头视角
+      const fieldOfView = 45 * Math.PI / 180; // 弧度
+      const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight; // 宽高比
+      const zNear = 0.1; // 近
+      const zFar = 100.0; // 远
+      const projectionMatrix = mat4.create();
+
+      mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+
+      const modelViewMatrix = mat4.create();
+
+      mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -6.0]);
+
+      {
+        const numComponents = 3;
+        const type = gl.FLOAT;
+        const normalize = false;
+        const stride = 0;
+        const offset = 0;
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+        gl.vertexAttribPointer(
+          programInfo.attribLocations.vertexPosition,
+          numComponents,
+          type,
+          normalize,
+          stride,
+          offset,
+        ); // 从当前班定的缓冲区中读取顶点数据
+        gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition); // 在给定的位置，启用顶点attribute数组
+      }
+
+      gl.useProgram(programInfo.program); // 将 program 添加到当前的渲染状态中
+
+      gl.uniformMatrix4fv(
+        programInfo.uniformLocations.projectionMatrix,
+        false,
+        projectionMatrix,
+      ); // 指定一个 uniform 矩阵变量
+      gl.uniformMatrix4fv(
+        programInfo.uniformLocations.modelViewMatrix,
+        false,
+        modelViewMatrix,
+      );
+
+      {
+        const offset = 0;
+        const vertexCount = 4;
+        gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount); // 从向量数组中绘制图元
+      }
+    }
+
+    // 创建 buffer
+    function initBuffers(gl) {
+      const positionBuffer = gl.createBuffer(); // 创建一个用于储存定点数据或者着色数据的 buffer
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer); // 将给定的 buffer 绑定到目标
+
+      const vertices = [
+        1.0, 1.0, 0.0,
+        -1.0, 1.0, 0.0,
+        1.0, -1.0, 0.0,
+        -1.0, -1.0, 0.0,
+      ];
+
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW); // 更新 buffer 数据
+
+      return {
+        position: positionBuffer,
+      };
+    }
+
+    // 着色器：顶点着色器、片段着色器
+    // 初始化着色器程序，让 WebGL 知道如何绘制数据
+    function initShaderProgram(gl, vsSource, fsSource) {
+      const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+      const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+      const shaderProgram = gl.createProgram(); // 创建着色器程序
+      gl.attachShader(shaderProgram, vertexShader); // 添加顶点着色器
+      gl.attachShader(shaderProgram, fragmentShader); // 添加片段着色器
+      gl.linkProgram(shaderProgram); // 连接 program
+
+      const flag = gl.getProgramParameter(shaderProgram, gl.LINK_STATUS); // program 是否链接成功
+      if(!flag) {
+        const info = gl.getProgramInfoLog(shaderProgram); // 获取 program 信息
+        console.log(info);
+        gl.deleteProgram(shaderProgram); // 删除 program
+        return null;
+      }
+      return shaderProgram;
+    }
+
+    // 创建指定类型的着色器，上传 source 源码并编译
+    // type: gl.VERTEX_SHADER, gl.FRAGMENT_SHADER
+    function loadShader(gl, type, source) {
+      const shader = gl.createShader(type); // 创建着色
+      gl.shaderSource(shader, source); // 设置着色器
+      gl.compileShader(shader); // 编译着色器
+
+      const flag = gl.getShaderParameter(shader, gl.COMPILE_STATUS); // 着色器是否编译成功
+      if(!flag) {
+        const info = gl.getShaderInfoLog(shader); // 获取着色器 log 信息
+        console.log(info);
+        gl.deleteShader(shader); // 删除着色器
+        return null;
+      }
+
+      return shader;
+    }
+  </script>
+</body>
+</html>

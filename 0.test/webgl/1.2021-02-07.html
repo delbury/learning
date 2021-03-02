@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    /* #canvas {
+      border: 1px dashed skyblue;
+    } */
+    .container {
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <canvas id="canvas" width="600" height="480"></canvas>
+  </div>
+  <script src="./lib/cuon-utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const gl = canvas.getContext('webgl2');
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // 顶点着色器 GLSL ES
+    const vSource = `
+      attribute vec4 a_Position; // attribute 只能在顶点着色器内使用，只能指定 float 类型
+
+      void main() {
+        gl_Position = a_Position;
+        gl_PointSize = 10.0;
+      }
+    `;
+
+    // 片元着色器 GLSL ES
+    const fSource = `
+      precision mediump float; // 精度限定词
+      uniform vec4 u_FragColor; // uniform 可以指定任意类型
+
+      void main() {
+        gl_FragColor = u_FragColor;
+      }
+    `;
+    
+    // 初始化着色器
+    const flag = initShaders(gl, vSource, fSource);
+    if(!flag) throw new Error();
+    
+    // 设置坐标
+    const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+    const ps = new Float32Array([-0.5, 0.5, 0.0]);
+    gl.vertexAttrib3fv(a_Position, ps);
+
+    // 设置颜色
+    const u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
+    gl.uniform4f(u_FragColor, 0.0, 1.0, 0.0, 1.0);
+
+    // 绘制点
+    gl.drawArrays(gl.POINTS, 0, 1);
+
+    const points = [];
+    canvas.onmousedown = ev => {
+      const { offsetX, offsetY } = ev;
+      const x = 2 * offsetX / canvas.clientWidth - 1;
+      const y =  -2 * offsetY / canvas.clientHeight + 1;
+      points.push([x, y]);
+
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      points.forEach(xy => {
+        gl.vertexAttrib2fv(a_Position, xy);
+        gl.uniform4f(u_FragColor, Math.random(), Math.random(), Math.random(), Math.random());
+
+        gl.drawArrays(gl.POINTS, 0, 1);
+      });
+    };
+  </script>
+</body>
+</html>

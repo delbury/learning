@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    <canvas id="canvas" width="600" height="600"></canvas>
+  </div>
+
+  <script src="./lib/cuon-matrix.js"></script>
+  <script src="./lib/cuon-utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const gl = canvas.getContext('webgl2');
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const vSource = `
+      attribute vec4 a_Position;
+      attribute float a_Size;
+
+      void main() {
+        gl_Position = a_Position;
+        gl_PointSize = a_Size;
+      }
+    `;
+    const fSource = `
+      precision mediump float;
+      uniform vec4 u_Color;
+
+      void main() {
+        gl_FragColor = u_Color;
+      }
+    `;
+
+    const flag = initShaders(gl, vSource, fSource);
+    if(!flag) throw(new Error());
+
+    // 创建缓冲区 buffer
+    const n = initVertexbuffers(gl);
+    if(n < 0) throw(new Error());
+
+    const u_Color = gl.getUniformLocation(gl.program, 'u_Color');
+    gl.uniform4f(u_Color, 0.0, 1.0, 0.0, 1.0);
+
+    gl.drawArrays(gl.POINTS, 0, n);
+
+
+    // 设置 buffer
+    function initVertexbuffers(gl) {
+
+      const arr = [
+        -0.5, -0.5, 10.0,
+        0.5, -0.5, 15.0,
+        0, 0.5, 20.0,
+      ];
+      const n = 3;
+
+      const data = new Float32Array(arr);
+      const buffer = gl.createBuffer();
+      const FSIZE = data.BYTES_PER_ELEMENT;
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+      const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+      const a_Size = gl.getAttribLocation(gl.program, 'a_Size');
+      gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, FSIZE * 3, 0);
+      gl.vertexAttribPointer(a_Size, 1, gl.FLOAT, false, FSIZE * 3, FSIZE * 2);
+      gl.enableVertexAttribArray(a_Position);
+      gl.enableVertexAttribArray(a_Size);
+
+      return n;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    <canvas id="canvas" width="600" height="600"></canvas>
+  </div>
+
+  <script src="./lib/cuon-matrix.js"></script>
+  <script src="./lib/cuon-utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const gl = canvas.getContext('webgl2');
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const vSource = `
+      attribute vec4 a_Position;
+      uniform mat4 u_Matrix;
+
+      attribute vec2 a_TexCoord;
+      varying vec2 v_TexCoord;
+
+      void main() {
+        gl_Position = u_Matrix * a_Position;
+        v_TexCoord = a_TexCoord;
+      }
+    `;
+    const fSource = `
+      precision mediump float;
+
+      uniform sampler2D u_Sampler0;
+      uniform sampler2D u_Sampler1;
+      varying vec2 v_TexCoord;
+
+      void main() {
+        // gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+        vec4 color0 = texture2D(u_Sampler0, v_TexCoord);
+        vec4 color1 = texture2D(u_Sampler1, v_TexCoord);
+        color1.a = 0.8;
+        gl_FragColor = color0 * color1; // 分量相乘
+      }
+    `;
+
+    let flag = initShaders(gl, vSource, fSource);
+    if(!flag) throw(new Error());
+
+    // 创建缓冲区 buffer
+    const n = initVertexbuffers(gl);
+    if(n < 0) throw(new Error());
+
+    // 配置纹理
+    flag = initTextures(gl, n);
+    if(!flag) throw(new Error());
+
+
+    // 设置纹理
+    function initTextures(gl, n) {
+      Promise.all([
+        new Promise((resolve, reject) => {
+          const img1 = new Image();
+          const texture1 = gl.createTexture();
+          img1.onload = () => {
+            loadTexture(gl, n, img1, texture1, 0);
+            resolve();
+          };
+          img1.src = './assets/texture-s.jpg';
+        }),
+        new Promise((resolve, reject) => {
+          const img2 = new Image();
+          const texture2 = gl.createTexture();
+          img2.onload = () => {
+            loadTexture(gl, n, img2, texture2, 1);
+            resolve();
+          };
+          img2.src = './assets/texture.jpg';
+        }),
+      ]).then(res => {
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        const mat4 = new Matrix4();
+        // mat4.scale(1.8, 1.8, 1.0);
+        // mat4.translate(-0.25, -0.375, 0);
+        const u_Matrix = gl.getUniformLocation(gl.program, 'u_Matrix');
+        gl.uniformMatrix4fv(u_Matrix, false, mat4.elements);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, n);
+      });
+
+      return true;
+    }
+
+    // 加载纹理
+    function loadTexture(gl, n, image, texture, unitIndex) {
+      const u_Sampler = gl.getUniformLocation(gl.program, 'u_Sampler' + unitIndex);
+
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); // 图片 y 轴翻转
+      gl.activeTexture(gl['TEXTURE' + unitIndex]); // 开启 0 号纹理单元
+      gl.bindTexture(gl.TEXTURE_2D, texture); // 绑定纹理对象
+
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); // 配置纹理参数
+      // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST); // 配置纹理参数
+      // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT); // 配置纹理参数
+      // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); // 配置纹理参数
+
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image); // 分配纹理图像
+      gl.uniform1i(u_Sampler, unitIndex); // 将 0 号纹理传递给着色器
+    }
+
+    // 设置 buffer
+    function initVertexbuffers(gl) {
+      const arr = [
+        // 0.0, 0.0, 0.0, 0.0,
+        // 0.0, 0.75, 0.0, 1.0,
+        // 0.5, 0.0, 1.0, 0.0,
+        // 0.5, 0.75, 1.0, 1.0,
+
+        -0.5, -0.5, -0.5, -0.5,
+        -0.5, 0.5, -0.5, 1.5,
+        0.5, -0.5, 1.5, -0.5,
+        0.5, 0.5, 1.5, 1.5,
+
+        // -0.95, -0.95, 0.0, 0.0,
+        // -0.5, 0.5, 0.0, 1.0,
+        // 0.95, -0.95, 1.0, 0.0,
+        // 0.95, 0.95, 1.0, 1.0,
+      ];
+      const n = 4;
+
+      const data = new Float32Array(arr);
+      const buffer = gl.createBuffer();
+      const FSIZE = data.BYTES_PER_ELEMENT;
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+      const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+      gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, FSIZE * 4, 0);
+      gl.enableVertexAttribArray(a_Position);
+
+      const a_TexCoord = gl.getAttribLocation(gl.program, 'a_TexCoord');
+      gl.vertexAttribPointer(a_TexCoord, 2, gl.FLOAT, false, FSIZE * 4, FSIZE * 2);
+      gl.enableVertexAttribArray(a_TexCoord);
+
+      return n;
+    }
+  </script>
+</body>
+</html>
