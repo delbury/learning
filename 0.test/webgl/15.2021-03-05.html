@@ -271,7 +271,9 @@
       draw();
     };
     document.onwheel = ev => {
-      console.log(ev);
+      // ev.deltaY > 0 向下，ev.deltaY < 0 向上
+      zAxis += ev.deltaY / 100;
+      draw();
     };
     const rt = (deg, k) => (deg + 5 * k) % 360;
     document.onkeydown = ev => {
