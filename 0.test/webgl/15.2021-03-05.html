@@ -79,19 +79,12 @@
     // gl.polygonOffset(1.0, 1.0); // 计算偏移量的参数
 
     const data = new Float32Array([
-    //   1.5, 10.0, 1.5, -1.5, 10.0, 1.5, -1.5,  0.0, 1.5,  1.5,  0.0, 1.5, // v0-v1-v2-v3 front
-    //   1.5, 10.0, 1.5,  1.5,  0.0, 1.5,  1.5,  0.0,-1.5,  1.5, 10.0,-1.5, // v0-v3-v4-v5 right
-    //   1.5, 10.0, 1.5,  1.5, 10.0,-1.5, -1.5, 10.0,-1.5, -1.5, 10.0, 1.5, // v0-v5-v6-v1 up
-    //  -1.5, 10.0, 1.5, -1.5, 10.0,-1.5, -1.5,  0.0,-1.5, -1.5,  0.0, 1.5, // v1-v6-v7-v2 left
-    //  -1.5,  0.0,-1.5,  1.5,  0.0,-1.5,  1.5,  0.0, 1.5, -1.5,  0.0, 1.5, // v7-v4-v3-v2 down
-    //   1.5,  0.0,-1.5, -1.5,  0.0,-1.5, -1.5, 10.0,-1.5,  1.5, 10.0,-1.5  // v4-v7-v6-v5 back
-
-      1, 1, 1, -1, 1, 1,-1, -1, 1, 1, -1, 1, // 前 0, 1, 2, 3
-      1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, // 右 0, 3, 4, 5
-      1, 1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, // 上 0, 5, 6, 1
-      -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, // 左 1, 6, 7, 2
-      -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, // 下 7, 4, 3, 2
-      1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1, // 后 4, 7, 6, 5
+      0.5, 1.0, 0.5, -0.5, 1.0, 0.5, -0.5, 0.0, 0.5,  0.5, 0.0, 0.5, // v0-v1-v2-v3 front
+      0.5, 1.0, 0.5,  0.5, 0.0, 0.5,  0.5, 0.0,-0.5,  0.5, 1.0,-0.5, // v0-v3-v4-v5 right
+      0.5, 1.0, 0.5,  0.5, 1.0,-0.5, -0.5, 1.0,-0.5, -0.5, 1.0, 0.5, // v0-v5-v6-v1 up
+     -0.5, 1.0, 0.5, -0.5, 1.0,-0.5, -0.5, 0.0,-0.5, -0.5, 0.0, 0.5, // v1-v6-v7-v2 left
+     -0.5, 0.0,-0.5,  0.5, 0.0,-0.5,  0.5, 0.0, 0.5, -0.5, 0.0, 0.5, // v7-v4-v3-v2 down
+      0.5, 0.0,-0.5, -0.5, 0.0,-0.5, -0.5, 1.0,-0.5,  0.5, 1.0,-0.5  // v4-v7-v6-v5 back
     ]);
     const colors = new Float32Array([
       1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -117,12 +110,12 @@
       20, 21, 22, 20, 22, 23, // 后
     ]);
     const normalsData = new Float32Array([
-      0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
-      1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0,
-      0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
-      -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0,
-      0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0,
-      0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1,
+      0.0, 0.0, 1.0,  0.0, 0.0, 1.0,  0.0, 0.0, 1.0,  0.0, 0.0, 1.0, // v0-v1-v2-v3 front
+      1.0, 0.0, 0.0,  1.0, 0.0, 0.0,  1.0, 0.0, 0.0,  1.0, 0.0, 0.0, // v0-v3-v4-v5 right
+      0.0, 1.0, 0.0,  0.0, 1.0, 0.0,  0.0, 1.0, 0.0,  0.0, 1.0, 0.0, // v0-v5-v6-v1 up
+     -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, // v1-v6-v7-v2 left
+      0.0,-1.0, 0.0,  0.0,-1.0, 0.0,  0.0,-1.0, 0.0,  0.0,-1.0, 0.0, // v7-v4-v3-v2 down
+      0.0, 0.0,-1.0,  0.0, 0.0,-1.0,  0.0, 0.0,-1.0,  0.0, 0.0,-1.0  // v4-v7-v6-v5 back
     ]);
     const n = indices.length;
 
@@ -205,8 +198,10 @@
     let rotateDegY = 0;
     let offsetX = 0;      
     let offsetY = 0;
+    let palmRotateDegY = 0;
+    let clampDeg = 0;
     const drawCube = () => {
-      viewMatrix.setPerspective(50, canvas.width / canvas.height, 1, 50).lookAt(xAxis, yAxis, zAxis, 0, 0, 0, 0, 1, 0);
+      viewMatrix.setPerspective(30, canvas.width / canvas.height, 1, 50).lookAt(xAxis, yAxis, zAxis, 0, 0, 0, 0, 1, 0);
         
       gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
       gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
@@ -216,19 +211,40 @@
       gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
     };
     
+    const commonMatrix = new Matrix4();
     const draw = () => {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-      // 下半部分
-      modelMatrix.setTranslate(offsetX, offsetY - 1, 0).rotate(rotateDegY, 0, 1, 0)
-        .scale(0.5, 1, 0.5);
+      // 底部
+      commonMatrix.setTranslate(offsetX, offsetY - 1, 0).rotate(rotateDegY, 0, 1, 0);
+      modelMatrix.set(commonMatrix).translate(0, -0.25, 0).scale(2, 0.25, 2);
+      drawCube();
+
+      // 下臂
+      modelMatrix.set(commonMatrix).scale(0.5, 1, 0.5);
       gl.polygonOffset(0.0, 0.0); // 计算偏移量的参数
       drawCube();
 
-      // 上半部分
-      modelMatrix.setTranslate(offsetX, offsetY - 1, 0).rotate(rotateDegY, 0, 1, 0)
-        .translate(0, 1, 0).rotate(rotateDegX, 1, 0, 0).translate(0, 1, 0).scale(0.5, 1, 0.5);
+      // 上臂
+      commonMatrix.translate(0, 1, 0).rotate(rotateDegX, 1, 0, 0);
+      modelMatrix.set(commonMatrix).scale(0.5, 1, 0.5);
       gl.polygonOffset(1.0, 1.0); // 计算偏移量的参数
+      drawCube();
+
+      // 手掌
+      commonMatrix.rotate(palmRotateDegY, 0, 1, 0).translate(0, 1, 0);
+      modelMatrix.set(commonMatrix).scale(0.75, 0.25, 0.25);
+      drawCube();
+
+      // 手指
+      commonMatrix.translate(0, 0.25, 0);
+      
+      // 手指1
+      modelMatrix.set(commonMatrix).translate(-0.2, 0, 0).rotate(clampDeg, 0, 0, 1).scale(0.15, 0.25, 0.15);
+      drawCube();
+
+      // 手指2
+      modelMatrix.set(commonMatrix).translate(0.2, 0, 0).rotate(-clampDeg, 0, 0, 1).scale(0.15, 0.25, 0.15);
       drawCube();
     };
 
@@ -246,15 +262,19 @@
     // tick(prevTime);
     // lightRotate();
 
-    // canvas.onmousemove = ev => {
-    //   const scale = 15;
-    //   const x = (ev.offsetX - 400) / -400 * scale;
-    //   const y = (ev.offsetY - 400) / 400 * scale;
-    //   xAxis = 3 + x;
-    //   yAxis = 3 + y;
-    //   draw();
-    // };
-     document.onkeydown = ev => {
+    canvas.onmousemove = ev => {
+      const scale = 15;
+      const x = (ev.offsetX - 400) / -400 * scale;
+      const y = (ev.offsetY - 400) / 400 * scale;
+      xAxis = 3 + x;
+      yAxis = 3 + y;
+      draw();
+    };
+    document.onwheel = ev => {
+      console.log(ev);
+    };
+    const rt = (deg, k) => (deg + 5 * k) % 360;
+    document.onkeydown = ev => {
       switch(ev.key) {
         // case 'w': rotateDegX = (rotateDegX - 5) % 360; break;
         // case 's': rotateDegX = (rotateDegX + 5) % 360; break;
@@ -264,10 +284,14 @@
         // case 'ArrowDown': offsetY -= 0.05; break;
         // case 'ArrowLeft': offsetX -= 0.05; break;
         // case 'ArrowRight': offsetX += 0.05; break;
-        case 'w': rotateDegX -= 5; break;
-        case 's': rotateDegX += 5; break;
-        case 'a': rotateDegY -= 5; break;
-        case 'd': rotateDegY += 5; break;
+        case 'w': rotateDegX = rt(rotateDegX, -1); break;
+        case 's': rotateDegX = rt(rotateDegX, 1); break;
+        case 'a': rotateDegY = rt(rotateDegY, -1); break;
+        case 'd': rotateDegY = rt(rotateDegY, 1); break;
+        case 'z': palmRotateDegY = rt(palmRotateDegY, -1); break;
+        case 'x': palmRotateDegY = rt(palmRotateDegY, 1); break;
+        case 'q': clampDeg = rt(clampDeg, -1); break;
+        case 'e': clampDeg = rt(clampDeg, 1); break;
         default: return;
       }
       document.querySelector('.info').innerText = offsetY;
