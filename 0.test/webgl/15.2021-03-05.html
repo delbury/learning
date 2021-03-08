@@ -248,19 +248,7 @@
       drawCube();
     };
 
-    let prevTime = performance.now();
-    const tick = (currentTime) => {
-      const dt = currentTime - prevTime;
-      prevTime = currentTime;
-      rotateDegY = (rotateDegY + dt / 40) % 360;
-      draw();
-
-      return requestAnimationFrame(tick);
-    };
-
     draw();
-    // tick(prevTime);
-    // lightRotate();
 
     canvas.onmousemove = ev => {
       const scale = 15;
@@ -275,29 +263,84 @@
       zAxis += ev.deltaY / 100;
       draw();
     };
-    const rt = (deg, k) => (deg + 5 * k) % 360;
+
+    const rt = (deg, k) => (deg + k) % 360;
+    const pressedKey = new Set();
+    let raf = null;
+    let prevTime = performance.now();
+    const tick = (currentTime) => {
+      if(!pressedKey.size) {
+        raf = null;
+        return;
+      }
+
+      const dt = (currentTime - prevTime) / 10;
+      prevTime = currentTime;
+
+      if(pressedKey.has('w')) {
+        rotateDegX = rt(rotateDegX, -1 * dt);
+      } 
+      if(pressedKey.has('s')) {
+        rotateDegX = rt(rotateDegX, 1 * dt);
+      } 
+      if(pressedKey.has('a')) {
+        rotateDegY = rt(rotateDegY, -1 * dt);
+      } 
+      if(pressedKey.has('d')) {
+        rotateDegY = rt(rotateDegY, 1 * dt);
+      } 
+      if(pressedKey.has('z')) {
+        palmRotateDegY = rt(palmRotateDegY, -1 * dt);
+      } 
+      if(pressedKey.has('x')) {
+        palmRotateDegY = rt(palmRotateDegY, 1 * dt);
+      } 
+      if(pressedKey.has('q')) {
+        clampDeg = rt(clampDeg, -1 * dt);
+      } 
+      if(pressedKey.has('e')) {
+        clampDeg = rt(clampDeg, 1 * dt);
+      }
+      
+      draw();
+
+      raf = requestAnimationFrame(tick);
+    };
+    document.onkeyup = ev => {
+      pressedKey.delete(ev.key);
+    };
     document.onkeydown = ev => {
       switch(ev.key) {
-        // case 'w': rotateDegX = (rotateDegX - 5) % 360; break;
-        // case 's': rotateDegX = (rotateDegX + 5) % 360; break;
-        // case 'd': rotateDegY = (rotateDegY + 5) % 360; break;
-        // case 'a': rotateDegY = (rotateDegY - 5) % 360; break;
-        // case 'ArrowUp': offsetY += 0.05; break;
-        // case 'ArrowDown': offsetY -= 0.05; break;
-        // case 'ArrowLeft': offsetX -= 0.05; break;
-        // case 'ArrowRight': offsetX += 0.05; break;
-        case 'w': rotateDegX = rt(rotateDegX, -1); break;
-        case 's': rotateDegX = rt(rotateDegX, 1); break;
-        case 'a': rotateDegY = rt(rotateDegY, -1); break;
-        case 'd': rotateDegY = rt(rotateDegY, 1); break;
-        case 'z': palmRotateDegY = rt(palmRotateDegY, -1); break;
-        case 'x': palmRotateDegY = rt(palmRotateDegY, 1); break;
-        case 'q': clampDeg = rt(clampDeg, -1); break;
-        case 'e': clampDeg = rt(clampDeg, 1); break;
+        case 'w':
+        case 's':
+        case 'a':
+        case 'd':
+        case 'z':
+        case 'x':
+        case 'q':
+        case 'e':
+          if(!pressedKey.has(ev.key)) {
+            pressedKey.add(ev.key);
+            if(!raf) {
+              prevTime = performance.now();
+              raf = requestAnimationFrame(tick);
+            }
+          }
+          break;
         default: return;
       }
-      document.querySelector('.info').innerText = offsetY;
-      draw();
+      // switch(ev.key) {
+      //   case 'w': rotateDegX = rt(rotateDegX, -1); break;
+      //   case 's': rotateDegX = rt(rotateDegX, 1); break;
+      //   case 'a': rotateDegY = rt(rotateDegY, -1); break;
+      //   case 'd': rotateDegY = rt(rotateDegY, 1); break;
+      //   case 'z': palmRotateDegY = rt(palmRotateDegY, -1); break;
+      //   case 'x': palmRotateDegY = rt(palmRotateDegY, 1); break;
+      //   case 'q': clampDeg = rt(clampDeg, -1); break;
+      //   case 'e': clampDeg = rt(clampDeg, 1); break;
+      //   default: return;
+      // }
+      // draw();
     };
   </script>
 </body>
