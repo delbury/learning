@@ -35,6 +35,7 @@
 
       void main(void) {
         gl_Position = u_ViewMatrix * u_ModelMatrix * a_Position;
+        gl_PointSize = 20.0;
         
         v_Position = vec3(u_ModelMatrix * a_Position); // 计算顶点的世界坐标
         v_Normal = normalize(vec3(u_NormalMatrix * a_Normal)); // 法向量归一化
@@ -225,25 +226,35 @@
     };
 
     let startPosition = null;
+    let offsetDegree = [0, 0];
     const tempMatrix = new Matrix4();
+    let xDir = new Vector3([1, 0, 0]); // x 轴正方向
+    let yDir = new Vector3([0, 1, 0]); // y 轴正方向
+    // let zDir = new Vector3([0, 0, 1]); // z 轴正方向
     canvas.onmousedown = ev => {
       if(ev.button === 0) {
-        startPosition = [ev.offsetX, ev.offsetY];
+        startPosition = [ev.screenX, ev.screenY];
       }
     };
-    canvas.onmouseup = ev => {
+    document.onmouseup = ev => {
       if(ev.button === 0) {
         startPosition = null;
         tempMatrix.set(rotateMatrix);
+        xDir = tempMatrix.multiplyVector3(xDir);
+        yDir = tempMatrix.multiplyVector3(yDir);
+        // yDir = tempMatrix.multiplyVector3(yDir);
+
+        console.log(...xDir.elements);
+        console.log(...yDir.elements);
       }
     };
-    canvas.onmousemove = ev => {
+    document.onmousemove = ev => {
       if(!startPosition) return;
 
-      const dx = (ev.offsetX - startPosition[0]) / 5;
-      const dy = (ev.offsetY - startPosition[1]) / 5;
+      const dx = (ev.screenX - startPosition[0]) / 5;
+      const dy = (ev.screenY - startPosition[1]) / 5;
       
-      rotateMatrix.set(tempMatrix).rotate(dx, 0, 1, 0).rotate(dy, 1, 0, 0);
+      rotateMatrix.set(tempMatrix).rotate(dx, ...yDir.elements).rotate(dy, ...xDir.elements);
       draw();
     }
 
