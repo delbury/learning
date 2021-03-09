@@ -739,3 +739,13 @@ var Vector4 = function(opt_src) {
   } 
   this.elements = v;
 }
+
+/**
+ * dot
+ * @param other another vertor4 instance
+ */
+Vector4.prototype.dot = function(other) {
+  var v = this.elements;
+  var o = other.elements;
+  return v[0] * o[0] + v[1] * o[1] + v[2] * o[2];
+};
