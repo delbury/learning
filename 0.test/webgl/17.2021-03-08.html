@@ -53,7 +53,9 @@
         v_Color = a_Color;
         v_TexCoord = a_TexCoord;
         v_Face = a_Face;
+
         v_Distance = distance(v_Position, u_ViewPoint);
+        // v_Distance = gl_Position.w; // 使用w分量近似
       }
     `;
     const fSource = `
@@ -99,7 +101,9 @@
             color = color;
           }
 
+          // 雾化
           float fogFactor = clamp((u_FogRange.y - v_Distance) / (u_FogRange.y - u_FogRange.x), 0.0, 1.0);
+          fogFactor = log2(fogFactor + 1.0); // 指数雾化
           color = mix(u_FogColor, color, fogFactor);
 
           gl_FragColor = color;
@@ -257,8 +261,7 @@
     const viewPoint = [3, 3, 15];
     let rotateDegX = 0;
     let rotateDegY = 0;
-    let tempRotateDegX = 0;
-    let tempRotateDegY = 0;
+    let tempRotateDeg = [0, 0, 0];
     let translate = [0, 0, 0];
     let scaleRate = 1;
     const rotateMatrix = new Matrix4().setRotate(rotateDegY, 0, 1, 0).rotate(rotateDegX, 1, 0, 0);
@@ -286,8 +289,17 @@
       ctx.fillText(`translate: (${translate[0].toFixed(2).padStart(5, ' ')}, ${translate[1].toFixed(2).padStart(5, ' ')}, 0.00)`, 20, 20);
       const sr = scaleRate.toFixed(1).padStart(4, ' ');
       ctx.fillText(`scale: (${sr}, ${sr}, ${sr})`, 20, 50);
-      ctx.fillText(`rotate: (${tempRotateDegX.toFixed(2).padStart(5, ' ')}, ${tempRotateDegY.toFixed(2).padStart(5, ' ')}, 0.00)`, 20, 80);
+      ctx.fillText(`rotate: (${tempRotateDeg[0].toFixed(2).padStart(5, ' ')}, ${tempRotateDeg[1].toFixed(2).padStart(5, ' ')}, ${tempRotateDeg[2].toFixed(2).padStart(5, ' ')})`, 20, 80);
     };
+    let raq = null;
+    const tick = () => {
+      if(!raq) {
+        raq = requestAnimationFrame(() => {
+          draw();
+          raq = null;
+        });
+      }
+    }
 
 
     let startPosition = null;
@@ -300,15 +312,15 @@
     let rotating = false;
     let tempTranslate = [0, 0, 0];
 
-    // 滚动
+    // 鼠标滚动
     document.onwheel = ev => {
       const k = ev.deltaY / -1000;
       scaleRate += k;
       draw();
     };
-    // 右键
+    // 鼠标右键
     canvas.oncontextmenu = ev => ev.preventDefault();
-    // 按下
+    // 鼠标按下
     canvas.onmousedown = ev => {
       // 移动
       if(ev.button === 2) {
@@ -337,7 +349,7 @@
         rotating = true;
       }
     };
-    // 移动
+    // 鼠标松开
     document.onmouseup = ev => {
       startPosition = null;
 
@@ -348,38 +360,39 @@
         const inverseMatrix = new Matrix4(tempMatrix).invert();
         xDir = inverseMatrix.multiplyVector4(new Vector4(X_DIR));
         yDir = inverseMatrix.multiplyVector4(new Vector4(Y_DIR));
-
-        rotateDegX = tempRotateDegX;
-        rotateDegY = tempRotateDegY;
       }
 
       // 停止移动 
       if(ev.button === 2) {
         moving = false;
         gl.uniform1i(u_PickedFace, 0);
-        draw();
       }
     };
+    // 鼠标移动
     document.onmousemove = ev => {
-      // 旋转
+      // 移动
       if(moving) {
         const dx = (ev.screenX - startPosition[0]) / 100;
         const dy = (ev.screenY - startPosition[1]) / 100;
 
         translate = [tempTranslate[0] + dx, tempTranslate[1] - dy, 0];
 
-        draw();
+        tick();
       }
 
-      // 移动
+      // 旋转
       if(rotating) {
         const dx = (ev.screenX - startPosition[0]) / 5;
         const dy = (ev.screenY - startPosition[1]) / 5;
         
-        tempRotateDegX = (rotateDegX + dx) % 360;
-        tempRotateDegY = (rotateDegY + dy) % 360;
         rotateMatrix.set(tempMatrix).rotate(dx, ...yDir.elements).rotate(dy, ...xDir.elements);
-        draw();
+        const e = rotateMatrix.elements;
+        const degy = Math.atan2(-e[2], Math.sqrt(e[0] ** 2, e[1] ** 2));
+        const cosy = Math.cos(degy);
+        const degz = Math.atan2(e[1] / cosy, e[0] / cosy);
+        const degx = Math.atan2(e[6] / cosy, e[10] / cosy);
+        tempRotateDeg = [degx, degy, degz];
+        tick();
       }
     }
 

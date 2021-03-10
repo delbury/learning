@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <canvas width="800" height="800"></canvas>
+
+  <script src="./lib/cuon-utils.js"></script>
+  <script>
+    const canvas = document.querySelector('canvas');
+    const gl = canvas.getContext('webgl2');
+
+    const vSource = `
+      void main() {
+        gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+        gl_PointSize = 30.0;
+      }
+    `;
+    const fSource = `
+      void main() {
+        gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+      }
+    `;
+
+    let flag = initShaders(gl, vSource, fSource);
+    if(!flag) throw(new Error());
+
+    const draw = () => {
+      gl.clearColor(0, 0, 0, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+  
+      gl.drawArrays(gl.POINTS, 0, 1);
+    };
+
+    draw();
+  </script>
+</body>
+</html>
