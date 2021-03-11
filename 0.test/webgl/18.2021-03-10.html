@@ -17,12 +17,24 @@
     const vSource = `
       void main() {
         gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
-        gl_PointSize = 30.0;
+        gl_PointSize = 600.0;
       }
     `;
     const fSource = `
+      precision mediump float;
+
       void main() {
-        gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+        // gl_FragCoord 片元的窗口坐标
+        // gl_PointCoord 片元在被绘制的点内的坐标
+
+        float dist = distance(gl_PointCoord, vec2(0.5));
+        if(dist >= 0.0 && dist <= 0.2) {
+          gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+        } else if(dist >= 0.4 && dist <= 0.5) {
+          gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+        } else {
+          discard;
+        }
       }
     `;
 
