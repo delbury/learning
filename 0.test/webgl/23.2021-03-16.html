@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    <canvas id="canvas" width="800" height="800"></canvas>
+  </div>
+
+  <script src="./lib/cuon-matrix.js"></script>
+  <script src="./lib/cuon-utils.js"></script>
+  <script>
+    const canvas = document.getElementById('canvas');
+    const gl = canvas.getContext('webgl2');
+
+    const V_SOURCE = `
+      attribute vec4 a_Position;
+      uniform mat4 u_MvpMatrix;
+
+      void main() {
+        gl_Position = u_MvpMatrix * a_Position;
+      }
+    `;
+    const F_SOURCE = `
+      void main() {
+        gl_FragColor = vec4(vec3(gl_FragCoord.z), 1.0);
+      }
+    `;
+
+    initShaders(gl, V_SOURCE, F_SOURCE);
+    
+    const vertices = new Float32Array([0.5, 0.5, 2.0,   0.5, -0.5, 2.0,   -1.0, 0.0, -5.0]);
+    
+    const verBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, verBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+    const a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+    gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(a_Position);
+
+    const matrix = new Matrix4();
+    matrix.setPerspective(70, 1, 1, 100).lookAt(0, 0, 2, 0, 0, 0, 0, 1, 0);
+    const u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
+    gl.uniformMatrix4fv(u_MvpMatrix, false, matrix.elements);
+
+    gl.clearColor(0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  </script>
+</body>
+</html>
