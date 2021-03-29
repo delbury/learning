@@ -103,7 +103,8 @@
   > 使用 Set <br>
 
 - get、post的区别
-  > GET：query 传参 <br>
+  [GET和POST的区别](https://www.zhihu.com/question/28586791)
+  > GET：query 传参，幂等性：一次或多次操作返回结果相同 <br>
   > POST：query/body 传参 <br>
   > 一般对 GET 缓存，很少对 POST 缓存
 
@@ -113,3 +114,4 @@
   > 304：请求的资源未被更改 <br>
   > 400、401、403、404 <br>
   > 500、502、504
+
