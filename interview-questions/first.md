@@ -1,5 +1,5 @@
 ## 题目
-1. ### 对 tree-shaking 的了解
+- ### 对 tree-shaking 的了解
   - 用于移除 js 上下文中的未引用代码，依赖于 ES6 中模块系统中的静态结构特性，如 import / export
   - ES6模块依赖关系是确定的，和运行时的状态无关，可以进行可靠的静态分析，这就是tree-shaking的基础
   - ES6 module 特点：
@@ -10,14 +10,31 @@
   - babel需要配置 { modules: false }, package.json 配置 { "sideEffect": false }
   - webpack偏向于前端工程，rollup偏向于js库
 
-2. ### Common.js 和 es6 module 区别
+- ### Common.js 和 es6 module 区别
   - Commonjs的require语法是运行时的，内容是在运行时确定，可以动态加载 / ES6 Module 是静态的，加载和暴露的内容都是确定的，无法动态加载
   - Commonjs输出的是值的浅拷贝 / ES6 Module 输出的是值的引用
 
-3. ### 缓存策略
+- ### 浏览器缓存
+  [系统总结浏览器缓存](http://blog.alanwu.website/2020/01/31/navigatorCache/)
+  > 前端对于任一个网络请求来说，可以将请求分为三个阶段。网络请求，后端处理，浏览器响应。缓存可以优化我们的第一步和第三步，一个网络请求做到性能最优，就必须提升三者各自的性能，避免短板效应。
+
+  - 缓存归类：
+    1. Memory Cache <br>
+       Memory Cacha是指内存中的缓存。它是浏览器优先去命中的一种缓存，也是响应速度最快的一种缓存。但是它的缺点是缓存时间短，关闭tab页面缓存将不复存在，它与浏览器渲染进程紧密联系。
+    2. Service Worker Cache <br>
+       Service Worker 是一种独立于主线程之外的javascript线程。它脱离于浏览器窗体，因此无法直接访问DOM元素。所以这一个独立的线程能够在不干扰主线程的情况下来提升性能。Service Worker 的缓存与浏览器内建的其他缓存机制不一样，它可以让我们自由缓存哪一些文件、如何匹配缓存等，且缓存具有持续性。<br>
+       实现该缓存一般分为3个步骤：首先注册Service Worker ，然后监听install事件就可以缓存我们想要的文件。用户下次访问可以通过拦截请求的方式来获取缓存数据。若没有则会重新获取数据，然后再进行缓存。 <br>
+       Service Worker 必须使用 https 或者本地 localhost 调试使用
+    3. Disk Cache <br>
+       Disk Cache也就是硬盘缓存。这种缓存的缓存位置在电脑硬盘上，什么文件都可以缓存，就是读取速度慢。所有缓存中，它的覆盖面是最广的，会根据HTTP Header中的字段判断哪一些资源需要缓存，哪些可以不请求直接使用，哪一些已过期需要重新请求。
+    4. Push Cache <br>
+       Push Cache又名推送缓存，是HTTP/2中的内容，只有以上三种缓存未正确命中，它才会使用。仅存在于会话阶段（session），结束就会释放，缓存时间短。
+
+- ### 缓存策略
   ##### 提升数据交换的性能，缓解服务器的压力
   ![缓存策略](./reference/cache-strategy.webp)
   - 缓存大致可归为两类：私有缓存（只能用于单独用户）、共享缓存（能否被多个用户使用）
+  - Pragma：是http/1.1之前版本的历史遗留字段，仅作为与http的向后兼容而定义
   - 强缓存
     - 直接从缓存数据库中取出资源，无需再发送到服务器上
     - http中相关header为 Expires / Cache-Control，Cache-Control优先级高于 Expires
@@ -48,12 +65,16 @@
   - 对比缓存（协商缓存）
     - 经过服务器确认是否使用缓存的机制，状态码为 304 (not modified)
     - HTTP相关header为 Last-Modified / If-Modified-Since, Etag / If-None-Match，Etag 的优先级高于 Last-Modified
-    - Last-Modified / If-Modified-Since
+    - Last-Modified / If-Modified-Since / If-Unmodified-Since
       >- 由于精确度比  ETag 要低，所以这是一个备用机制
       >- 包含有  If-Modified-Since 或 If-Unmodified-Since 首部的条件请求会使用这个字段
+      >- If-Modified-Since：文件修改了返回 200，否则返回 304 （缓存）
+      >- If-Unmodified-Since：文件没修改返回 200.否则返回 412 （断点续传）
       >- 浏览器第一次访问一个资源时，服务器会在response header中返回一个Last-Modified，代表这个资源最后的修改时间，当浏览器再次访问这个资源的时候，会在request header中带上 If-Modified-Since，值为上次请求时服务器返回的 Last-Modified 的值，然后服务器根据资源上次修改的时间确认资源在这段期间内是否更改过，如果没有，则返回304，如果有，则返回200并返回最新的资源。
-    - Etag / If-None-Match
+    - Etag / If-None-Match / If-Match
       >- Etag是通过一个校验码来对比资源是否更改过的，而不是通过资源的修改时间
+      >- If-None-Match：文件修改了返回 200，否则返回 304 （缓存）
+      >- If-Match：文件没修改返回 200.否则返回 412 （断点续传）
       >- 当一个资源修改时，其校验码也会更改。当浏览器请求资源时，服务器会返回一个Etag字段，然后浏览器下一次请求时，会带上 If-None-Match ，值为上次服务器返回的Etag的值，服务器经过校验码的对比后决定返回200或304
       >- If-None-Match 的值中有个 W/ 前缀，这个其实不用去关心，这个是用来提示应该采用弱比较算法
 
@@ -67,7 +88,7 @@
       缓存仓库 -> 客户端: 返回缓存资源
       ```
 
-4. ### HTTP 状态码
+- ### HTTP 状态码
   - 1xx Informational 消息，临时响应
     - **100** *Continue* 客户端应当继续发送请求
     - **101** *Switching Protocols* 服务器已经理解了客户端请求，并通过Upgrade header通知客户端采用不同的协议完成这个请求，如Websocket
@@ -147,7 +168,7 @@
   - 6xx 同 5xx
     - **600** *Unparseable Response Headers* 源站没有返回响应头部，只返回实体内容
 
-5. ### HTTPS 加密过程
+- ### HTTPS 加密过程
   - HTTP： 直接通过明文在浏览器和服务器之间传递信息
   - HTTPS： 采用 对称加密 和 非对称加密 结合的方式来保护浏览器和服务端之间的通信安全。对称加密算法加密数据+非对称加密算法交换密钥+数字证书验证身份=安全
     >- 对称加密: 加密和解密的秘钥使用的是同一个
@@ -155,7 +176,7 @@
   - HTTPS = HTTP + TLS/SSL
   ![HTTPS加密过程](./reference/https-hand-shake.png)
 
-6. ### 防抖和节流
+- ### 防抖和节流
   - 防抖
   ```js
     function debounce(fn, wait) {
@@ -203,7 +224,7 @@
     }
   ```
 
-7. ### 响应式原理
+- ### 响应式原理
   - 概念
     - 意思就是在改变数据的时候，视图会跟着更新
   - 模式
@@ -214,7 +235,7 @@
     - 2.x 利用了 Object.defineProperty 的方法里面的 setter 与 getter 方法的观察者模式来实现
     - 3.x 使用了 Proxy 实现
 
-8. ### JavaScript 数组
+- ### JavaScript 数组
   - JSArray 继承自 JSObject，所以在 JavaScript 中，数组可以是一个特殊的对象，内部也是以 key-value 形式存储数据，所以 JavaScript 中的数组可以存放不同类型的值
   - JSArray 有两种存储方式：
     > fast：存储结构是 FixedArray ，并且数组长度 <= elements.length() ，push 或 pop 时可能会伴随着动态扩容或减容
@@ -250,7 +271,7 @@
       6. 不是的话，用 holes 对象填充
       7. 返回要删除的元素
 
-9. ### 浏览器JS运行机制
+- ### 浏览器JS运行机制
   - JavaScript 将任务的执行模式分为两种：同步和异步
   - 同步任务都在主线程（这里的主线程就是 JavaScript 引擎线程）上执行，会形成一个 **调用栈**，又称 **执行栈**
   - 除了主线程外，还有一个 **任务队列** （也称消息队列），用于管理异步任务的 **事件回调**，在 **调用栈** 的任务执行完毕之后，系统会检查任务队列，看是否有可以执行的异步任务
