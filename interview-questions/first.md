@@ -188,7 +188,7 @@
         }
         timer = setTimeout(() => {
           fn();
-          timer = null
+          timer = null;
         }, wait);
       };
     }
@@ -204,7 +204,7 @@
           fn();
           timer = setTimeout(() => {
             timer = null;
-          }, wait)
+          }, wait);
         }
       };
     }
