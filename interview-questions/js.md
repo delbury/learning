@@ -267,10 +267,12 @@ call
 ```js
 Function.prototype.call = function(...args) {
   const [ctx, ...rest] = args;
+  if(!ctx) return this();
   const sy = Symbol();
   ctx[sy] = this;
-  ctx[sy](...rest);
+  const res = ctx[sy](...rest);
   Reflect.deleteProperty(ctx, sy);
+  return res;
 };
 ```
 ---
@@ -278,9 +280,11 @@ apply
 ```js
 Function.prototype.apply = function(ctx, rest) {
   const sy = Symbol();
+  if(!ctx) return this();
   ctx[sy] = this;
-  ctx[sy](...rest);
+  const res = ctx[sy](...rest);
   Reflect.deleteProperty(ctx, sy);
+  return res;
 };
 ```
 ---
@@ -288,12 +292,96 @@ bind
 ```js
 Function.prototype.bind = function(ctx) {
   return (...rest) => {
+    if(!ctx) return this();
     const sy = Symbol();
     ctx[sy] = this;
-    ctx[sy](...rest);
+    const res = ctx[sy](...rest);
     Reflect.deleteProperty(ctx, sy);
+    return res;
   }
 };
 ```
 
-todo https://juejin.cn/post/6945640942976122910#heading-11
+
+### 封装数据类型函数
+```js
+const type = (() => {
+  const type = Object.create(null);
+  const arr = ['Number, String, Boolean, Object, Array, Symbol, Undefined, Null'];
+  for(let text of arr) {
+    type[`is${text}`] = function(arg) {
+      return Object.prototype.toString.call(arg) === `[object ${text}]`;
+    };
+  }
+  return type;
+})();
+```
+
+
+### 自记忆函数
+```js
+const memory = function(fn) {
+  const cache = {};
+  return function(...args) {
+    const key = JSON.stringify(args);
+    if(cache[key]) return cache[key];
+    cache[key] = fn.apply(fn, args);
+  }
+}
+```
+
+
+### 是否存在循环引用
+```js
+const cycle = function(target) {
+  const set = new WeakSet(); // 缓存每一个已遍历的对象
+  const _cycle = function(obj) {
+    if(obj && typeof obj === 'object') {
+      if(set.has(obj)) {
+        return true;
+      } else {
+        set.add(obj);
+        const keys = Object.keys(obj);
+        // 每一个子属性进行递归判断
+        return keys.some(key => _cycle(obj[key])); 
+      }
+    } else {
+      return false;
+    }
+  };
+  return _cycle(target);
+}
+```
+
+
+### 深拷贝
+```js
+// 包含处理循环引用
+const deepClone = function(obj) {
+  const map = new WeakMap(); // 判断是否循环引用的缓存
+  const _clone = function(target) {
+    let res;
+    if(target && typeof target === 'object') {
+      // 对象或数组
+      if(map.has(target)) {
+        // 判断是否循环引用
+        return map.get(target);
+      } else {
+        res = Array.isArray(target) ? [] : {};
+        map.set(target, res);
+        for(let key in target) {
+          res[key] = _clone(target[key]);
+        }
+      }
+    } else if(typeof target === 'function') {
+      // 函数
+      res = eval(`(${target.toString()})`);
+    } else {
+      // 基本类型
+      res = target;
+    }
+    return res;
+  };
+  return _clone(obj);
+}
+```
