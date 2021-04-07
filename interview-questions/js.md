@@ -385,3 +385,44 @@ const deepClone = function(obj) {
   return _clone(obj);
 }
 ```
+
+
+### Promise
+Promise.finally
+```js
+Promise.prototype.finally = function(fn) {
+  return this.then(
+    res => {
+      Promise.resolve(fn()).then(r => r);
+    },
+    err => {
+      Promise.reject(fn()).then(e => throw e);
+    }
+  );
+};
+```
+
+
+### async / await
+async/await语法糖就是使用Generator函数+自动执行器来运作的。
+```js
+function customAsync(genFn) {
+  return new Promise((resolve, reject) => {
+    const gen = genFn(); // 生成迭代器
+    const step = (type, args) => {
+      let next;
+      try {
+        next = gen[type](args);
+      } catch (e) {
+        return reject(e);
+      }
+      if(next.done) return resolve(next.value);
+      Promise.resolve(next.value).then(
+        val => step('next', val), 
+        err => step('throw', err)
+      );
+    };
+    step('next');
+  });
+}
+```
