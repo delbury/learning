@@ -426,3 +426,85 @@ function customAsync(genFn) {
   });
 }
 ```
+
+
+### 发布 / 订阅
+```js
+class Events {
+  constructor() {
+    this.events = new Map();
+  }
+  on(eventName, callback) {
+    if(this.events.has(eventName)) {
+      this.events.get(eventName).add(callback);
+    } else {
+      this.events.set(eventName, new Set([callback]));
+    }
+  }
+  off(eventName, callback) {
+    const cbs = this.events.get(eventName);
+    if(cbs.has(callback)) {
+      cbs.delete(callback);
+    }
+  }
+  emit(eventName, payload) {
+    const cbs = this.events.get(eventName);
+    if(cbs)) {
+      for(let cb of cbs) {
+        cb(payload);
+      }
+    }
+  }
+}
+```
+
+
+### 单例模式
+单例模式：保证一个类仅有一个实例，并提供一个访问它的全局访问点。实现方法一般是先判断实例是否存在，如果存在直接返回，如果不存在就先创建再返回。
+```js
+// 闭包实现
+const getSingle = function(fn) {
+  let instance = null;
+  return function(...args) {
+    return instance || (instance = fn.apply(fn, args));
+  };
+};
+```
+```js
+// Proxy 实现
+const getSingle = function(fn) {
+  let instance = null;
+  return new Proxy(fn, {
+    constructor(...args) {
+      return instance || (instance = Reflect.constructor(fn, args));
+    },
+  });
+};
+```
+
+
+### Object.create
+```js
+Object.prototype.create = function(prototype) {
+  const obj = {};
+  Reflect.setPrototypeOf(obj, prototype);
+  return obj;
+}
+```
+
+
+### class 继承
+```js
+function Parent(name) {
+  this.name = name;
+  this.showName = function() {};
+}
+Parent.showP = () => console.log('P');
+function Child(name, age) {
+  Parent.apply(this, [name]);
+  this.age = age;
+  this.showAge = function() {};
+}
+Parent.showC = () => console.log('C');
+Reflect.setPrototypeOf(Child, Parent);
+```
