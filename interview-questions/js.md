@@ -508,3 +508,15 @@ function Child(name, age) {
 Parent.showC = () => console.log('C');
 Reflect.setPrototypeOf(Child, Parent);
 ```
+
+
+### == 类型转换
+![类型转换规则](./reference/js-compare-rules.jpeg)
+对象与基础类型值比较，两者共存时，优先调用 valueOf()，次二调用 toString()
+
+
+
+### 类型判断
+- typeof
+- instanceof
+- Object.prototype.toString()
