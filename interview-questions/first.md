@@ -179,12 +179,28 @@
 - ### 防抖和节流
   - 防抖
   ```js
-    function debounce(fn, wait) {
+    // 首部执行
+    function debounceHead(fn, wait) {
+      let timer = null;
+      return () => {
+        if(!timer) {
+          fn();
+        } else {
+          clearTimeout(timer);
+        }
+        timer = setTimeout(() => {
+          timer = null;
+        }, wait);
+      }
+    }
+
+    // 尾部执行
+    function debounceTail(fn, wait) {
       let timer = null;
       
       return () => {
         if(timer) {
-          clearTimetout(timer);
+          clearTimeout(timer);
         }
         timer = setTimeout(() => {
           fn();
@@ -196,7 +212,7 @@
   - 节流
   ```js
     // 首部执行
-    function throttleTail(fn, wait) {
+    function throttleHead(fn, wait) {
       let timer = null;
 
       return () => {
@@ -283,7 +299,7 @@
       - 新生代：用来存放生存周期较短的小对象，一般只支持1～8M的容量
       - 老生代：用来存放生存周期较长的对象或大对象
     - 垃圾回收
-      - 回收栈空间：ESP指针
+      - 回收栈空间：ESP指针、EBP指针
       - 回收堆空间：新生代使用副垃圾回收器，老生代使用主垃圾回收器
         - 副垃圾回收器：采用 Scavenge 算法及对象晋升策略来进行垃圾回收，即把新生代空间对半划分为两个区域，一半是对象区域，一半是空闲区域。流程：1.标记；2.垃圾清理；3.区域翻转；4.晋升存活对象
         - 主垃圾回收器：V8 中主垃圾回收器主要采用标记-清除法进行垃圾回收。流程：1.标记；2.垃圾清理；3.内存整理
