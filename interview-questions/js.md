@@ -717,3 +717,259 @@ s.getNumber()
 因为 JS 采用 IEEE 754 双精度版本（64位），并且只要采用 IEEE 754 的语言都有该问题。
 
 不止 0.1 + 0.2 存在问题，0.7 + 0.1、0.2 + 0.4 同样也存在问题。
+
+
+
+## JS 模块规范
+### AMD
+- 特点：
+  1. 异步加载
+  2. 管理模块之间的依赖性，便于代码的编写和维护。
+- 环境：浏览器环境
+- 应用：requireJS是参照AMD规范实现的
+- 语法：
+  1. 导入：`require(['模块名称'], function ('模块变量引用'){// 代码});`
+  2. 导出：`define(function (){return '值');`
+- demo:
+  ```js
+  // a.js
+  define(function (){
+  　　return {
+  　　　a:'hello world'
+  　　}
+  });
+  // b.js
+  require(['./a.js'], function (moduleA){
+      console.log(moduleA.a); // 打印出：hello world
+  });
+  ```
+### UMD
+- 特点：
+  1. 兼容AMD和commonJS规范的同时，还兼容全局引用的方式
+- 环境：浏览器或服务器环境
+- 应用：无
+- 语法：
+  1. 无导入导出规范，只有如下的一个常规写法：
+- 常规写法：
+  ```js
+  (function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+      //AMD
+      define(['jquery'], factory);
+    } else if (typeof exports === 'object') {
+      //Node, CommonJS之类的
+      module.exports = factory(require('jquery'));
+    } else {
+      //浏览器全局变量(root 即 window)
+      root.returnExports = factory(root.jQuery);
+    }
+  }(this, function ($) {
+    //方法
+    function myFunc() {};
+    //暴露公共方法
+    return myFunc;
+  }));
+  ```
+### CMD
+- 特点
+  1. CMD是在AMD基础上改进的一种规范，和AMD不同在于对依赖模块的执行时机处理不同，CMD是就近依赖，而AMD是前置依赖。
+- 环境：浏览器环境
+- 应用：seajs是参照UMD规范实现的，requireJS的最新的几个版本也是部分参照了UMD规范的实现
+- 语法：
+  1. 导入：`define(function(require, exports, module) {});`
+  2. 导出：`define(function (){return '值');`
+- demo:
+  ```js
+  // a.js
+  define(function (require, exports, module) {
+  　exports.a = 'hello world';
+  });
+  // b.js
+  define(function (require, exports, module) {
+    var moduleA = require('./a.js');
+    console.log(moduleA.a); // 打印出：hello world
+  });
+  ```
+### commonJS
+- 特点：
+  1. 模块可以多次加载，但是只会在第一次加载时运行一次，然后运行结果就被缓存了，以后再加载，就直接读取缓存结果。要想让模块再次运行，必须清除缓存。
+  2. 模块加载会阻塞接下来代码的执行，需要等到模块加载完成才能继续执行——同步加载。
+- 环境：服务器环境
+- 应用：nodejs的模块规范是参照commonJS实现的。
+- 语法：
+  1. 导入：`require('路径')`
+  2. 导出：`module.exports` 和 `exports`
+- 注意：`module.exports` 和 `exports` 的的区别是 `exports` 只是对 `module.exports` 的一个引用，相当于 Node 为每个模块提供一个 `exports` 变量，指向 `module.exports`。这等同在每个模块头部，有一行 `var exports = module.exports;` 这样的命令。
+- demo:
+  ```js
+  // a.js
+  // 相当于这里还有一行：var exports = module.exports;代码
+  exports.a = 'Hello world';  // 相当于：module.exports.a = 'Hello world';
+
+  // b.js
+  var moduleA = require('./a.js');
+  console.log(moduleA.a);     // 打印出hello world
+  ```
+### ES6 Module
+- 特点：
+  1. 按需加载（编译时加载）
+  2. `import` 和 `export` 命令只能在模块的顶层，不能在代码块之中（如：if语句中），`import()` 语句可以在代码块中实现异步动态按需动态加载
+- 环境：浏览器或服务器环境（以后可能支持）
+- 应用：ES6的最新语法支持规范
+- 语法：
+  1. 导入：`import {模块名A，模块名B...} from '模块路径'`
+  2. `导出：export` 和 `export default`
+  3. `import('模块路径').then()` 方法
+  4. `const { url, scriptElement } = import.meta` 模块信息
+- 注意：`export` 只支持对象形式导出，不支持值的导出，`export default` 命令用于指定模块的默认输出，只支持值导出，但是只能指定一个，本质上它就是输出一个叫做 `default` 的变量或方法。
+- 规范：
+  ```js
+  /*错误的写法*/
+  // 写法一
+  export 1;
+
+  // 写法二
+  var m = 1;
+  export m;
+
+  // 写法三
+  if (x === 2) {
+    import MyModual from './myModual';
+  }
+
+  /*正确的三种写法*/
+  // 写法一
+  export var m = 1;
+
+  // 写法二
+  var m = 1;
+  export { m };
+
+  // 写法三
+  var n = 1;
+  export { n as m };
+
+  // 写法四
+  var n = 1;
+  export default n;
+
+  // 写法五
+  if (true) {
+    import('./myModule.js')
+    .then(({export1, export2}) => {
+      // ...
+    });
+  }
+
+  // 写法六
+  Promise.all([
+    import('./module1.js'),
+    import('./module2.js'),
+    import('./module3.js'),
+  ])
+  .then(([module1, module2, module3]) => {
+    // ···
+  });
+
+  // 加载
+  import * from 'module';
+
+  // 整体加载
+  import * as module from 'module';
+  // 模块整体加载所在的那个对象（上例是circle），应该是可以静态分析的，
+  // 所以不允许运行时改变。下面的写法都是不允许的
+  module.foo = 'hello'; // error
+  module.area = function () {}; // error
+
+
+  // 复合写法
+  // 但需要注意的是，写成一行以后，foo 和 bar 实际上并没有被导入当前模块，
+  // 只是相当于对外转发了这两个接口，导致当前模块不能直接使用 foo 和 bar。
+  export { foo, bar } from 'module';
+
+  // 接口改名
+  export { foo as myfoo } from 'module';
+
+  // 整体导出，会忽略 export default
+  export * from 'module';
+
+  // 导出默认
+  export { default } from 'module';
+
+  // 具名接口改为默认
+  export { es6 as default } from 'module';
+
+  // 默认接口改具名
+  export { default as es6 } from 'module';
+
+  // ES2020补充
+  export * as ns from 'module';
+  // 等同于
+  import * as ns from "mod";
+  export { ns };
+  ```
+- MDN：
+  ```js
+  import defaultExport from "module-name";
+  import * as name from "module-name";
+  import { export } from "module-name";
+  import { export as alias } from "module-name";
+  import { export1 , export2 } from "module-name";
+  import { foo , bar } from "module-name/path/to/specific/un-exported/file";
+  import { export1 , export2 as alias2 , [...] } from "module-name";
+  import defaultExport, { export [ , [...] ] } from "module-name";
+  import defaultExport, * as name from "module-name";
+  import "module-name";
+  var promise = import("module-name");//这是一个处于第三阶段的提案。
+
+  // 导出单个特性
+  export let name1, name2, …, nameN; // also var, const
+  export let name1 = …, name2 = …, …, nameN; // also var, const
+  export function FunctionName(){...}
+  export class ClassName {...}
+
+  // 导出列表
+  export { name1, name2, …, nameN };
+
+  // 重命名导出
+  export { variable1 as name1, variable2 as name2, …, nameN };
+
+  // 解构导出并重命名
+  export const { name1, name2: bar } = o;
+
+  // 默认导出
+  export default expression;
+  export default function (…) { … } // also class, function*
+  export default function name1(…) { … } // also class, function*
+  export { name1 as default, … };
+
+  // 导出模块合集
+  export * from …; // does not set the default export
+  export * as name1 from …; // Draft ECMAScript® 2O21
+  export { name1, name2, …, nameN } from …;
+  export { import1 as name1, import2 as name2, …, nameN } from …;
+  export { default } from …;
+  ```
+
+
+## 立即执行函数 (IIFE: Imdiately Invoked Function Expression)
+```js
+// 形式 1
+(function(...params){
+  // code
+}(...outerParams));
+
+// 形式 1，有函数名
+(function func(...params){
+  // code
+}(...outerParams));
+
+// 形式 2
+(function(){
+  console.log(123);
+}())
+
+// 形式 2，有函数名
+(function func(...params){
+}(...outerParams))
+```

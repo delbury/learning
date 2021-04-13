@@ -1,3 +1,17 @@
 h1, h2, h3, h4, h5 {
   font-weight: bold;
+  /* color: #005bb7; */
+  color: skyblue;
+}
+
+ol.levels li { list-style: none; }
+ol.levels { counter-reset: index1 0; }
+ol.levels>li::before { content: counter(index1); counter-increment: index1; }
+ol.levels ol { counter-reset: index2 0; }
+ol.levels ol>li::before { content: counter(index1)"."counter(index2); counter-increment: index2; }
+ol.levels ol ol { counter-reset: index3 0; }
+ol.levels ol ol>li::before { content: counter(index1)"."counter(index2)"."counter(index3); counter-increment: index3; }
+
+code {
+  white-space: pre;
 }
