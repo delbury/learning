@@ -1,0 +1,12 @@
+{
+  "name": "demo-file",
+  "version": "1.0.0",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^7.24.0", // 用于代码检查，自定义代码风格
+    "commitizen": "^4.2.3", // 用于 git commit 注释规范化
+    "lint-staged": "^10.5.4", // 用于代码批量处理
+    "husky": "^6.0.0" // 用于自定义 git hooks
+  }
+}
