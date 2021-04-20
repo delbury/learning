@@ -1,3 +1,15 @@
+/**
+ * eslint 的配置文件
+ * 
+ * 配置文件，优先级
+ * .eslintrc.js
+ * .eslintrc.cjs
+ * .eslintrc.yaml
+ * .eslintrc.yml
+ * .eslintrc.json
+ * package.json
+ */
+
 module.exports = {
   // *
   // * 默认情况下，ESLint会在所有父级目录里寻找配置文件，一直到根目录。   
@@ -24,9 +36,14 @@ module.exports = {
     es6: true,
     node: true
   },
+  // 创建一个会提供给每一个将要执行的规则的数据对象
+  setting: {},
+  // 用来排除 eslint 校验规则
+  overrides: [],
   // 使用第三方插件。全局安装的 ESLint 实例只能使用全局安装的ESLint插件。本地同理，不支持混用。  
   plugins: ['html', 'vue'],
   // 配置文件从基础配置中继承已启用的规则。  
+  // 支持递归扩展
   // *   
   // * eslint:recommended  启用核心规则，在规则页面中被标记为 √ 的。   
   // *
