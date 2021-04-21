@@ -66,8 +66,11 @@ var strStrII = function(haystack, needle) {
 // 3.
 var strStrIII = function(haystack, needle) {
   if(!needle.length) return 0;
-  const next = [0]; // 第一位为 0
+  if(haystack.length === needle.length) return haystack === needle ? 0 : -1;
+  if(needle.length > haystack.length) return -1;
 
+  // 计算 next 数组
+  const next = new Uint16Array(needle.length); // 第一位为 0
   // i 为当前子字符串尾指针，j 为回溯指针
   for(let i = 1, j = 0; i < needle.length; i++) {
     while(j > 0 && needle[i] !== needle[j]) {
@@ -79,8 +82,22 @@ var strStrIII = function(haystack, needle) {
     }
     next[i] = j;
   }
-  console.log(next);
+
+  // 匹配原串
+  for(let i = 0, j = 0; i < haystack.length; i++) {
+    // 不匹配则回溯
+    while(j > 0 && haystack[i] !== needle[j]) {
+      j = next[j - 1];
+    }
+    if(haystack[i] === needle[j]) {
+      j++;
+    }
+    if(j === needle.length) {
+      return i - needle.length + 1;
+    }
+  }
+
   return -1;
 }
 
-console.log(strStrIII('aaabbcab', 'abcdaabfg')); 
+console.log(strStrIII('hello', 'llasdasdasd')); 

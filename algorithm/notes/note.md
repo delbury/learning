@@ -12,5 +12,7 @@
     - LRU (Least Recently Used) （最近最少使用）：如果数据最近被访问过，那么将来被访问的几率也更高 ，优先淘汰最近没有被访问到的数据
   - 排序算法
     - 冒泡排序 (Bubble Sort)
+  - 字符串匹配算法
+    - KMP算法
 
 ![前端算法思维导图](./reference/javascript-algorithms.png)
