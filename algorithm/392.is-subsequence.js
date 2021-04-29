@@ -46,7 +46,33 @@ var isSubsequence = function(s, t) {
 
 // 2. DP
 // 令 f[i][j] 表示字符串 t 中从位置 i 开始往后字符 j 第一次出现的位置。
-// https://leetcode-cn.com/problems/is-subsequence/solution/pan-duan-zi-xu-lie-by-leetcode-solution/
 var isSubsequenceII = function(s, t) {
-  
+  if(!s.length) return true;
+  if(s.length > t.length) return false;
+  // 构造 dp 数组
+  const dp = Array.from({ length: t.length + 1 }, (v, k) => k === t.length ? Array(26).fill(-1) : []);
+  for(let i = t.length - 1; i >= 0; i--) {
+    for(let j = 0; j < 26; j++) {
+      if(t[i] === String.fromCharCode(j + 97)) {
+        dp[i][j] = i;
+      } else {
+        dp[i][j] = dp[i + 1][j];
+      }
+    }
+  }
+  let p = 0;
+  for(let i = 0; i < s.length; i++) {
+    p = dp[p][s[i].charCodeAt(0) - 97];
+    if(p < 0) return false;
+    p++;
+  }
+  return true;
 };
+
+const { logAssert } = require('./tools/LogTools.js');
+logAssert(isSubsequenceII, 'abc', 'ahbgdc', true);
+logAssert(isSubsequenceII, 'axc', 'ahbgdc', false);
+logAssert(isSubsequenceII, 'c', 'b', false);
+logAssert(isSubsequenceII, 'aaaaaa', 'bbaaaa', false);
+logAssert(isSubsequenceII, 'bb', 'ahbgdc', false);
+
