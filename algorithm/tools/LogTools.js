@@ -99,11 +99,13 @@ const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightK
  * @param {any} input 输入
  * @param {any} output 输出
  */
+const DIV_COUNT = 40;
 const logAssert = function (fn, ...args) {
   input = args.slice(0, args.length - 1);
   output = args[args.length - 1];
   const res = fn(...input);
   console.log('expect: ', output, ', result: ', res, ', is ', _.isEqual(res, output));
+  console.log('*'.repeat(DIV_COUNT));
 };
 
 const logAssertDisorder = function (fn, ...args) {
@@ -116,6 +118,7 @@ const logAssertDisorder = function (fn, ...args) {
       output.constructor === Array ? Array.prototype.sort.call(_.cloneDeep(output)) : output,
     )
   );
+  console.log('*'.repeat(DIV_COUNT));
 };
 
 /**
