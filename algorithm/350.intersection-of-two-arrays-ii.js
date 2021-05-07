@@ -66,6 +66,29 @@ var intersectII = function(nums1, nums2) {
   return res;
 };
 
+// 3. map
+/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @return {number[]}
+ */
+ var intersectIII = function(nums1, nums2) {
+  const map = new Map();
+  for(const n of nums1) {
+      const it = map.get(n);
+      map.set(n, it ? it + 1 : 1);
+  }
+  const res = [];
+  for(const n of nums2) {
+      const it = map.get(n);
+      if(it) {
+          map.set(n, it - 1);
+          res.push(n);
+      }
+  }
+  return res;
+};
+
 const { logAssertDisorder } = require('./tools/LogTools.js');
 logAssertDisorder(intersectII, [4,7,9,7,6,7], [5,0,0,6,1,6,2,2,4], [4,6]);
 

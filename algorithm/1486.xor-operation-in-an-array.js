@@ -49,6 +49,12 @@ var xorOperationII = function (n, start) {
 };
 
 // 3. 数学
+// 记⊕为异或运算，异或运算满足以下性质： 
+// x⊕x=0；
+// x⊕y=y⊕x（交换律）；
+// (x⊕y)⊕z=x⊕(y⊕z)（结合律）；
+// x⊕y⊕y=x（自反性）；
+// ∀i∈Z，有 4i⊕(4i+1)⊕(4i+2)⊕(4i+3)=0。
 var xorOperationIII = function (n, start) {
   let ans = 2 * xor(n, Math.floor(start / 2));
   if (n & start & 1) ans++; // 处理最后一位
@@ -65,8 +71,30 @@ var xorOperationIII = function (n, start) {
   }
 };
 
+// 4.
+// start ^ (start + 2) ^ (start + 4) ^ ... ^ (start + 2 * (n - 1))
+// = s ^ (s + 1) ^ (s + 2) ^ ... ^ (s + n - 1) * 2 + e, s = start >> 1, e = n & start & 1
+// s ^ (s + 1) ^ (s + 2) ^ ... ^ (s + n - 1) = (1 ^ 2 ^ 3 ^ ... ^ (s - 1)) ^ (1 ^ 2 ^ 3 ^ ... ^ (s + n - 1))
+const sumXor = (x) => {
+  if (x % 4 === 0) {
+    return x;
+  }
+  if (x % 4 === 1) {
+    return 1;
+  }
+  if (x % 4 === 2) {
+    return x + 1;
+  }
+  return 0;
+}
+var xorOperationIV = function (n, start) {
+  let s = start >> 1, e = n & start & 1;
+  let ret = sumXor(s - 1) ^ sumXor(s + n - 1);
+  return ret << 1 | e; // (ret << 1) + e;
+};
+
 const { logAssert } = require('./tools/LogTools.js');
-logAssert(xorOperationIII, 5, 0, 8);
-logAssert(xorOperationIII, 4, 3, 8);
-logAssert(xorOperationIII, 1, 7, 7);
-logAssert(xorOperationIII, 10, 5, 2);
+logAssert(xorOperationIV, 5, 0, 8);
+logAssert(xorOperationIV, 4, 3, 8);
+logAssert(xorOperationIV, 1, 7, 7);
+logAssert(xorOperationIV, 10, 5, 2);

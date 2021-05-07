@@ -25,15 +25,11 @@ var containsDuplicate = function (nums) {
 
 // 2. hash
 var containsDuplicateII = function (nums) {
-  const map = new Map();
-  for (let i = nums.length - 1; i >= 0; i--) {
-    if (map.has(nums[i])) {
-      return true;
-    } else {
-      map.set(nums[i], true);
-    }
+  const set = new Set();
+  for(const n of nums) {
+    if(set.has(n)) return true;
+    set.add(n);
   }
-
   return false;
 };
 

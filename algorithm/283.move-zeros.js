@@ -14,7 +14,7 @@
  */
 
 // 1. 双指针
-var moveZeroes = function(nums) {
+var moveZeroesI = function(nums) {
   let len = nums.length;
   for(let i = 0; i < len; i++) {
     if(nums[i] === 0) {
@@ -22,6 +22,36 @@ var moveZeroes = function(nums) {
       len--;
       i--;
     }
+  }
+  return nums;
+};
+
+// 2. 冒泡
+var moveZeroesII = function(nums) {
+  let count = 0;
+  for(let i = nums.length - 1; i >= 0; i--) {
+    if(nums[i] === 0) {
+      for(let j = i; j < nums.length - count - 1; j++) {
+        [nums[j], nums[j + 1]] = [nums[j + 1], nums[j]];
+      }
+      count++;
+    }
+  }
+  return nums;
+};
+
+// 3. 非零前移
+var moveZeroes = function(nums) {
+  let p = 0;
+  for(let i = 0; i < nums.length; i++) {
+    if(nums[i] !== 0) {
+      nums[p] = nums[i];
+      p++;
+    }
+  }
+  while(p < nums.length) {
+    nums[p] = 0;
+    p++;
   }
   return nums;
 };

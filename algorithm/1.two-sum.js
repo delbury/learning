@@ -26,7 +26,7 @@
 // };
 
 // hash
-var twoSum = function (nums, target) {
+var twoSumI = function (nums, target) {
   const map = {};
   for (let i = 0; i < nums.length; i++) {
     if (map[target - nums[i]] !== undefined && i !== map[target - nums[i]]) {
@@ -38,4 +38,16 @@ var twoSum = function (nums, target) {
   return null;
 };
 
-console.log(twoSum([3, 3, 2, 7, 11, 15], 6));
+// map
+var twoSum = function(nums, target) {
+  const map = new Map();
+  for(let i = 0; i < nums.length; i++) {
+    const ind = map.get(nums[i]);
+    if(ind !== undefined && ind !== i) return [ind, i];
+    map.set(target - nums[i], i);
+  }
+  return [];
+};
+
+// console.log(twoSum([3, 3, 2, 7, 11, 15], 6));
+console.log(twoSum([3, 3], 6));

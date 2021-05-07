@@ -100,18 +100,28 @@ const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightK
  * @param {any} output 输出
  */
 const DIV_COUNT = 40;
-const logAssert = function (fn, ...args) {
-  input = args.slice(0, args.length - 1);
-  output = args[args.length - 1];
-  const res = fn(...input);
+const run = (fn, ...args) => {
+  const input = args.slice(0, args.length - 1);
+  const output = args[args.length - 1];
+  return [output, fn(...input)];
+};
+const logAssert = function (...args) {
+  const [output, res] = run(...args);
   console.log('expect: ', output, ', result: ', res, ', is ', _.isEqual(res, output));
   console.log('*'.repeat(DIV_COUNT));
 };
 
-const logAssertDisorder = function (fn, ...args) {
-  input = args.slice(0, args.length - 1);
-  output = args[args.length - 1];
-  const res = fn(...input);
+// 有序数组
+const logAssertOrder = function (...args) {
+  const [output, res] = run(...args);
+  const flag = res.length === output.length ? _.isEqual(output, res) : false;
+  console.log('expect: ', output, ', result: ', res, ', is ', flag);
+  console.log('*'.repeat(DIV_COUNT));
+};
+
+// 无序数组
+const logAssertDisorder = function (...args) {
+  const [output, res] = run(...args);
   console.log('expect: ', output, ', result: ', res, ', is ',
     _.isEqual(
       res.constructor === Array ? Array.prototype.sort.call(_.cloneDeep(res)) : res,
@@ -165,6 +175,7 @@ module.exports = {
   logBinaryTree,
   logAssert,
   logAssertDisorder,
+  logAssertOrder,
   createLinkedListByArray,
   createTreeByArray,
 };
