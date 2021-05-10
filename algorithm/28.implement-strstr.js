@@ -85,6 +85,7 @@ var strStrIII = function(haystack, needle) {
 
   // 匹配原串
   for(let i = 0, j = 0; i < haystack.length; i++) {
+    if(needle.length - haystack.length > j - i) break; // 优化未匹配时的计算
     // 不匹配则回溯
     while(j > 0 && haystack[i] !== needle[j]) {
       j = next[j - 1];

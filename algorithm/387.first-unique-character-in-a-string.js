@@ -24,8 +24,7 @@ var firstUniqChar = function(s) {
       map.set(s[i], i);
     }
   }
-  const values = map.values();
-  for(let val of values) {
+  for(const val of map.values()) {
     if(val > -1) return val;
   }
   return -1;
