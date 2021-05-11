@@ -29,7 +29,7 @@
  * @return {void} Do not return anything, modify node in-place instead.
  */
 // 1.
-var deleteNode = function(node) {
+var deleteNodeI = function(node) {
   let prev = node;
   while(node.next) {
     node.val = node.next.val;
@@ -39,8 +39,8 @@ var deleteNode = function(node) {
   prev.next = null;
 };
 
-// 2.
-var deleteNodeII = function(node) {
+// 2. 让后面的节点成为原先的节点
+var deleteNode = function(node) {
   node.val = node.next.val;
   node.next = node.next.next;
 };

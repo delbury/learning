@@ -169,6 +169,19 @@ const createTreeByArray = function (arr, valueKey = 'val', leftKey = 'left', rig
 };
 
 
+/**
+ * 打印链表的值
+ * @param {Object} 链表对象
+ */
+const logLinkedListByArray = function(node, valueKey = 'val', nextKey = 'next') {
+  const res = [];
+  while(node) {
+    res.push(node[valueKey]);
+    node = node[nextKey];
+  }
+  console.log(res.join(' -> '));
+}
+
 // exports
 module.exports = {
   logHeapTree,
@@ -176,6 +189,7 @@ module.exports = {
   logAssert,
   logAssertDisorder,
   logAssertOrder,
+  logLinkedListByArray,
   createLinkedListByArray,
   createTreeByArray,
 };

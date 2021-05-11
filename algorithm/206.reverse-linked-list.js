@@ -88,6 +88,17 @@ const createNodes = () => {
   return head;
 };
 
+// 遍历
+var reverseListII = function(head) {
+  if(!head || !head.next) return head;
+  let p = null;
+  while(head.next) {
+    [head.next, p, head] = [p, head, head.next];
+  }
+  head.next = p;
+  return head;
+};
+
 // console.log(JSON.stringify(reverseList(createNodes()), null, 0));
 // console.log(JSON.stringify(reverseListArray(createNodes()), null, 0));
 console.log(JSON.stringify(reverseListRecursion(createNodes()), null, 0));

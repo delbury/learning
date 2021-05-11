@@ -69,6 +69,7 @@ var isPalindromeII = function (head) {
   return true
 };
 
+
 const { logAssert, createLinkedListByArray } = require('./tools/LogTools.js');
-logAssert(isPalindromeII, createLinkedListByArray([1, 2]), false);
-logAssert(isPalindromeII, createLinkedListByArray([1, 2, 2, 1]), true);
+logAssert(isPalindromeIII, createLinkedListByArray([1, 2]), false);
+logAssert(isPalindromeIII, createLinkedListByArray([1, 2, 2, 1]), true);
