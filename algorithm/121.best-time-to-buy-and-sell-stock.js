@@ -20,7 +20,7 @@
  */
 
 // 1. 遍历
-var maxProfit = function (prices) {
+var maxProfitI = function (prices) {
   let res = 0;
   for (let i = 0; i < prices.length; i++) {
     for (let j = i + 1; j < prices.length; j++) {
@@ -51,5 +51,52 @@ var maxProfitII = function (prices) {
   return res;
 };
 
-console.log(maxProfitII([7, 1, 5, 3, 6, 4]));
-console.log(maxProfitII([7, 6, 4, 3, 1]));
+// 3. dp
+// dp[i][0] 第 i 天买入的最小价格
+// dp[i][1] 第 i 天卖出的最大价格
+var maxProfitIII = function (prices) {
+  const dp = Array.from({ length: prices.length }, () => []);
+  dp[0][0] = prices[0];
+  dp[0][1] = 0;
+  for(let i = 1; i < prices.length; i++) {
+    dp[i][0] = Math.min(dp[i - 1][0], prices[i]);
+    dp[i][1] = Math.max(dp[i - 1][1], prices[i] - dp[i - 1][0]);
+  }
+  return dp[prices.length - 1][1];
+};
+
+// 4. 优化
+var maxProfitIV = function (prices) {
+  let min = prices[0];
+  let res = 0;
+  for(let i = 0; i < prices.length; i++) {
+    if(prices[i] - min > res) {
+      // 更小的买入价
+      res = prices[i] - min;
+    }
+
+    if(prices[i] < min) {
+      min = prices[i];
+    }
+  }
+  return res;
+};
+
+// 5. 双指针
+var maxProfit = function (prices) {
+  let i = 0, j = 1;
+  let res = 0;
+  while(j < prices.length) {
+    if(prices[j] - prices[i] > res) {
+      res = prices[j] - prices[i];
+    }
+    if(prices[j] < prices[i]) {
+      i = j;
+    }
+    j++;
+  }
+  return res;
+};
+
+console.log(maxProfit([7, 1, 5, 3, 6, 4]));
+console.log(maxProfit([7, 6, 4, 3, 1]));

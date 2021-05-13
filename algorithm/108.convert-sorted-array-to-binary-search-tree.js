@@ -38,9 +38,20 @@ const create = function (nums, start, end) {
   node.right = create(nums, mid + 1, end);
   return node;
 }
-var sortedArrayToBST = function (nums) {
+var sortedArrayToBSTI = function (nums) {
   if (!nums.length) return null;
   return create(nums, 0, nums.length - 1);
+};
+
+
+// 2. 同 1.
+var sortedArrayToBST = function(nums) {
+  const dich = (left, right) => {
+    if(left > right) return null;
+    const c = Math.floor((right + left) / 2);
+    return new TreeNode(nums[c], dich(left, c - 1), dich(c + 1, right));
+  }
+  return dich(0, nums.length - 1);
 };
 
 const { logBinaryTree, logHeapTree, createTreeByArray } = require('./tools/LogTools.js');

@@ -30,7 +30,7 @@
  */
 
 // 1. 二分
-var solution = function (isBadVersion) {
+var solutionI = function (isBadVersion) {
   /**
    * @param {integer} n Total versions
    * @return {integer} The first bad version
@@ -48,6 +48,28 @@ var solution = function (isBadVersion) {
       }
     }
     return start;
+  };
+};
+
+// 2.
+var solution = function(isBadVersion) {
+  /**
+   * @param {integer} n Total versions
+   * @return {integer} The first bad version
+   */
+  return function(n) {
+    let start = 1, end = n;
+    while(start < end) {
+      const c = Math.floor((start + end) / 2);
+      if(isBadVersion(c)) {
+        // 当前有错，右半边都有错，查左半边
+        end = c;
+      } else {
+        // 当前没错，查右半边
+        start = c + 1;
+      }
+    }
+    return start
   };
 };
 

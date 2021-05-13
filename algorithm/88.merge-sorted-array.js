@@ -17,7 +17,7 @@
  * @param {number} n
  * @return {void} Do not return anything, modify nums1 in-place instead.
  */
-var merge = function(nums1, m, nums2, n) {
+var mergeI = function(nums1, m, nums2, n) {
   let p1 = m - 1, p2 = n - 1, end = m + n - 1;
   while(p1 >= 0) {
     if(nums2[p2] >= nums1[p1]) {
@@ -34,6 +34,22 @@ var merge = function(nums1, m, nums2, n) {
     nums1[end--] = nums2[p2--];
   }
 };
+
+var merge = function(nums1, m, nums2, n) {
+  let p = m + n - 1;
+  m--;
+  n--;
+  while(m >= 0 && n >= 0) {
+    nums1[p--] = nums1[m] > nums2[n] ? nums1[m--] : nums2[n--];
+  }
+  let k = m > n ? m : n;
+  let arr = m > n ? nums1 : nums2;
+  while(p >= 0) {
+    nums1[p--] = arr[k--];
+  }
+  return nums1;
+};
+
 const arr1 = [2, 4, 7, 8, 0, 0, 0];
 const arr2 = [1, 3, 5];
 merge(arr1, arr1.length - arr2.length, arr2, arr2.length);
