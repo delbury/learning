@@ -155,3 +155,4 @@ class MaxStack {
     return this.max;
   }
 }
+
