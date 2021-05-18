@@ -20,7 +20,7 @@
  */
 
 // 1. 遍历
-var generate = function (numRows) {
+var generateII = function (numRows) {
   const res = [];
 
   for (let i = 1; i <= numRows; i++) {
@@ -44,5 +44,22 @@ var generate = function (numRows) {
   return res;
 };
 
+// 利用前一行
+var generate = function(numRows) {
+  const res = [];
+  for(let i = 0; i < numRows; i++) {
+    if(i === 0) {
+      res.push([1]);
+    } else {
+      const t = [];
+      const last = res[res.length - 1];
+      for(let j = 0; j <= last.length; j++) {
+        t.push((last[j - 1] || 0) + (last[j] || 0));
+      }
+      res.push(t);
+    }
+  }
+  return res;
+};
 
 console.log(generate(6));
