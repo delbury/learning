@@ -155,6 +155,32 @@ var findMedianSortedArraysIII = function(nums1, nums2) {
   return 0;
 };
 
+// 4. 双指针
+var findMedianSortedArrays = function(nums1, nums2) {
+  let res = 0;
+  const isOdd = (nums1.length + nums2.length) & 1;
+  let c = Math.floor((nums1.length + nums2.length) / 2) - (~isOdd & 1);
+  let p1 = 0, p2 = 0, count = 0;
+  while(true) {
+    let n = 0;
+    if(p1 >= nums1.length) n = nums2[p2++];
+    else if(p2 >= nums2.length) n = nums1[p1++];
+    else if(nums1[p1] < nums2[p2]) n = nums1[p1++];
+    else n = nums2[p2++];
+
+    if(count === c) {
+      res += n;
+      if(isOdd) break;
+    } else if(count === c + 1 && !isOdd) {
+      res += n;
+      res /= 2;
+      break;
+    }
+    count++;
+  }
+  return res;
+};
+
 console.log(findMedianSortedArraysIII([1, 3], [2]));
 // console.log(findMedianSortedArraysII([0, 0, 0, 0, 0], [-1, 0, 0, 0, 0, 0, 1]));
 // console.log(findMedianSortedArrays([1, 2], [3, 4]));
