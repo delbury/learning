@@ -1,0 +1,44 @@
+{
+	// Place your 全局 snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	"log tool assert": {
+		// "scope": "javascript,typescript",
+		"prefix": "loga",
+		"body": [
+			"const { logAssert } = require('./tools/LogTools.js');",
+			"logAssert($0);"
+		],
+		"description": "log tools assert"
+	},
+	"log tool assert disorder": {
+		// "scope": "javascript,typescript",
+		"prefix": "logd",
+		"body": [
+			"const { logAssertDisorder } = require('./tools/LogTools.js');",
+			"logAssertDisorder($0);"
+		],
+		"description": "log tools assert disorder"
+	},
+	"log tool tree": {
+		// "scope": "javascript,typescript",
+		"prefix": "logt",
+		"body": [
+			"const { logBinaryTree, logHeapTree, createTreeByArray } = require('./tools/LogTools.js');",
+			"$0"
+		],
+		"description": "log tools tree"
+	},
+	"log all tools": {
+		// "scope": "javascript,typescript",
+		"prefix": "logall",
+		"body": [
+			"logHeapTree, logBinaryTree, logAssert, logAssertDisorder, createLinkedListByArray, createTreeByArray",
+		],
+		"description": "log all tools"
+	},
+}
