@@ -93,42 +93,79 @@ const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightK
   logHeapTree(values);
 }
 
+// 工具函数
+const r = require('./log-color.js');
+const DIV_COUNT = 80;
+// 打印分割线
+const printDivider = (sym = '-') => console.log(sym.repeat(DIV_COUNT));
+// 打印结果
+const printResult = (passedCases, totalCases, sym = '*') => {
+  const complete = passedCases === totalCases;
+  let text = ` passed / total: ${r(passedCases, complete ? 'green' : 'red')} / ${r(totalCases, 'green')} `;
+  const prefix = DIV_COUNT <= text.length ? 0 : Math.floor((DIV_COUNT - text.length) / 2);
+  printDivider(sym);
+  console.log((sym.repeat(prefix) + text).padEnd(DIV_COUNT, sym));
+  printDivider(sym);
+};
+// 打印每条用例结果
+const printEach = (no, output, res, passed) => {
+  console.log(`${no}: expect:`, output, `, result:`, res, `, is ${passed ? r('passed', 'green') : r('failed', 'red')}`);
+  printDivider();
+};
+// 运行测试用例
+const run = (fn, ...args) => {
+  const input = args.slice(0, args.length - 1);
+  const output = args[args.length - 1];
+  return [output, fn(...input)];
+};
+// 注册到 promise 队列
+let promise = null;
+let count = 0; // 计数
+const tasks = [];
+const planTask = (fn) => (...args) => {
+  if(!promise) {
+    promise = Promise.resolve().then(() => {
+      Promise.all(tasks).then(res => {
+        const passeds = res.reduce((sum, r) => sum + +r, 0);
+        printResult(passeds, res.length);
+      });
+    });
+  }
+  tasks.push(new Promise((resolve, reject) => {
+    resolve(fn(++count, ...args));
+  }));
+};
+
 /**
  * 函数结果断言
  * @param {Function} fn 需要调试的函数
  * @param {any} input 输入
  * @param {any} output 输出
  */
-const DIV_COUNT = 40;
-const run = (fn, ...args) => {
-  const input = args.slice(0, args.length - 1);
-  const output = args[args.length - 1];
-  return [output, fn(...input)];
-};
-const logAssert = function (...args) {
+const logAssert = function (no, ...args) {
   const [output, res] = run(...args);
-  console.log('expect: ', output, ', result: ', res, ', is ', _.isEqual(res, output));
-  console.log('*'.repeat(DIV_COUNT));
+  const passed = _.isEqual(res, output);
+  printEach(no, output, res, passed);
+  return passed;
 };
 
 // 有序数组
-const logAssertOrder = function (...args) {
+const logAssertOrder = function (no, ...args) {
   const [output, res] = run(...args);
-  const flag = res.length === output.length ? _.isEqual(output, res) : false;
-  console.log('expect: ', output, ', result: ', res, ', is ', flag);
-  console.log('*'.repeat(DIV_COUNT));
+  const passed = res.length === output.length ? _.isEqual(output, res) : false;
+  printEach(no, output, res, passed);
+  return passed;
 };
 
 // 无序数组
-const logAssertDisorder = function (...args) {
+const logAssertDisorder = function (no, ...args) {
   const [output, res] = run(...args);
-  console.log('expect: ', output, ', result: ', res, ', is ',
-    _.isEqual(
-      res.constructor === Array ? Array.prototype.sort.call(_.cloneDeep(res)) : res,
-      output.constructor === Array ? Array.prototype.sort.call(_.cloneDeep(output)) : output,
-    )
+  const passed = _.isEqual(
+    res.constructor === Array ? Array.prototype.sort.call(_.cloneDeep(res)) : res,
+    output.constructor === Array ? Array.prototype.sort.call(_.cloneDeep(output)) : output,
   );
-  console.log('*'.repeat(DIV_COUNT));
+  printEach(no, output, res, passed);
+  return passed;
 };
 
 /**
@@ -186,9 +223,9 @@ const logLinkedListByArray = function(node, valueKey = 'val', nextKey = 'next') 
 module.exports = {
   logHeapTree,
   logBinaryTree,
-  logAssert,
-  logAssertDisorder,
-  logAssertOrder,
+  logAssert: planTask(logAssert),
+  logAssertDisorder: planTask(logAssertDisorder),
+  logAssertOrder: planTask(logAssertOrder),
   logLinkedListByArray,
   createLinkedListByArray,
   createTreeByArray,
