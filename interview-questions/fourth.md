@@ -1,6 +1,5 @@
-## 题目
-
-### 微信扫码登录原理分析
+# 题目
+## 微信扫码登录原理分析
   [微信扫码登录原理分析](http://blog.alanwu.website/2020/03/03/scanCodeToLogin/)
   ![二维码登录流程](./reference/qr-code-login.png)
   - 原理实现
@@ -10,7 +9,7 @@
     手机进行扫描二维码，然后手机携带uuid和用户信息向手机的服务器发送请求，手机服务器收到之后携带uuid去redis服务器查询用户，并把uuid与用户信息绑定在一起。查询用户成功之后返回一个Token给网页服务器，通过解析这个Token可以拿出用户的信息，然后浏览器就成功登录微信了。值得注意的是，这里的手机服务器和浏览器服务器不是同一台服务器，存储的信息也可能不一样。
 
 
-### 单点登录 (single sign on)
+## 单点登录 (single sign on)
   [淘宝/天猫的SSO](https://blog.csdn.net/weixin_34055910/article/details/85846159)
   > 用户首次登录过程：<br>
   用户第一次访问，未登录则重定向认证中心 <br>
@@ -32,7 +31,7 @@
   > 1. 同理，登出操作也是如此
   
 
-### 前后端鉴权
+## 前后端鉴权
   [关于前后端鉴权的几种方式](http://blog.alanwu.website/2020/03/04/Authorization/)
   > HTTP Basic Authentication：<br>
   在HTTP中，基本认证是允许http用户代理（浏览器）在请求时，提供用户名和密码的一种方式。是一种十分简单的技术，使用的是HTTP头部字段强制用户访问网络资源，而不是通过cookie、sessionId、登陆页面等非获取访问控制的手段。
@@ -52,3 +51,10 @@
   > 1. 返回Access Token
   > 1. 利用Access Token向资源服务器请求用户资源
   > 1. 获取用户资源，登陆成功
+
+
+## CDN的优化原理
+[CDN是什么](https://www.zhihu.com/question/36514327?rf=37353035)
+> CDN的全称是(Content Delivery Network)，即内容分发网络。
+
+> 其目的是通过在现有的Internet中增加一层新的CACHE(缓存)层，将网站的内容发布到最接近用户的网络“边缘”的节点，使用户可以就近取得所需的内容，提高用户访问网站的响应速度。

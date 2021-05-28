@@ -1,4 +1,12 @@
 # ECMAScript
+## ES2021
+  1. String.prototype.replaceAll()
+  2. Promise.any() 只要有一个 resolve
+  3. 逻辑操作符和赋值表达式 &&=, ||=, ??=
+  4. 数值分隔符 1000_0000.0000_0001
+  5. Intl.ListFormat
+  6. Intl.DateTimeFormat 的 dateStyle 和 timeStyle 选项
+---
 ## ES2020
   1. Class 私有变量 #name
   2. Promise.allSettled 所有Promise完成时完成
@@ -21,7 +29,7 @@
   1. Object 的 Rest (剩余) / Spread (展开) 属性
   2. for await (let xx of yy) 异步迭代
   3. Promise.prototype.finally()
-  4. 后行断言 (lookbehind)
+  4. 后行断言 (lookbehind): (?<=x)y, (?<!x)y
   5. 正则表达式 Unicode 属性转义 \p{...} 和 \P{...}
   6. 正则表达式 命名捕获组 (Named capturing groups)
   7. 正则表达式 dotAll 模式 "s" flag

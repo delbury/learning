@@ -113,32 +113,41 @@
 ### 遍历A节点的父节点下的所有子节点
  > el.parentNode.children
 
+### Doctype作用?严格模式与混杂模式如何区分？它们有何意义?
+  > Doctype声明于文档最前面，告诉浏览器以何种方式来渲染页面，这里有两种模式：<br>
+  严格模式的排版和JS 运作模式是 以该浏览器支持的最高标准运行。<br>
+  混杂模式，向后兼容，模拟老式浏览器，防止浏览器无法兼容页面。
+
+  ```html
+  <!-### 内部的DOCTYPE声明 -->
+  <!DOCTYPE 根元素 [元素声明]>
+
+  <!-### 外部的DOCTYPE声明 -->
+  <!DOCTYPE 根元素 SYSTEM ‘文件名’>
+
+  <!-### html5，没有 DTD -->
+  <!DOCTYPE html>
+
+  <!-### html4.01 -->
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
+
+  <!-### xhtml1.0 -->
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+
+  <!-### xhtml1.1 -->
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+  ```
+
  ## JS 相关
 ### 用js递归的方式写1到100求和？
-
-### 页面渲染html的过程？
-  [浏览器渲染原理与过程](https://www.jianshu.com/p/e6252dc9be32)
-  > 1.解析 HTML 代码，创建 DOM 树，请求资源 
-
-  > 2.解析 CSS 代码，计算出样式，构建 CSSOM 树 
-
-  > 3.将 DOM 和 CSSOM 合并为渲染树 Rendering Tree 
-
-  > 4.确定渲染树中的每个元素的确切位置，布局 Layout 
-
-  > 5.将渲染树的各个节点绘制到屏幕上 Painting，若 DOM 或 CSSOM 修改时会重新渲染
-
-### 说一下CORS？
-  [跨域资源共享CORS](http://www.ruanyifeng.com/blog/2016/04/cors.html)
-  > 全称：跨域资源共享 (Cross-origin resource sharing) 
-
-  > 允许浏览器向跨源服务器，发出XMLHttpRequest请求，从而克服了AJAX只能同源使用的限制 
-
-
-### 如何中断ajax请求？
-  > HMLHttpRequest： HMLHttpRequest.abort() 
-
-  > Fetch：new AbortController() | fetch(url, { signal: ac.signal })
 
 ### 说一下事件代理？
   > 事件委托是指将事件绑定到目标元素的父元素上，利用冒泡机制触发该事件
@@ -178,56 +187,3 @@
   > 遍历计数 
 
   > 使用 Set 
-
-
-### get、post的区别
-  [GET和POST的区别](https://www.zhihu.com/question/28586791)
-  > GET：query 传参，幂等性：一次或多次操作返回结果相同 
-
-  > POST：query/body 传参 
-
-  > 一般对 GET 缓存，很少对 POST 缓存
-
-### 你所知道的http的响应码及含义？
-  > 101：切换协议，WebSockets 
-
-  > 206：部分成果，header: range 
-
-  > 304：请求的资源未被更改 
-
-  > 400、401、403、404 
-
-  > 500、502、504
-
-### Doctype作用?严格模式与混杂模式如何区分？它们有何意义?
-  > Doctype声明于文档最前面，告诉浏览器以何种方式来渲染页面，这里有两种模式：<br>
-  严格模式的排版和JS 运作模式是 以该浏览器支持的最高标准运行。<br>
-  混杂模式，向后兼容，模拟老式浏览器，防止浏览器无法兼容页面。
-
-  ```html
-  <!-### 内部的DOCTYPE声明 -->
-  <!DOCTYPE 根元素 [元素声明]>
-
-  <!-### 外部的DOCTYPE声明 -->
-  <!DOCTYPE 根元素 SYSTEM ‘文件名’>
-
-  <!-### html5，没有 DTD -->
-  <!DOCTYPE html>
-
-  <!-### html4.01 -->
-  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-
-  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-
-  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
-
-  <!-### xhtml1.0 -->
-  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
-  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
-
-  <!-### xhtml1.1 -->
-  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-  ```

@@ -73,100 +73,6 @@
       缓存仓库 -> 客户端: 返回缓存资源
       ```
 
-## HTTP 状态码
-  - 1xx Informational 消息，临时响应
-    - **100** *Continue* 客户端应当继续发送请求
-    - **101** *Switching Protocols* 服务器已经理解了客户端请求，并通过Upgrade header通知客户端采用不同的协议完成这个请求，如Websocket
-      >- `Connection: Upgrade`
-      >- `Upgrade: websocket`
-    - **102** *Processing* 由WebDAV(RFC 2518)扩展的状态码，代表处理将被继续执行
-  - 2xx Successful 成功，表示请求成功被服务器接收并理解
-    - **200** *OK* 请求已成功，请求所希望的响应头或数据体随响应返回
-    - **201** *Created* 请求已经被实现，而且有一个新的资源已经依据请求的需要而建立，且其 URI 已经随Location 头信息返回
-    - **202** *Accepted* 服务器已接受请求，但尚未处理
-    - **203** *Non-Authoritative Information* 服务器已成功处理了请求，但返回的实体头部元信息不是在原始服务器上有效的确定集合，而是来自本地或者第三方的拷贝
-    - **204** *No Content* 服务器成功处理了请求，但不需要返回任何实体内容，并且希望返回更新了的元信息
-    - **205** *Rest Content* 服务器成功处理了请求，且没有返回任何内容，但是与204响应不同，返回此状态码的响应要求请求者重置文档视图
-    - **206** *Partial Content* 服务器已经成功处理了部分 GET 请求，该请求必须包含 Range 头信息来指示客户端希望得到的内容范围，并且可能包含 If-Range 来作为请求条件
-      >- `Range: bytes=200-100, 2000-3000, 4500-`
-      >- `If-Range: <day-name>, <day> <month> <year> <hour>:<minute>:<second> GMT`
-      >- `Content-Range: bytes 200-1000/3000 | bytes 200-1000/*`
-      >- `Content-Type: MIME`
-      >- `Content-Length`
-    - **207** *Multi-Status* 由WebDAV(RFC 2518)扩展的状态码，代表之后的消息体将是一个XML消息，并且可能依照之前子请求数量的不同，包含一系列独立的响应代码
-  - 3xx Redirection 重定向
-    - **301** *Moved Permanently* 被请求的资源已永久移动到新位置，并且将来任何对此资源的引用都应该使用本响应返回的若干个URI之一，默认会被缓存
-      >- `Location: <new-url>`
-    - **302** *Move Temporarily* 请求的资源临时从不同的URI响应请求，默认以 GET 重新请求
-    - **303** *See Other* 对应当前请求的响应可以在另一个 URL 上被找到，而且客户端应当采用 GET 的方式访问那个资源
-    - **304** *Not Modified* 如果客户端发送了一个带条件的 GET 请求且该请求已被允许，而文档的内容（自上次访问以来或者根据请求的条件）并没有改变，则服务器应当返回这个状态码
-    - **305** *Use Proxy* 被请求的资源必须通过指定的代理才能被访问
-    - **306** *Switch Proxy* 在最新版的规范中，306状态码已经不再被使用
-    - **307** *Temporary Redirect* 与302一致，但不允许HTTP方法改变
-    - **308** *Permanent Redirect* 与301一致，但不允许HTTP方法改变
-  - 4xx Client Error 客户端错误
-    - **400** *Bad Request* 当前请求无法被服务器理解
-      >- `语义有误`
-      >- `请求参数有误`
-    - **401** *Unauthorized* 当前请求需要用户验证
-      >- `Authorization: <type> <credentials>`
-      >- `WWW-Authenticate: <type> realm=<realm>`
-    - **402** *Payment Required* 该状态码是为了将来可能的需求而预留的
-    - **403** *Forbidden* 服务器已经理解请求，但是拒绝执行它
-    - **404** *Not Found* 请求失败，请求所希望得到的资源未被在服务器上发现
-    - **405** *Method Not Allowed* 请求行中指定的请求方法不能被用于请求相应的资源
-      >- `Allow: <http-methods>`
-    - **406** *Not Acceptable* 请求的资源的内容特性无法满足请求头中的条件，因而无法生成响应实体
-    - **407** *Proxy Authentication Required* 与401响应类似，只不过客户端必须在代理服务器上进行身份验证
-      >- `Proxy-Authorization: <type> <credentials>`
-    - **408** *Request Timeout* 请求超时
-    - **409** *Conflict* 由于和被请求的资源的当前状态之间存在冲突，请求无法完成
-    - **410** *Gone* 被请求的资源在服务器上已经不再可用，而且没有任何已知的转发地址
-    - **411** *Length Required* 服务器拒绝在没有定义 Content-Length 头的情况下接受请求
-    - **412** *Precondition Failed* 服务器在验证在请求的头字段中给出先决条件时，没能满足其中的一个或多个
-    - **413** *Request Entity Too Large* 服务器拒绝处理当前请求，因为该请求提交的实体数据大小超过了服务器愿意或者能够处理的范围
-    - **414** *Request-URI Too Long* 请求的URI 长度超过了服务器能够解释的长度，因此服务器拒绝对该请求提供服务
-    - **415** *Unsupported Media Type* 对于当前请求的方法和所请求的资源，请求中提交的实体并不是服务器中所支持的格式，因此请求被拒绝
-    - **416** *Requested Range Not Satisfiable* 如果请求中包含了 Range 请求头，并且 Range 中指定的任何数据范围都与当前资源的可用范围不重合，同时请求中又没有定义 If-Range 请求头，那么服务器就应当返回416状态码
-    - **417** *Expectation Failed* 在请求头 Expect 中指定的预期内容无法被服务器满足，或者这个服务器是一个代理服务器，它有明显的证据证明在当前路由的下一个节点上，Expect 的内容无法被满足
-      >- `Expect: 100-continue`
-    - **418** *I'm a teapot* 超文本咖啡壶控制协议RFC 2324
-    - **421** *Misdirected Request* 请求被指向到无法生成响应的服务器（比如由于连接重复使用）
-    - **422** *Unprocessable Entity* 请求格式正确，但是由于含有语义错误，无法响应
-    - **423** *Locked* 当前资源被锁定
-    - **424** *Failed Dependency* 由于之前的某个请求发生的错误，导致当前请求失败
-    - **425** *Too Early* 代表服务器不愿意冒风险来处理该请求，原因是处理该请求可能会被“重放”，从而造成潜在的重放攻击
-    - **426** *Upgrade Required* 客户端应当切换到TLS/1.0
-    - **449** *Retry With* 由微软扩展，代表请求应当在执行完适当的操作后进行重试
-    - **451** *Unavailable For Legal Reasons* 该请求因法律原因不可用
-  - 5xx Server Error 服务器错误
-    - **500** *Internal Server Error* 服务器遇到了一个未曾预料的状况，导致了它无法完成对请求的处理
-    - **501** *Not Implemented* 服务器不支持当前请求所需要的某个功能
-    - **502** *Bad Gateway* 作为网关或者代理工作的服务器尝试执行请求时，从上游服务器接收到无效的响应
-    - **503** *Service Unavailable* 由于临时的服务器维护或者过载，服务器当前无法处理请求
-    - **504** *Gateway Timeout* 作为网关或者代理工作的服务器尝试执行请求时，未能及时从上游服务器（URI标识出的服务器，例如HTTP、FTP、LDAP）或者辅助服务器（例如DNS）收到响应
-    - **505** *HTTP Version Not Supported* 服务器不支持，或者拒绝支持在请求中使用的 HTTP 版本
-    - **506** *Variant Also Negotiates* 由《透明内容协商协议》（RFC 2295）扩展，代表服务器存在内部配置错误
-    - **507** *Insufficient Storage* 服务器无法存储完成请求所必须的内容
-    - **509** *Bandwidth Limit Exceeded* 服务器达到带宽限制
-    - **510** *Not Extended* 获取资源所需要的策略并没有被满足
-  - 6xx 同 5xx
-    - **600** *Unparseable Response Headers* 源站没有返回响应头部，只返回实体内容
-
-
-## HTTPS 加密过程
-  - HTTP： 直接通过明文在浏览器和服务器之间传递信息
-  - HTTPS： 采用 对称加密 和 非对称加密 结合的方式来保护浏览器和服务端之间的通信安全。对称加密算法加密数据+非对称加密算法交换密钥+数字证书验证身份=安全
-    >- 对称加密: 加密和解密的秘钥使用的是同一个
-    >- 非对称加密: 与对称加密算法不同，非对称加密算法需要两个密钥：公开密钥（publickey）和私有密钥（privatekey）
-  - HTTPS = HTTP + TLS/SSL
-  ![HTTPS加密过程](./reference/https-hand-shake.png)
-
-
-## TCP的可靠性传输是如何保证的
-  [TCP的可靠性传输是如何保证的](http://blog.alanwu.website/2020/03/07/howToEnsureTcp/)
-  > 保证数据安全的方法：TCP主要提供了检验和、序列号/确认应答、超时重传、最大消息长度、滑动窗口控制等方法实现了可靠性传输。
-
 
 ## JavaScript 数组
   - JSArray 继承自 JSObject，所以在 JavaScript 中，数组可以是一个特殊的对象，内部也是以 key-value 形式存储数据，所以 JavaScript 中的数组可以存放不同类型的值
@@ -230,3 +136,86 @@
 ## click在ios上有300ms延迟，原因及如何解决？
   - 禁用缩放：`<meta name="viewport" content="width=device-width, user-scalable=no">`
   - FastClick：检测到touchend事件后，立刻出发模拟click事件，并且把浏览器300毫秒之后真正出发的事件给阻断掉
+
+
+## cookie 操作
+>- Name: cookie名
+>- Value: cookie值
+>- Domain: cookie的域，可设置为当前域名的上级域名
+>- Path: cookie的路径，可设置为当前路径的上级路径
+>- Expires/Max-Age: cookie过期时间（绝对时间/相对时间）。不设置，则为Session会话期，关闭页面，cookie失效
+>- HttpOnly: 设置为true，则js读取不到cookie
+>- Secure: 标记为Secure的cookie，只能通过https请求发送
+>- SameSite: 限制第三方cookie。有3个值：Strict/Lax/None。chrome51新增，chrome80+强制执行
+  >>- Strict: 仅允许发送同站点请求的的cookie
+  >>- Lax: 允许部分第三方请求携带cookie，即导航到目标网址的get请求。包括超链接`<a href='...' />`，预加载`<link rel="prerender" />`和get表单`<form method="GET" />`三种形式发送cookie
+  >>- None: 任意发送cookie，设置为None，需要同时设置Secure，意味着网站必须采用https，若同时支持http和https，可以将http用307跳转到https
+>- Priority：优先级，chrome的提案，定义了三种优先级，Low/Medium/High，当cookie数量超出时，低优先级的cookie会被优先清除
+
+```js
+document.cookie = 'key=value;path=path;domain=domain;max-age=max-age-in-seconds;expires=date-in-GMTString-format;secure;samesite=samesite;priority=priority;';
+
+// 限制第三方 cookie
+// Strict最为严格，完全禁止第三方 Cookie，跨站点时，任何情况下都不会发送 Cookie。换言之，只有当前网页的 URL 与请求目标一致，才会带上 Cookie。
+// Lax规则稍稍放宽，大多数情况也是不发送第三方 Cookie，但是导航到目标网址的 Get 请求除。
+// Chrome 计划将Lax变为默认设置。这时，网站可以选择显式关闭SameSite属性，将其设为None。不过，前提是必须同时设置Secure属性（Cookie 只能通过 HTTPS 协议发送），否则无效。
+SameSite = 'strict' | 'lax' | 'none';
+
+// 优先级，chrome的提案，定义了三种优先级，Low/Medium/High，当cookie数量超出时，低优先级的cookie会被优先清除
+Priority = 'low' | 'medium' | 'high';
+
+```
+
+## cookie、sessionStorage、localStorage区别
+  >- cookie 始终在同源的http请求中携带(即使不需要)，即cookie在浏览器和服务器间来回传递
+  >- 浏览器的 cookie 不区分相同域名下的不同端口，即同一个域名下的不同端口号是的 cookie 共享的
+  >- cookie数据还有路径（path）的概念，可以限制。cookie只属于某个路径下
+  >- 存储大小限制也不同，cookie数据不能超过4K，同时因为每次http请求都会携带cookie，所以cookie只适合保存很小的数据，如session id。webStorage虽然也有存储大小的限制，但是比cookie大得多，可以达到5M或更大
+  >- 数据的有效期不同sessionStorage：仅在当前的浏览器窗口关闭有效；localStorage：始终有效，窗口或浏览器关闭也一直保存，因此用作持久数据；cookie：只在设置的cookie过期时间之前一直有效，即使窗口和浏览器关闭
+  >- 作用域不同sessionStorage：不在不同的浏览器窗口中共享，即使是同一个页面；localStorage：在所有同源窗口都是共享的；cookie：也是在所有同源窗口中共享的
+
+
+## cookie、session区别
+  >- cookie数据存放在客户的浏览器上，session数据放在服务器上。
+  >- cookie不是很安全，别人可以分析存放在本地的COOKIE并进行COOKIE欺骗考虑到安全应当使用session。
+  >- session会在一定时间内保存在服务器上。当访问增多，会比较占用你服务器的性能考虑到减轻服务器性能方面，应当使用COOKIE。
+  >- 单个cookie保存的数据不能超过4K，很多浏览器都限制一个站点最多保存cookie个数。
+
+
+## 跨域
+  [一次看懂如何解决跨域](http://blog.alanwu.website/2020/03/06/crossOrigin/)
+  > 浏览器是可以发起请求，但是结果被浏览器拦截，此谓跨域。
+
+  - 解决方法：
+    1. JSONP：利用 script 可跨域请求资源的特性，只能 GET，安全问题，无法判断是否成功； 
+    2. CORS：`Access-Control-* | Origin` 相关请求头，简单请求、复杂请求； 
+    3. Nginx代理：服务器代理； 
+    4. document.domain：只能用于二级域名相同的情况； 
+    5. window.name：页面如果设置了window.name，那么在不关闭页面的情况下，即使进行了页面跳转location.href=…，这个window.name还是会保留； 
+    6. postMessage+iframe：这种方式通常用于获取嵌入页面中的第三方页面数据。一个页面发送消息，另一个页面判断来源并接收消息
+
+## 说一下CORS？
+  [跨域资源共享CORS](http://www.ruanyifeng.com/blog/2016/04/cors.html)
+  > 全称：跨域资源共享 (Cross-origin resource sharing) 
+
+  > 允许浏览器向跨源服务器，发出XMLHttpRequest请求，从而克服了AJAX只能同源使用的限制 
+
+
+## 页面渲染html的过程？
+  [浏览器渲染原理与过程](https://www.jianshu.com/p/e6252dc9be32)
+  > 1.解析域名为 IP 地址，通过 浏览器缓存 => 系统缓存 => 路由缓存 => 系统hosts文件 => DNS服务器 解析为 ip 地址
+
+  > 2.浏览器根据这个ip地址和端口号创建（复用）TCP连接，发送 http 请求
+
+  > 3.服务器接收到请求，返回 html 文件
+
+  > 4.解析 HTML 代码，创建 DOM 树，请求页面资源，在 DOM 树的构建过程中如果遇到 JS 脚本和外部 JS 连接，则会停止构建 DOM 树来执行和下载相应的代码，这会造成阻塞
+
+  > 5.解析 CSS 代码，计算出样式，构建 CSSOM 树 
+
+  > 6.将 DOM 和 CSSOM 合并为渲染树 Rendering Tree 
+
+  > 7.确定渲染树中的每个元素的确切位置，布局 Layout 
+
+  > 8.将渲染树的各个节点绘制到屏幕上 Painting，若 DOM 或 CSSOM 修改时会重新渲染
+
