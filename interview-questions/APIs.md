@@ -117,13 +117,13 @@ bc.onmessageerror = function(ev) {};
 ```
 
 
-### 如何中断ajax请求？
+## 如何中断ajax请求？
   > HMLHttpRequest： HMLHttpRequest.abort() 
 
   > Fetch：new AbortController() | fetch(url, { signal: ac.signal })
 
 
-### 编码/解码
+## 编码/解码
 ```js
 const url = 'https://www.baidu.com/serch?kw=百度&time=now#hash';
 // 将所有字符进行 URI 编码
@@ -141,4 +141,36 @@ btoa(url);
 
 // 对经过 base-64 编码的字符串进行解码
 atob(btoa(url));
+```
+
+
+## Animation API
+```js
+/**
+ * keyframes: keyframe[]
+ *   offset: number [0.0, 1.0];
+ *   cssFloat: string;
+ *   cssOffset: string;
+ * 
+ ****** 可以为一个对象，对象的每一个属性值为数组 *******
+ *  | {
+ *   [key]: value[]
+ *  }
+ * 
+ * options: option[]
+ *   id?: string;
+ *   delay?: number;
+ *   direction?: string;
+ *   duration?: number;
+ *   easing?: string;
+ *   endDelay?: number;
+ *   fill?: string;
+ *   iterationStart?: number;
+ *   iterations?: number;
+ ***********************************
+ *   composite?: 'add' | 'accumulate' | 'replace';
+ *   iterationComposite?: 'add' | 'accumulate' | 'replace';
+ *   spacing?: 'distribute' | 'paced';
+ */
+Element.animate(keyframes, options);
 ```
