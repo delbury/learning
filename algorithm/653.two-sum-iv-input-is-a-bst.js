@@ -46,7 +46,7 @@ const dlr = function (node, set, k) {
   set.add(node.val);
   return dlr(node.left, set, k) || dlr(node.right, set, k);
 };
-var findTarget = function (root, k) {
+var findTargetI = function (root, k) {
   const set = new Set();
   return dlr(root, set, k);
 };
@@ -76,5 +76,26 @@ var findTargetII = function (root, k) {
   return false;
 };
 
+
+// 3.
+var findTarget = function(root, k) {
+  const set = new Set();
+  let t = 0;
+  const ldr = (node) => {
+    if(!node) return false;
+    const l = ldr(node.left);
+    if(l || set.has(k - node.val)) {
+      return true;
+    } else {
+      set.add(node.val);
+      t = node.val;
+    }
+    return ldr(node.right);
+  };
+  return ldr(root);
+};
+
 const { logHeapTree, logBinaryTree, createTreeByArray, logAssert } = require('./tools/LogTools.js');
-logAssert(findTargetII, createTreeByArray([5, 3, 6, 2, 4, null, 7]), 9, true);
+logAssert(findTarget, createTreeByArray([5, 3, 6, 2, 4, null, 7]), 9, true);
+logAssert(findTarget, createTreeByArray([2, 1, 3]), 4, true);
+logAssert(findTarget, createTreeByArray([2, 0, 3, -4, 1]), -1, true);
