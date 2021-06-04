@@ -326,3 +326,14 @@ Content-Type：application/x-www-form-urlencoded、multipart/form-data、text/pl
   > 500、502、504
 
 
+### get请求传参长度的误区
+> 误区：我们经常说get请求参数的大小存在限制，而post请求的参数大小是无限制的。
+
+实际上HTTP 协议从未规定 GET/POST 的请求长度限制是多少。
+
+对get请求参数的限制是来源与浏览器或web服务器，浏览器或web服务器限制了url的长度。
+
+为了明确这个概念，我们必须再次强调下面几点:
+  - HTTP 协议 未规定 GET 和POST的长度限制
+  - GET的最大长度显示是因为 浏览器和 web服务器限制了 URI的长度
+  - 不同的浏览器和WEB服务器，限制的最大长度不一样
