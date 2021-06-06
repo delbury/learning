@@ -1045,3 +1045,37 @@ s.getNumber()
     }
   ```
 
+
+## js的new操作符做了哪些事情
+new 操作符新建了一个空对象，这个对象原型指向构造函数的prototype，执行构造函数后返回这个对象。
+
+
+## 说说前端中的事件流
+HTML中与javascript交互是通过事件驱动来实现的，例如鼠标点击事件onclick、页面的滚动事件onscroll等等，可以向文档或者文档中的元素添加事件侦听器来预订事件。想要知道这些事件是在什么时候进行调用的，就需要了解一下“事件流”的概念。
+什么是事件流：事件流描述的是从页面中接收事件的顺序,DOM2级事件流包括下面几个阶段。
+
+事件捕获阶段
+
+处于目标阶段
+
+事件冒泡阶段
+
+addEventListener：addEventListener 是DOM2 级事件新增的指定事件处理程序的操作，这个方法接收3个参数：要处理的事件名、作为事件处理程序的函数和一个布尔值。最后这个布尔值参数如果是true，表示在捕获阶段调用事件处理程序；如果是false，表示在冒泡阶段调用事件处理程序。
+
+
+## mouseover和mouseenter的区别
+mouseover：当鼠标移入元素或其子元素都会触发事件，所以有一个重复触发，冒泡的过程。对应的移除事件是mouseout
+
+mouseenter：当鼠标移除元素本身（不包含元素的子元素）会触发事件，也就是不会冒泡，对应的移除事件是mouseleave
+
+
+## js的各种位置，比如clientHeight,scrollHeight,offsetHeight ,以及scrollTop, offsetTop,clientTop的区别？
+clientHeight：表示的是可视区域的高度，不包含border和滚动条
+
+offsetHeight：表示可视区域的高度，包含了border和滚动条
+
+scrollHeight：表示了所有区域的高度，包含了因为滚动被隐藏的部分。
+
+clientTop：表示边框border的厚度，在未指定的情况下一般为0
+
+scrollTop：滚动后被隐藏的高度，获取对象相对于由offsetParent属性指定的父坐标(css定位的元素或body元素)距离顶端的高度。
