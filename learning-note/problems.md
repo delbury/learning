@@ -26,3 +26,9 @@
 
     // Webpack 会将以 ~ 符号作为前缀的路径视作依赖模块而去解析
     ```
+
+  - vite esbuild 报错
+    ```
+    // 手动运行
+    node node_modules/esbuild/install.js
+    ```
