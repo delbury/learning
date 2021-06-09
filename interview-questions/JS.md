@@ -1079,3 +1079,8 @@ scrollHeight：表示了所有区域的高度，包含了因为滚动被隐藏�
 clientTop：表示边框border的厚度，在未指定的情况下一般为0
 
 scrollTop：滚动后被隐藏的高度，获取对象相对于由offsetParent属性指定的父坐标(css定位的元素或body元素)距离顶端的高度。
+
+
+## 监听一个变量的变化，怎么做
+1. ES5: Object.defineProperty()
+2. ES6: Reflect.defineProperty() | Proxy
