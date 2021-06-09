@@ -1084,3 +1084,16 @@ scrollTop：滚动后被隐藏的高度，获取对象相对于由offsetParent�
 ## 监听一个变量的变化，怎么做
 1. ES5: Object.defineProperty()
 2. ES6: Reflect.defineProperty() | Proxy
+
+
+## ==和===、以及Object.is的区别
+- ==：存在类型转换
+- ===：左右两边类型相等，值相等
+- Object.is 主要区别是 NaN/0/-0的区别
+  ```js
+  NaN === NaN // false
+  -0 === 0 // true
+
+  Object.is(NaN, NaN) // true
+  Object.is(0, -0) // false
+  ```
