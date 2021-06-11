@@ -464,7 +464,18 @@ const deepClone = function(obj) {
       }
     } else if(typeof target === 'function') {
       // 函数
-      res = eval(`(${target.toString()})`);
+      // res = eval(`(${target.toString()})`);
+      let functionString = target.toString();
+      const reg = new RegExp(`^${target.name}(?=\\()`);
+      if(reg.test(functionString)) {
+        functionString = functionString.replace(reg, 'function')
+      }
+      res = new Function('return ' + functionString)();
+
+    } else if(typeof target === 'symbol') {
+      // Symbol
+      res = Symbol(target.description)
+
     } else {
       // 基本类型
       res = target;
