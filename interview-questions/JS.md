@@ -1446,3 +1446,16 @@ scrollTop：滚动后被隐藏的高度，获取对象相对于由offsetParent�
 >尾递归优化：ES6 的尾调用优化只在严格模式下开启，正常模式是无效的
 
 可以使用循环实现尾递归
+
+
+## 判断数据类型
+1. `typeof xxx`
+2. `Object.prototype.toString.call(xxx)`
+3. `xxx.constructor`
+4. `xxx instanceof yyy`
+
+## 怎么判断对象和数组
+1. `arr.constructor === Array`
+2. `Object.prototype.toString.call(arr) === '[object Array]'`
+3. `Array.isArray(arr)`
+4. `arr instanceof Array`
