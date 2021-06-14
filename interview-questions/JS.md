@@ -651,6 +651,23 @@ Promise.prototype.finally = function(fn) {
 };
 ```
 
+Promise.all
+```js
+Promise.all = function(promises) {
+  return new Promise((resolve, reject) => {
+    let count = promises.length;
+    const res = [];
+    promises.forEach((p, index) => {
+      p.then(r => {
+        res[index] = r;
+        count--;
+        if(--count === 0) resolve(res);
+      }).catch(err => reject(err));
+    });
+  });
+};
+```
+
 
 ## async / await
 async/await语法糖就是使用Generator函数+自动执行器来运作的。
