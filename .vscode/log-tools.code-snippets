@@ -10,7 +10,7 @@
 		// "scope": "javascript,typescript",
 		"prefix": "loga",
 		"body": [
-			"const { logAssert } = require('./tools/LogTools.js');",
+			"const { logAssert } = require('../tools/LogTools.js');",
 			"logAssert($0);"
 		],
 		"description": "log tools assert"
@@ -19,7 +19,7 @@
 		// "scope": "javascript,typescript",
 		"prefix": "logd",
 		"body": [
-			"const { logAssertDisorder } = require('./tools/LogTools.js');",
+			"const { logAssertDisorder } = require('../tools/LogTools.js');",
 			"logAssertDisorder($0);"
 		],
 		"description": "log tools assert disorder"
@@ -28,7 +28,7 @@
 		// "scope": "javascript,typescript",
 		"prefix": "logt",
 		"body": [
-			"const { logBinaryTree, logHeapTree, createTreeByArray } = require('./tools/LogTools.js');",
+			"const { logBinaryTree, logHeapTree, createTreeByArray } = require('../tools/LogTools.js');",
 			"$0"
 		],
 		"description": "log tools tree"
