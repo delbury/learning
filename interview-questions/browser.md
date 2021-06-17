@@ -211,7 +211,9 @@ Priority = 'low' | 'medium' | 'high';
 
   > 3.服务器接收到请求，返回 html 文件
 
-  > 4.解析 HTML 代码，创建 DOM 树，请求页面资源，在 DOM 树的构建过程中如果遇到 JS 脚本和外部 JS 连接，则会停止构建 DOM 树来执行和下载相应的代码，这会造成阻塞
+  > 4.解析 HTML 代码，创建 DOM 树
+  > 
+  > 在 DOM 树的构建过程中如果遇到 JS 脚本和外部 JS 连接，则会停止构建 DOM 树来执行和下载相应的代码，这会造成阻塞
 
   > 5.解析 CSS 代码，计算出样式，构建 CSSOM 树 
 
@@ -221,6 +223,35 @@ Priority = 'low' | 'medium' | 'high';
 
   > 8.将渲染树的各个节点绘制到屏幕上 Painting，若 DOM 或 CSSOM 修改时会重新渲染
 
+
+## `<sciprt>` 的加载
+![script加载模式](./reference/script-mode.jpg)
+三种方式：
+  1. 正常模式：`<script src="script.js"></script>`<br>
+  没有 defer 或 async，浏览器会立即加载并执行指定的脚本，“立即”指的是在渲染该 script 标签之下的文档元素之前，也就是说不等待后续载入的文档元素，读到就加载并执行。
+
+  2. async模式：`<script async src="script.js"></script>`<br>
+  有 async，script.js会被异步加载，即加载和渲染后续文档元素的过程将和 script.js 的加载并行进行（异步）。当 script.js加载完整立即执行script.js。执行script.js时，html解析暂停。从加载完成立即执行来看，async模式 执行顺序与写的顺序无关，不保证执行顺序。
+
+  3. defer 模式：`<script defer src="index.js"></script>`<br>
+  有 defer，script.js会被异步加载，即加载和渲染后续文档元素的过程将和 script.js 的加载并行进行（异步）。这一点与async模式一致。
+  不同的是当 script.js加载完成并不会立即执行，而是在所有元素解析完成之后，DOMContentLoaded 事件触发之前完成。因此它会按照写的顺序执行。
+
+## 资源阻塞
+DOM解析器，在解析过程中，有以下几种情况：
+- 遇到了内联JS脚本：那么DOM解析器会先执行JavaScript脚本，执行完成之后，再继续往下解析。
+- 遇到成js外部文件：这种情况下，当解析到JavaScript的时候，会先暂停DOM解析，并下载js文件，下载完成之后执行该段JS文件，然后再继续往下解析DOM。这就是JavaScript文件为什么会阻塞DOM渲染。
+- 外部css不会阻塞dom的解析，但是会阻塞dom渲染
+- js在css之后（只要script不为空，哪怕只有一个空格，因为js可能会依赖元素的样式信息），css会阻塞js，从而造成阻塞DOM解析
+
+总结：
+> CSS 不会阻塞 DOM 的解析，但会阻塞 DOM 渲染。
+> 
+> JS 阻塞 DOM 解析，但浏览器会"偷看"DOM，预先下载相关资源。
+> 
+> 浏览器遇到 `<script>`且没有defer或async属性的 标签时，会触发页面渲染，因而如果前面CSS资源尚未加载完毕时，浏览器会等待它加载完毕在执行脚本。
+> 
+> 所以，你现在明白为何`<script>`最好放底部，`<link>`最好放头部，如果头部同时有`<script>`与`<link>`的情况下，最好将`<script>`放在`<link>`上面了吗？
 
 
 ## 重排和重绘

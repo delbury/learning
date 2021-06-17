@@ -37,16 +37,3 @@
   <!-## xhtml1.1 -->
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
   ```
-
-## `<sciprt>` 的加载
-![script加载模式](./reference/script-mode.jpg)
-三种方式：
-  1. 正常模式：`<script src="script.js"></script>`<br>
-  没有 defer 或 async，浏览器会立即加载并执行指定的脚本，“立即”指的是在渲染该 script 标签之下的文档元素之前，也就是说不等待后续载入的文档元素，读到就加载并执行。
-
-  2. async模式：`<script async src="script.js"></script>`<br>
-  有 async，script.js会被异步加载，即加载和渲染后续文档元素的过程将和 script.js 的加载并行进行（异步）。当 script.js加载完整立即执行script.js。执行script.js时，html解析暂停。从加载完成立即执行来看，async模式 执行顺序与写的顺序无关，不保证执行顺序。
-
-  3. defer 模式：`<script defer src="index.js"></script>`<br>
-  有 defer，script.js会被异步加载，即加载和渲染后续文档元素的过程将和 script.js 的加载并行进行（异步）。这一点与async模式一致。
-  不同的是当 script.js加载完成并不会立即执行，而是在所有元素解析完成之后，DOMContentLoaded 事件触发之前完成。因此它会按照写的顺序执行。
