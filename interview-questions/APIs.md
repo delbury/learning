@@ -171,6 +171,8 @@ atob(btoa(url));
  *   composite?: 'add' | 'accumulate' | 'replace';
  *   iterationComposite?: 'add' | 'accumulate' | 'replace';
  *   spacing?: 'distribute' | 'paced';
+ * 
+ * ReturnType: Animation
  */
-Element.animate(keyframes, options);
+const animation = (keyframes, options);
 ```

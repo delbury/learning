@@ -78,6 +78,7 @@
   - JSArray 继承自 JSObject，所以在 JavaScript 中，数组可以是一个特殊的对象，内部也是以 key-value 形式存储数据，所以 JavaScript 中的数组可以存放不同类型的值
   - JSArray 有两种存储方式：
     > fast：存储结构是 FixedArray ，并且数组长度 <= elements.length() ，push 或 pop 时可能会伴随着动态扩容或减容
+    >
     > slow：存储结构是 HashTable（哈希表），并且数组下标作为 key
   - 数组类型
     - 快数组（FastElements）
@@ -87,6 +88,7 @@
   - 数组类型转换
     - fast 转换为 slow
       > 当加入的索引值 index 比当前容量 capacity 差值大于等于 1024 时（index - capacity >= 1024）
+      >
       > 快数组新容量是扩容后的容量 3 倍之多时
     - slow 转换为 fast
       > 当慢数组的元素可存放在快数组中且长度在 smi 之间且仅节省了50%的空间，则会转变为快数组

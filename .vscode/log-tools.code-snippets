@@ -10,19 +10,19 @@
 		// "scope": "javascript,typescript",
 		"prefix": "loga",
 		"body": [
-			"const { logAssert } = require('../tools/LogTools.js');",
+			"const { logAssert, logAssertDisorder } = require('../tools/LogTools.js');",
 			"logAssert($0);"
 		],
 		"description": "log tools assert"
 	},
 	"log tool assert disorder": {
 		// "scope": "javascript,typescript",
-		"prefix": "logd",
+		"prefix": "logl",
 		"body": [
-			"const { logAssertDisorder } = require('../tools/LogTools.js');",
-			"logAssertDisorder($0);"
+			"const { logAssert, createLinkedListByArray, logLinkedListByArray } = require('../tools/LogTools.js');",
+			"$0"
 		],
-		"description": "log tools assert disorder"
+		"description": "log tools for linked list"
 	},
 	"log tool tree": {
 		// "scope": "javascript,typescript",
