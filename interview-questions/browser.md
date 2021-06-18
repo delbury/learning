@@ -241,7 +241,7 @@ Priority = 'low' | 'medium' | 'high';
 DOM解析器，在解析过程中，有以下几种情况：
 - 遇到了内联JS脚本：那么DOM解析器会先执行JavaScript脚本，执行完成之后，再继续往下解析。
 - 遇到成js外部文件：这种情况下，当解析到JavaScript的时候，会先暂停DOM解析，并下载js文件，下载完成之后执行该段JS文件，然后再继续往下解析DOM。这就是JavaScript文件为什么会阻塞DOM渲染。
-- 外部css不会阻塞dom的解析，但是会阻塞dom渲染
+- 外部css（包括内联`<style> @import url(xxx.css)</style>`和外部css`@import`的css资源）不会阻塞dom的解析，但是会阻塞dom渲染
 - js在css之后（只要script不为空，哪怕只有一个空格，因为js可能会依赖元素的样式信息），css会阻塞js，从而造成阻塞DOM解析
 
 总结：

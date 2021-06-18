@@ -25,8 +25,8 @@
   > transform: scale(0.5);
 
   > box-shadow: 0 0 0 0.5px black;
+  
   > border-image: 使用 5x5 的图片，切宽为 2px 的图片设置为 1px 的边框 <br>
-
   > border: 1px solid transparent; <br>
   > border-image: url(border1.png) 2 repeat; <br>
   > border-image-width: 1px;
@@ -63,7 +63,7 @@
 ## 响应式布局的常用解决方案
   - viewport
   
-    `<meta id="viewport" name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1; user-scalable=no;">`
+    `<meta id="viewport" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">`
 
     device-width一般是表示分辨率的宽，通过width=device-width的设置我们就将布局视口设置成了理想的视口
     | 属性名        | 取值                                      | 描述                                     |
@@ -95,7 +95,7 @@
 
     - border-radius、translate、background-size：
 
-      border-radius不一样，如果设置border-radius为百分比，则是相对于自身的宽度。
+      相对于自身的宽度/高度。
   
   - rem
 
@@ -147,7 +147,7 @@
 
 
 ## transition和animation的区别
-> Animation和transition大部分属性是相同的，他们都是随时间改变元素的属性值，他们的主要区别是transition需要触发一个事件才能改变属性，而animation不需要触发任何事件的情况下才会随时间改变属性值，并且transition为2帧，从from .... to，而animation可以一帧一帧的。
+> Animation和transition大部分属性是相同的，他们都是随时间改变元素的属性值，他们的主要区别是transition需要触发一个事件才能改变属性，而animation不需要触发任何事件的情况下就会随时间改变属性值，并且transition为2帧，从from .... to，而animation可以一帧一帧的。
 
 
 ## Flex布局
@@ -317,7 +317,7 @@ align-self
 
   元素先按照普通文档流定位，然后相对于该元素在流中的flow root（BFC）和 containing block（最近的块级祖先元素）定位。而后，元素定位表现为在跨越特定阈值前为相对定位，之后为固定定位。
 
-- 默认定位Static：
+- 默认定位static：
 
   默认值。没有定位，元素出现在正常的流中（忽略top, bottom, left, right 或者 z-index 声明）。
 
