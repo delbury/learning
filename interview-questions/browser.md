@@ -219,9 +219,11 @@ Priority = 'low' | 'medium' | 'high';
 
   > 6.将 DOM 和 CSSOM 合并为渲染树 Rendering Tree 
 
-  > 7.确定渲染树中的每个元素的确切位置，布局 Layout 
+  > 7.分层，决定层级关系，生成 Layer 树
 
-  > 8.将渲染树的各个节点绘制到屏幕上 Painting，若 DOM 或 CSSOM 修改时会重新渲染
+  > 8.确定渲染树中的每个元素的确切位置，布局 Layout 
+
+  > 9.将渲染树的各个节点绘制到屏幕上 Painting，若 DOM 或 CSSOM 修改时会重新渲染
 
 
 ## `<sciprt>` 的加载
