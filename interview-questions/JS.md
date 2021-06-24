@@ -452,7 +452,7 @@ const customNew = (...args) => {
 instanceof 运算符用于检测构造函数的 prototype 属性是否出现在某个实例对象的原型链上。
 ```js
 const customInstanceof = (left, right) => {
-  if(!left || !right) return;
+  if(!left || !right) return false;
   const rp = right.prototype;
   while(left = Reflect.getPrototypeOf(left)) {
     if(left === rp) return true;
