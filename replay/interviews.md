@@ -38,6 +38,21 @@
 - 反问：
 
 
+## 字节跳动
+### 一面
+- XSS 和 CSRF
+- 说一说事件循环
+- requestAnimationFrame 执行时机
+- 性能优化相关
+- Node 如何开启多进程
+- Webpack loader 和 pulgin 的区别
+- HTTP1.1 / HTTP2.0 为什么单个连接的 TCP 前一个 HTTP 请求会阻塞/不阻塞下一个 HTTP 请求的发送
+- Vue data -> computed -> view 的过程
+- Vue（双向绑定） 和 React（setState）的区别
+- 手写一个发布/订阅模式 (once 使用包装函数，自解除绑定的方式)
+
+
+# 准备
 ## 自我介绍
 
 ## 反问：

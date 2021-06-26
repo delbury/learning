@@ -311,3 +311,65 @@ DOM1 一般只有设计规范没有具体实现，所以一般跳过
 DOM2 DOM2级事件是通过 `addEventListener` 绑定的事件
 
 DOM3 在DOM2级事件的基础上添加了更多的事件类型
+
+## 事件循环 (Event Loop)
+[我以为我很懂Promise，直到我开始实现Promise/A+规范 | 技术点评](https://juejin.cn/post/6937076967283884040)
+> Event Loop 执行顺序如下所示：
+>- 执行同步代码
+>- 执行完所有同步代码后且执行栈为空，判断是否有微任务需要执行
+>- 执行所有微任务且微任务队列为空
+>- 是否有必要渲染页面
+>- 执行一个宏任务
+
+- 宏任务 (Task)
+  - setTimeout
+  - setInterval
+  - MessageChannel
+  - I/0（文件，网络）相关API
+  - DOM事件监听：浏览器环境
+  - setImmediate：Node环境，IE好像也支持（见caniuse数据）
+
+- 微任务 (Microtask)
+  - requestAnimationFrame：浏览器环境
+  - MutationObserver：浏览器环境
+  - Promise.prototype.then, Promise.prototype.catch, Promise.prototype.finally
+  - process.nextTick：Node环境
+  - queueMicrotask
+
+对于Task而言，任务注册时就会进入队列，只是任务的状态还不是runnable，不具备被Event Loop捞起的条件。
+
+Promise的微任务在 `.then / .catch` 时被注册。
+Promise状态发生转移的时候变成 runnable。
+
+>- 链式调用中，只有前一个 then 的回调执行完毕后，跟着的 then 中的回调才会被加入至微任务队列。
+>- 同一个 Promise 的每个链式调用的开端会首先依次进入微任务队列。
+
+## requestAnimationFrame 执行时机
+requestAnimationFrame 在页面不可见时是停止执行的，可以降低计算资源
+
+在 chrome 内，每一帧渲染开始前执行
+
+requestAnimationFrame 存在耗时任务时，会掉帧，帧率下降
+
+
+## 禁止打开控制台的方式
+> 对于一些浏览器，如果控制台输出的是对象，则保留对象的引用，每次打开控制台的时候，如果对象类型是function、date等(以前还有regexp，现在已失效)，都会重新调用一下对象的toString()方法，将返回结果打印到控制台上。
+> 
+> 1. 先声明对象，再重写toString，最后打印对象，那么toString会在开始时多运行一次，所以可以使用一个计数器来判断哪次有效
+> 2. 先声明对象，再打印对象，最后重写toString，那么如果初始化时控制台是开启状态，会检测不到> 这一次的状态
+> 3. 先声明对象，再重写toString，最后打印对象，但是对象不作为第一个参数，此时就可以成功监测> 每一次控制台状态了
+> 4. console.log、console.info、console.error等均有效
+> 5. 只在 chrome、edge 内核浏览器有效，firefox、ie失效
+```js
+const dev = new Date(); // new Function()
+let num = 0;
+dev.toString = function() {
+  num++;
+  if(num > 1) {
+    // do something
+    fn();
+  }
+  return num;
+};
+console.log('', dev);
+```

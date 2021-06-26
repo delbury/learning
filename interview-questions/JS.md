@@ -106,39 +106,6 @@ btns.forEach(btn => btn.onclick = async(ev) => {
 ```
 
 
-## 事件循环 (Event Loop)
-[我以为我很懂Promise，直到我开始实现Promise/A+规范 | 技术点评](https://juejin.cn/post/6937076967283884040)
-> Event Loop 执行顺序如下所示：
->- 执行同步代码
->- 执行完所有同步代码后且执行栈为空，判断是否有微任务需要执行
->- 执行所有微任务且微任务队列为空
->- 是否有必要渲染页面
->- 执行一个宏任务
-
-- 宏任务 (Task)
-  - setTimeout
-  - setInterval
-  - MessageChannel
-  - I/0（文件，网络）相关API
-  - DOM事件监听：浏览器环境
-  - setImmediate：Node环境，IE好像也支持（见caniuse数据）
-
-- 微任务 (Microtask)
-  - requestAnimationFrame：浏览器环境
-  - MutationObserver：浏览器环境
-  - Promise.prototype.then, Promise.prototype.catch, Promise.prototype.finally
-  - process.nextTick：Node环境
-  - queueMicrotask
-
-对于Task而言，任务注册时就会进入队列，只是任务的状态还不是runnable，不具备被Event Loop捞起的条件。
-
-Promise的微任务在 `.then / .catch` 时被注册。
-Promise状态发生转移的时候变成 runnable。
-
->- 链式调用中，只有前一个 then 的回调执行完毕后，跟着的 then 中的回调才会被加入至微任务队列。
->- 同一个 Promise 的每个链式调用的开端会首先依次进入微任务队列。
-
-
 
 ## 设计模式
 ### 原则

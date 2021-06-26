@@ -212,12 +212,12 @@ function patch (oldVnode, vnode, hydrating, removeOnly, parentElm, refElm) {
 
 
 ## 构建文件分类
-|   | UMD | CommonJS | ES Module |
-|---|---|---|---|
-|Full|vue.js|vue.common.js|vue.esm.js|
-|Runtime-only|vue.runtime.js|vue.runtime.common.js|vue.runtime.esm.js|
-|Full(production)|vue.min.js|vue.common.prod.js||
-|Runtime-only(production)|vue.runtime.js|vue.runtime.common.prod.js||
+|                          | UMD            | CommonJS                   | ES Module          |
+| ------------------------ | -------------- | -------------------------- | ------------------ |
+| Full                     | vue.js         | vue.common.js              | vue.esm.js         |
+| Runtime-only             | vue.runtime.js | vue.runtime.common.js      | vue.runtime.esm.js |
+| Full(production)         | vue.min.js     | vue.common.prod.js         |                    |
+| Runtime-only(production) | vue.runtime.js | vue.runtime.common.prod.js |                    |
 
 ### *名词解释*
 **Full**：这是一个全量的包，包含编译器（compiler）和运行时（runtime）。
@@ -408,4 +408,17 @@ export function callHook (vm: Component, hook: string) {
 }
 ```
 
-## 响应式原理
+
+## Vue.js的响应式系统原理
+![Vue响应式原理](./reference/vue-responsive.jpg)
+
+- Object.defineProperty():
+其中descriptor有两个非常核心的属性：get和set。在我们访问一个属性的时候会触发getter方法，当我们对一个属性做修改的时候会触发setter方法。当一个对象拥有来getter方法和setter方法，我们可以称这个对象为响应式对象。
+
+- Dep:
+Dep是Watcher和数据之间的桥梁，Dep.target表示全局正在计算的Watcher。
+
+- Watcher:
+Watcher是一个观察者对象，依赖收集以后Watcher对象会被保存在Deps中，数据变动的时候会由Deps通知Watcher实例。
+
+## Vue.js的computed和watch是如何工作的？
