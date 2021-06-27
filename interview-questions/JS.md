@@ -674,6 +674,13 @@ class Events {
       this.events.set(eventName, new Set([callback]));
     }
   }
+  once(eventName, callback) {
+    const cb = function() {
+      callback();
+      this.off(eventName, cb);
+    };
+    this.on(eventName, cb);
+  }
   off(eventName, callback) {
     const cbs = this.events.get(eventName);
     if(cbs.has(callback)) {
