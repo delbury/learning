@@ -415,10 +415,17 @@ export function callHook (vm: Component, hook: string) {
 - Object.defineProperty():
 其中descriptor有两个非常核心的属性：get和set。在我们访问一个属性的时候会触发getter方法，当我们对一个属性做修改的时候会触发setter方法。当一个对象拥有来getter方法和setter方法，我们可以称这个对象为响应式对象。
 
-- Dep:
+- Dep：
 Dep是Watcher和数据之间的桥梁，Dep.target表示全局正在计算的Watcher。
 
-- Watcher:
+- Watcher：
 Watcher是一个观察者对象，依赖收集以后Watcher对象会被保存在Deps中，数据变动的时候会由Deps通知Watcher实例。
+
+- 流程：
+  1. 从 new Vue 开始，首先通过 get、set 监听 Data 中的数据变化，同时创建 Dep 用来搜集使用该 Data 的 Watcher。
+  2. 编译模板，创建 Watcher，并将 Dep.target 标识为当前 Watcher。
+  3. 编译模板时，如果使用到了 Data 中的数据，就会触发 Data 的 get 方法，然后调用 Dep.addSub 将 Watcher 搜集起来。
+  4. 数据更新时，会触发 Data 的 set 方法，然后调用 Dep.notify 通知所有使用到该 Data 的 Watcher 去更新 DOM。
+
 
 ## Vue.js的computed和watch是如何工作的？
