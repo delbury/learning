@@ -49,3 +49,59 @@ setImmediate(() => console.log(2));
    该阶段执行关闭请求的回调函数，比如socket.on('close', ...)。
    
 > 每个阶段都有一个先进先出的回调函数队列。只有一个阶段的回调函数队列清空了，该执行的回调函数都执行了，事件循环才会进入下一个阶段。
+
+
+## Node 开启多进程
+  - spawn和fork都是返回一个基于流的子进程对象
+
+  - exec和execFile可以在回调中拿到返回的buffer的内容（执行成功或失败的输出）
+
+  - exec是创建子shell去执行命令，用来直接执行shell命令  。execFile是去创建任意你指定的文件的进程
+
+  - fork是一种特殊的spawn，可以理解为spawn增强版，返回的子进程对象可以和父进程对象进行通信，通过send和on方法。
+  
+```js
+// exec() 方法返回最大的缓冲区，并等待进程结束，一次性返回缓冲区的内容。
+child_process.exec(command[, options], callback)
+
+child_process.execFile(file[, args][, options][, callback])
+
+child_process.spawn(command[, args][, options])
+
+child_process.fork(modulePath[, args][, options])
+```
+
+```js
+if(cluster.isMaster) {
+   cluster.fork(); // -> child_process.fork()
+   cluster.fork();
+   cluster.fork();
+   console.log('主进程', process.pid);
+} else {
+   const app = http.createServer((req, res) => {
+      res.write('pid: ' + process.pid);
+      res.end();
+   });
+   app.listen(3000, () => {
+      console.log('子进程', process.pid);
+   });
+}
+```
+
+
+## Node 热更新原理
+### nodemon
+可在检测到目录中的文件更改时自动重新启动节点应用程序
+
+npm package: chokidar --> fs.watch() api
+
+
+
+## PM2 原理
+### 核心功能
+- 多进程管理：
+  使用了 Node 的 child_process / cluster 模块功能
+
+- 系统信息监控
+- 日志管理
+   

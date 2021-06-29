@@ -45,6 +45,8 @@
 - requestAnimationFrame 执行时机
 - 性能优化相关
 - Node 如何开启多进程
+- Node 热更新
+- PM2 原理
 - Webpack loader 和 pulgin 的区别
 - HTTP1.1 / HTTP2.0 为什么单个连接的 TCP 前一个 HTTP 请求会阻塞/不阻塞下一个 HTTP 请求的发送
 - Vue data -> computed -> view 的过程
