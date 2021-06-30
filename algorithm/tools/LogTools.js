@@ -44,6 +44,7 @@ const logHeapTree = function (heap) {
       }
     }
 
+
     // 每层的字符间隔不同
     const gapSymbol = fillSymbol;
     const k = 2 ** (i - 1);
