@@ -54,11 +54,15 @@
 - 手写一个发布/订阅模式 (once 使用包装函数，自解除绑定的方式)
 
 ### 二面
+- 具体说一下 webpack 加载 css 文件的过程
 - 遇到的项目难点
 - 介绍一下项目
 - 说一下工作中的交流学习，对于工作的帮助及体现
 - CDN 原理，缓存更新如何实现
+- 除了 http 头，浏览器的缓存策略等，还有什么方式更新缓存（文件名）
+- 如何更新 CDN 上 index.html 文件
 - Node Cluster 的主从节点通信，主节点挂掉了，子节点会怎样
+- Node 进程间如何通信
 - Vue 相关
   ```js
   const vm = new Vue({
@@ -67,7 +71,8 @@
       msg: 'hello world'
     },
   });
-  Vue.$el.msg === 'new message'; // true or false ? 怎么改可以 true ?
+  vm.$el.msg === 'new message'; // true or false ? 怎么改可以 true ?
+  // 使用 vm.$nextTick() 是否可以实现？
   ```
 - 题目：双向链表的指定位置插入和指定位置删除
 - 题目：一个无重复元素数组，一个目标 target，找出所有可以使数字和为 target 的组合（数字可以无限制重复选取）
