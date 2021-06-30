@@ -53,6 +53,53 @@
 - Vue（双向绑定） 和 React（setState）的区别
 - 手写一个发布/订阅模式 (once 使用包装函数，自解除绑定的方式)
 
+### 二面
+- 遇到的项目难点
+- 介绍一下项目
+- 说一下工作中的交流学习，对于工作的帮助及体现
+- CDN 原理，缓存更新如何实现
+- Node Cluster 的主从节点通信，主节点挂掉了，子节点会怎样
+- Vue 相关
+  ```js
+  const vm = new Vue({
+    el: '#app',
+    data: {
+      msg: 'hello world'
+    },
+  });
+  Vue.$el.msg === 'new message'; // true or false ? 怎么改可以 true ?
+  ```
+- 题目：双向链表的指定位置插入和指定位置删除
+- 题目：一个无重复元素数组，一个目标 target，找出所有可以使数字和为 target 的组合（数字可以无限制重复选取）
+- Node require() 缓存问题（a.js / b.js）
+  ```js
+  // a.js
+  let count = 1;
+
+  setTimeout(() => {
+    console.log('a', count);
+  }, 1000);
+
+  const setTime = () => {
+    count++;
+  };
+
+  module.exports = {
+    count,
+    setTime
+  }
+
+  // b.js
+  const obj = require('./a.js');
+
+  obj.setTime();
+  console.log('b', obj.count);
+
+  setTimeout(() => {
+    console.log('b next', obj.count);
+  }, 2000);
+  ```
+
 
 # 准备
 ## 自我介绍
