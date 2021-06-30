@@ -56,7 +56,7 @@ setImmediate(() => console.log(2));
 
   - exec和execFile可以在回调中拿到返回的buffer的内容（执行成功或失败的输出）
 
-  - exec是创建子shell去执行命令，用来直接执行shell命令  。execFile是去创建任意你指定的文件的进程
+  - exec是创建子shell去执行命令，用来直接执行shell命令。execFile是去创建任意你指定的文件的进程
 
   - fork是一种特殊的spawn，可以理解为spawn增强版，返回的子进程对象可以和父进程对象进行通信，通过send和on方法。
   
