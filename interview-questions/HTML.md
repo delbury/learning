@@ -37,3 +37,54 @@
   <!-## xhtml1.1 -->
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
   ```
+
+
+## Text、Node、Element 关系
+![关系图](./reference/object-relation.png)
+
+> Element 继承于 Node，具有Node的方法，同时又拓展了很多自己的特有方法。
+> 
+> Node的一些方法，返回值为Node，比如说文本节点，注释节点之类的，而Element的一些方法，返回值则一定是Element。
+> 
+> 所以我们平时使用的html上的元素，即Element，是类型为ELEMENT_NODE的Node。
+
+### nodeType
+  1. Node.ELEMENT_NODE	
+  1. Node.TEXT_NODE
+  1. Node.CDATA_SECTION_NODE
+  1. Node.PROCESSING_INSTRUCTION_NODE
+  1. Node.COMMENT_NODE
+  1. Node.DOCUMENT_NODE
+  1. Node.DOCUMENT_TYPE_NODE
+  1. Node.DOCUMENT_FRAGMENT_NODE
+   
+### 废弃的 nodeType
+  1. Node.ATTRIBUTE_NODE
+  2. Node.ENTITY_REFERENCE_NODE
+  3. Node.ENTITY_NODE
+  4. Node.NOTATION_NODE
+
+
+## Node.textContent、HTMLElement.innerText 区别
+- textContent 会获取所有元素的内容，包括 `<script>` 和 `<style>` 元素，然而 innerText 只展示给人看的元素。
+
+- textContent 会返回节点中的每一个元素。相反，innerText 受 CSS 样式的影响，并且不会返回隐藏元素的文本，
+  - 此外，由于 innerText 受 CSS 样式的影响，它会触发回流（ reflow ）去确保是最新的计算样式。（回流在计算上可能会非常昂贵，因此应尽可能避免。）
+
+- 与 textContent 不同的是, 在 Internet Explorer (小于和等于 11 的版本) 中对 innerText 进行修改， 不仅会移除当前元素的子节点，而且还会永久性地破坏所有后代文本节点。在之后不可能再次将节点再次插入到任何其他元素或同一元素中。
+
+
+## NodeList 和 HTMLCollection
+> 就像NodeList是Node的集合一样，ElementCollection也是Element的集合。
+>
+> 但需要特别注意的是：NodeList和ElementCollcetion都不是真正的数组。
+
+> HTML DOM 中的 HTMLCollection 是即时更新的（live）；当其所包含的文档结构发生改变时，它会自动更新。例如，document.forms、document.images 等
+
+> 在一些情况下，NodeList 是一个实时集合，也就是说，如果文档中的节点树发生变化，NodeList 也会随之变化。例如，Node.childNodes 是实时的
+>
+> 在其他情况下，NodeList 是一个静态集合，也就意味着随后对文档对象模型的任何改动都不会影响集合的内容。比如  document.querySelectorAll 就会返回一个静态 NodeList。
+
+HTMLElement.childNodes -> NodeList
+
+HTMLElement.children -> HTMLCollection

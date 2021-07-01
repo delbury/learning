@@ -54,6 +54,9 @@
 - 手写一个发布/订阅模式 (once 使用包装函数，自解除绑定的方式)
 
 ### 二面
+- 项目中使用的图片资源(jpg/png)，了解 webp 么？
+- node http监控的另一种方式（socket）
+- node 监听多个相同端口的实现方式
 - 具体说一下 webpack 加载 css 文件的过程
 - 遇到的项目难点
 - 介绍一下项目
@@ -65,14 +68,21 @@
 - Node 进程间如何通信
 - Vue 相关
   ```js
+  /*
+    <div id="app">{{ textContent }}</div>
+  */
   const vm = new Vue({
     el: '#app',
     data: {
-      msg: 'hello world'
+      textContent: 'new message'
     },
   });
-  vm.$el.msg === 'new message'; // true or false ? 怎么改可以 true ?
+  vm.$el.textContent === 'new message';
+  // true or false ? 怎么改可以 true ?
   // 使用 vm.$nextTick() 是否可以实现？
+
+  // 为 true，在 mounted 及之后就已经挂载
+  // textContent 获取的是元素的文本内容
   ```
 - 题目：双向链表的指定位置插入和指定位置删除
 - 题目：一个无重复元素数组，一个目标 target，找出所有可以使数字和为 target 的组合（数字可以无限制重复选取）
