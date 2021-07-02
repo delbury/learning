@@ -179,9 +179,38 @@ DNS 解析 `tlab.cloud.tencent.com `
 - 有损压缩。压缩算法不会对图片所有的数据进行编码压缩，而是在压缩的时候，去除了人眼无法识别的图片细节。因此有损压缩可以在同等图片质量的情况下大幅降低图片的尺寸。其中的代表是jpg。
 
 ### 对比
-| 格式 | 优点                                       | 缺点                               | 适用场景                   |
-| ---- | ------------------------------------------ | ---------------------------------- | -------------------------- |
-| gif  | 文件小，支持动画、透明，无兼容性问题       | 只支持256种颜色                    | 色彩简单的logo、icon、动图 |
-| jpg  | 色彩丰富，文件小                           | 有损压缩，反复保存图片质量下降明显 | 色彩丰富的图片/渐变图像    |
-| png  | 无损压缩，支持透明，简单图片尺寸小         | 不支持动画，色彩丰富的图片尺寸大   | logo/icon/透明图           |
-| webp | 文件小，支持有损和无损压缩，支持动画、透明 | 浏览器兼容性不好                   | 支持webp格式的app和webview |
+![图片格式对比](./reference/image-format.webp)
+- PNG <br>
+  ![png格式](./reference/png-binary-format.webp)
+  ```
+  PNG Signature 是文件标识，用于校验文件格式是否为 PNG。内容固定为：0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a
+  IHDR 是文件头数据块，包含 PNG 图像的基本信息，例如图像的宽高等信息
+  IDAT 是图像数据块，最核心，存储具体的图像数据
+  IEND 是结束数据块，标示图像结束
+  ```
+- APNG：Web帧动画，基于 png 格式扩展的动画格式 
+  - 相比于gif，画质更好，尤其对于带透明度的图片。具体比较请自行google
+  - 本身其实是一个png文件，在不支持apng的设备上时，能降级显示一个png静图（后面会讲到）
+  - 可以直接作为img标签插入到网页中去，无需逻辑控制动画，开发成本低
+  - 直接由设计师产出，设计还原度100%
+  
+  ![png格式](./reference/apng-binary-format.webp)
+- AVIF：AVIF 是一种从 AV1 视频的关键帧派生的新图像格式。
+  - 支持HDR， 透明度（即支持alpha通道）和宽色域。
+  - 它提供了最高的无损和有损压缩的可能。
+  - 它是以免版税的格式创建的，因此开发者不必面对法律或财务问题，能够加快推进使用的速度。
+  - 背靠诸如Amazon, Google, Apple, Intel, Samsung等大公司，因此不存在缺少资源的问题。
+- JPEG 2000： JPEG 小组，这是 JPEG 编码继承者中最早初露头角的一位，不过仅被 Safari 5+ 支持
+- JPEG XL： JPEG 小组，下一代编码但不被任何浏览器支持
+- HEIC：MPEG 小组，基于 HEVC，支持在 iOS 原生应用程序使用，但是不被任何一个包括 Safari 在内的浏览器支持
+- WebP2：Google，一个针对 WebP 的实验性质的成功尝试，主要目标是达到与 AVIF 相似的压缩率，同时保持更快的编码和解码速度。
+
+
+### 图像编码
+![png格式](./reference/kinds-of-image-formats.webp)
+
+
+### 判断浏览器是否支持 webp 格式
+  1. HTMLCanvasElement.toDataURL(type)：（canvas宽高不为0）若传入的 type 不支持，则返回 `data:image/webp;` 开头的字符串
+  2. HTTP Request Header -> Accept: image/webp, image/apng, image/avif, ...
+  3. 加载一张 webp 图片，如果能获取到图片的宽高，则支持 webp 格式
