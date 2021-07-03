@@ -149,3 +149,41 @@ server.listen(path[, backlog][, callback]) // 用于 IPC 服务器
 // 在 Windows 上，本地域是使用命名管道实现的。 路径必须引用 \\?\pipe\ 或 \\.\pipe\ 中的条目。
 server.listen([port[, host[, backlog]]][, callback]) // 用于 TCP 服务器
 ```
+
+
+## cluster 模块
+
+### 采用了哪种集群模式？
+1 个 Node 实例开启多个进程监听同一个端口，通过负载均衡技术分配请求（Master->Worker）
+
+### 多个进程为什么可以监听同一个端口？
+一个端口不是被所有的进程全部的监听，仅受到 Master 进程的监听
+
+Master 进程创建一个 Socket 并绑定监听到该目标端口，通过与子进程之间建立 IPC 通道之后，通过调用子进程的 send 方法，将 Socket（链接句柄）传递过去
+
+端口只会被主进程绑定监听一次，但是主进程和子进程在建立 IPC 通信之后，发送 Socket 到子进程实现端口共享，在之后 Master 接收到新的客户端链接之后，通过负载均衡技术再转发到各 Worker 进程
+
+## 多个进程之间如何通信？
+进程间通信方式：pipe（管道）、消息队列、信号量、Domain Socket
+
+在 Nodejs 中是通过 pipe（管道）实现的，pipe 作用于之间有血缘关系的进程，通过 fork 传递，其本身也是一个进程，将一个进程的输出做为另外一个进程的输入
+
+
+## 如何对多个 Worker 进行请求分发
+Nodejs 是如何对多个 Worker 进程进行请求分发呢？在 Nodejs 中使用了 RoundRobin 负载均衡策略，简称 RR，它的实现原理是一种无状态的轮询策略，假定每台服务器的硬件资源、处理性能都是相同的，根据进程数量，依次分配，直到所有进程都处理完了，在开始重新计算分配
+
+```js
+const cluster = require('cluster');
+ 
+// 策略一：一种轮询的策略，默认值
+cluster.schedulingPolicy = cluster.SCHED_RR;
+ 
+// 策略二：由操作系统调度的策略
+cluster.schedulingPolicy = cluster.SCHED_NONE;
+
+// 或者通过环境变量 NODE_CLUSTER_SCHED_POLICY 设置：
+// env NODE_CLUSTER_SCHED_POLICY="none" node app.js // 有效值包括 rr、none
+```
+
+## Master 进程意外退出，Worker 进程会退出吗？
+Master 进程退出之后，Worker 进程会自动退出，因为 Cluster 模块自己内部有处理。
