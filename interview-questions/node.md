@@ -1,4 +1,5 @@
 # Node
+[梳理](https://juejin.cn/post/6844903767926636558)
 ## 异步
 异步任务可以分成两种。
 1. 追加在本轮循环的异步任务
@@ -30,7 +31,7 @@ setImmediate(() => console.log(2));
 // 也就是说，setTimeout(f, 0)等同于setTimeout(f, 1)。
 ```
 
-件循环的六个阶段：
+事件循环的六个阶段：
 1. timers：
    这个是定时器阶段，处理setTimeout()和setInterval()的回调函数。进入这个阶段后，主线程会检查一下当前时间，是否满足定时器的条件。如果满足就执行回调函数，否则就离开这个阶段。
 2. I/O callbacks：
@@ -187,3 +188,4 @@ cluster.schedulingPolicy = cluster.SCHED_NONE;
 
 ## Master 进程意外退出，Worker 进程会退出吗？
 Master 进程退出之后，Worker 进程会自动退出，因为 Cluster 模块自己内部有处理。
+
