@@ -46,4 +46,5 @@ const canGet24Points = (nums) => {
 };
 
 const { logAssert } = require('../tools/LogTools.js');
-logAssert(canGet24Points, [7, 2, 1, 10], true);
+// logAssert(canGet24Points, [7, 2, 1, 10], true);
+logAssert(canGet24Points, [24, 24, 1, 1], true);

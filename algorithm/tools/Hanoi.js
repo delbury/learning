@@ -11,4 +11,4 @@ hanoi(1);
 console.log(''.padEnd(10, '*'));
 hanoi(2);
 console.log(''.padEnd(10, '*'));
-hanoi(3);
+hanoi(4);
