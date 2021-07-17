@@ -12,23 +12,17 @@ function findElement( mat ,  n ,  m ,  x ) {
   // write code here
   if(x < mat[0][0] || x > mat[n - 1][m - 1]) return [];
 
-  const search = (isCol, ind) => {
-    let s = 0, e = (isCol ? n : m) - 1;
-    while(s <= e) {
-      const mid = Math.floor((s + e) / 2);
-      const cur = isCol ? mat[mid][ind] : mat[ind][mid];
-      if(cur < x) {
-        s = mid + 1;
-      } else if(cur > x) {
-        e = mid - 1;
-      } else {
-        return [mid, ind];
-      }
+  let row = 0, col = m - 1;
+  while(row < n && col >= 0) {
+    if(mat[row][col] < x) {
+      row++;
+    } else if(mat[row][col] > x) {
+      col--;
+    } else {
+      return [row, col];
     }
-    return [s, e];
-  };
+  }
 
-  console.log(search(false, n - 1));
   return [];
 }
 module.exports = {
