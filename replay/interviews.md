@@ -140,6 +140,19 @@
 
 
 
+
+
+## 字节跳动
+### 一面
+- ES6 的新特性，箭头函数与普通函数的区别
+- react 的生命周期
+- react 的 useCallback() / useMemo() 区别
+- 了解 vue3 么，与 vue2 区别
+- 了解 typescript 么，ts 是如何定义类型的，type / interface 的区别
+- 用过 Promise.all() 么，手写一个
+- 算法题：求 str1 和 str2 的最长公共子串
+
+
 # 准备
 ## 自我介绍
 
