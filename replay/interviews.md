@@ -69,20 +69,20 @@
 - Vue 相关
   ```js
   /*
-    <div id="app">{{ textContent }}</div>
+    <div id="app">{{ msg }}</div>
   */
   const vm = new Vue({
     el: '#app',
     data: {
-      textContent: 'new message'
+      msg: '123'
     },
   });
-  vm.$el.textContent === 'new message';
+  vm.$el.textContent === '123'; // true
+  vm.msg = 'new message';
+  vm.$el.textContent === 'new message'; // false
+  vm.$nextTick(() => vm.$el.textContent === 'new message'); // true
   // true or false ? 怎么改可以 true ?
   // 使用 vm.$nextTick() 是否可以实现？
-
-  // 为 true，在 mounted 及之后就已经挂载
-  // textContent 获取的是元素的文本内容
   ```
 - 题目：双向链表的指定位置插入和指定位置删除
 - 题目：一个无重复元素数组，一个目标 target，找出所有可以使数字和为 target 的组合（数字可以无限制重复选取）
@@ -151,6 +151,14 @@
 - 了解 typescript 么，ts 是如何定义类型的，type / interface 的区别
 - 用过 Promise.all() 么，手写一个
 - 算法题：求 str1 和 str2 的最长公共子串
+
+### 二面
+- 在项目中负责的相关工作，组件封装，性能优化等
+- 为何，CSS 文件放在 head，JS 文件放在 body
+- CSS 三栏布局的实现，左 20%，中自适应，右 100px
+- 第一次面试二面中的 Vue 题目渲染问题，`vm.msg === 'new message'; vm.$el.textContent === 'new message; // true or false ?`
+- 题目：两有序数组合并成一个有序数组，优化：剩余数字直接拼接
+- 题目：括号的正确匹配，优化：维护一个左右括号 map
 
 
 # 准备
