@@ -138,7 +138,7 @@
   - 是否适应字节的工作强度
   - 项目成就，产出
 
-
+### 额外面
 
 
 
@@ -167,6 +167,31 @@
 - 说一下 Service Worker 相关的 API
 - 离职原因
 - 反问
+
+### HR面
+
+
+## 美团
+### 一面
+- 页面性能调试，指标，如何查看帧率 // PerformanceObserver
+- webpack4/5 的区别
+- vue3 为何使用 Proxy
+- 最近学习的东西，出于何种考虑 // WebGL
+- 项目难点 // 动态 tab、全局弹框容器
+- 说一下 html 文件的渲染过程
+- 单个元素内，对角线布局的实现方式
+- 说一下项目中用过的性能优化
+- 说一下 css、js 阻塞页面
+- ES6 Map 和 Object 的区别
+- vue/react 与 jquery 的区别
+- vue3 与 vue2 的区别，虚拟 DOM 的作用，说一下 diff 算法
+- promise.catch(onReject).then(onResolve) .then 会不会执行 // 会
+- promise 优缺点
+- 题目：promise 打印顺序题
+- 题目：写一个可重复尝试的 promise 请求方法
+- 题目：二叉树的层序遍历，BFS
+- 有何没有问到的优势 // 技术预研 node + ffmpeg
+- 反问 // 部门情况，具体业务
 
 
 # 准备
