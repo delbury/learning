@@ -193,6 +193,35 @@
 - 有何没有问到的优势 // 技术预研 node + ffmpeg
 - 反问 // 部门情况，具体业务
 
+### 二面
+- 项目相关
+- requestAnimationFrame、requestIdleCallback 属于哪些任务队列
+- react 相关，hooks 原理，class组件和函数组件的区别
+  - ```jsx
+    class A {
+      constructor() {
+        this.state = {
+          count: 0,
+        };
+      }
+      componentDidUpdate() {
+        setTimeout(() => console.log(this.state.count), 3000);
+      }
+      render() {
+        return <button onClick={() => this.setState({
+          count: this.state.count + 1,
+        })}>click</button>
+      }
+    }
+    // 快速点击按钮 5 次，会打印什么值？
+    ```
+- 迭代器如何挂起，并继续执行 // 状态保存在堆中
+- 浏览器的垃圾回收机制
+- 设计模式，AOP
+- 浏览器有哪些进程
+- 进程、线程、协程区别
+- CDN 原理，如何回源
+- 反问
 
 # 准备
 ## 自我介绍

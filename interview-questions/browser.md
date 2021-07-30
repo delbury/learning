@@ -328,9 +328,9 @@ DOM3 在DOM2级事件的基础上添加了更多的事件类型
   - I/0（文件，网络）相关API
   - DOM事件监听：浏览器环境
   - setImmediate：Node环境，IE好像也支持（见caniuse数据）
+  - ??? requestAnimationFrame：浏览器环境
 
 - 微任务 (Microtask)
-  - requestAnimationFrame：浏览器环境
   - MutationObserver：浏览器环境
   - Promise.prototype.then, Promise.prototype.catch, Promise.prototype.finally
   - process.nextTick：Node环境
