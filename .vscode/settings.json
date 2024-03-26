@@ -1,2 +1,12 @@
 {
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+  },
+  "eslint.validate": [
+    "html",
+    "javascript",
+    "jsx",
+    "typescript",
+    "tsx"
+  ]
 }
