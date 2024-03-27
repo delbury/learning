@@ -79,6 +79,29 @@ var findMedianSortedArrays = function (nums1, nums2) {
   return null
 };
 
+var findMedianSortedArraysNew = function(nums1, nums2) {
+  let p1 = 0;
+  let p2 = 0;
+  const needTwo = (nums1.length + nums2.length) % 2 === 0;
+  const counts = Math.ceil((nums1.length + nums2.length) / 2);
+  const arr = [];
+  do {
+    if(p1 >= nums1.length || nums1[p1] > nums2[p2]) {
+      arr.push(nums2[p2++]);
+    } else {
+      arr.push(nums1[p1++]);
+    }
+    if(arr.length > 2) {
+      arr.shift();
+    }
+  } while (p1 + p2 <= counts);
+  if(needTwo) {
+    return (arr[0] + arr[1]) / 2;
+  } else {
+    return arr[0];
+  }
+};
+
 // 2. 二分查找，求第 K 小的数，时间复杂度 O(log(m+n))
 const getKth = function (n1, s1, n2, s2, k) {
   const l1 = n1.length - s1;
