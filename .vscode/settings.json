@@ -1,12 +1,22 @@
 {
+  "editor.tabSize": 2,
+  "emmet.triggerExpansionOnTab": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
   },
-  "eslint.validate": [
-    "html",
-    "javascript",
-    "jsx",
-    "typescript",
-    "tsx"
-  ]
+  "editor.formatOnSave": true,
+  "workbench.settings.openDefaultSettings": true,
+  "workbench.editor.wrapTabs": true,
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "prettier.printWidth": 120,
+  "prettier.singleQuote": true,
+  "xml.format.closingBracketNewLine": true,
+  "xml.format.maxLineWidth": 120,
+  "xml.format.splitAttributes": true
 }
