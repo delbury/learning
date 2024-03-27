@@ -16,6 +16,7 @@ const spiralMatrix = (matrix) => {
   const res = [];
   let row = 0;
   let col = 0;
+  console.log(row, col);
 
   while (true) {
     // 右
@@ -25,7 +26,9 @@ const spiralMatrix = (matrix) => {
       }
       r--;
     } else {
-      break;
+      if (matrix[0].length !== 1) {
+        break;
+      }
     }
 
     // 下
@@ -62,9 +65,9 @@ const spiralMatrix = (matrix) => {
   return res;
 };
 
-const tools = require("../tools/LogTools");
-const matrix = tools.create2dArray(3, 3);
+const tools = require('../tools/LogTools');
+const matrix = tools.create2dArray(2, 1);
 tools.log2dArray(matrix);
 const res = spiralMatrix(matrix);
 tools.logDivider();
-console.log(res.length, "res: ", res.join(", "));
+console.log(res.length, 'res: ', res.join(', '));

@@ -12,7 +12,8 @@
  * 示例 2:
  * 输入：s = "aa", p = "a*"
  * 输出：true
- * 解释：因为 '*' 代表可以匹配零个或多个前面的那一个元素, 在这里前面的元素就是 'a'。因此，字符串 "aa" 可被视为 'a' 重复了一次。
+ * 解释：因为 '*' 代表可以匹配零个或多个前面的那一个元素, 在这里前面的元素就是 'a'。
+ * 因此，字符串 "aa" 可被视为 'a' 重复了一次。
  *
  * 示例 3：
  * 输入：s = "ab", p = ".*"
@@ -29,8 +30,71 @@
 
 const tools = require('../tools/LogTools');
 
-const match = function (s, p) {};
+// 暴力回溯
+const match = function (s, p) {
+  const arr = [];
+  for (let i = 0; i < p.length; i++) {
+    if (p[i] === '*') {
+      arr.push(arr.pop() + '*');
+    } else {
+      arr.push(p[i]);
+    }
+  }
+  const compare = (arrIndex, sIndex) => {
+    while (arrIndex < arr.length) {
+      if (arr[arrIndex].length === 1) {
+        // 'a' or '.'
+        if (arr[arrIndex] === '.' || s[sIndex] === arr[arrIndex]) {
+          sIndex++;
+          arrIndex++;
+        } else {
+          return false;
+        }
+      } else if (arr[arrIndex] === '.*') {
+        // '.*' 匹配 0 ~ 最多个
+        let ts = sIndex;
+        while (ts <= s.length) {
+          if (compare(arrIndex + 1, ts++)) {
+            return true;
+          }
+        }
+      } else {
+        // 'a*'
+        let ts = sIndex;
+        if (compare(arrIndex + 1, ts)) {
+          return true;
+        }
+        // 匹配尽可能多个
+        const char = arr[arrIndex][0];
+        while (ts < s.length && s[ts] === char) {
+          if (compare(arrIndex + 1, ++ts)) {
+            return true;
+          }
+        }
+        // 匹配 0 个
+        if (compare(arrIndex + 1, sIndex)) {
+          return true;
+        }
+        // 未匹配到
+        arrIndex++;
+      }
+    }
+    // 完成匹配
+    return sIndex === s.length && arrIndex >= arr.length;
+  };
+  return compare(0, 0);
+};
+
+// 动态规划
 
 tools.logAssert(match, 'aa', 'a', false);
-tools.logAssert(match, 'aa', 'a*', false);
-tools.logAssert(match, 'ab', '.*', false);
+tools.logAssert(match, 'abcdef', 'abcde', false);
+tools.logAssert(match, 'abc', '.*', true);
+tools.logAssert(match, 'abcd', 'ab.*cd', true);
+tools.logAssert(match, 'abcdefgh', 'ab.*', true);
+tools.logAssert(match, 'abcdefgh', 'ab.*gh', true);
+tools.logAssert(match, 'abcdefgh', 'a.*de.*gh', true);
+tools.logAssert(match, 'aaa', 'a*', true);
+tools.logAssert(match, 'aabbbbef', 'aab*ef', true);
+tools.logAssert(match, 'aabbbbef', 'aabb*ef', true);
+tools.logAssert(match, 'aabbbbef', 'aabb*f', false);
