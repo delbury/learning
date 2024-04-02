@@ -1,4 +1,4 @@
-const _ = require("./lodash.js");
+const _ = require('./lodash.js');
 
 /**
  * log 调试等工具
@@ -20,7 +20,7 @@ const logHeapTree = function (heap) {
   const lastRowGap = 2;
   const totalWith = 2 ** (deep - 1) * (eachItemWith + lastRowGap) - lastRowGap;
   const resRows = [];
-  const fillSymbol = " ";
+  const fillSymbol = ' ';
   // const leftSymbol = '╱';
   // const rightSymbol = '╲';
 
@@ -39,7 +39,7 @@ const logHeapTree = function (heap) {
       stringArr.push(str); // 不同深度每项宽度相同
 
       if (j !== 0) {
-        dividerArr.push("-".repeat(str.length)); // 不同深度每项宽度相同
+        dividerArr.push('-'.repeat(str.length)); // 不同深度每项宽度相同
       }
     }
 
@@ -47,7 +47,7 @@ const logHeapTree = function (heap) {
     const gapSymbol = fillSymbol;
     const k = 2 ** (i - 1);
     const gap = deep === i ? lastRowGap : Math.round((totalWith - k * eachItemWith) / k);
-    const preGap = deep === i ? "" : gapSymbol.repeat(Math.ceil(gap / 2));
+    const preGap = deep === i ? '' : gapSymbol.repeat(Math.ceil(gap / 2));
 
     resRows.unshift(preGap + stringArr.join(gapSymbol.repeat(gap)));
     if (dividerArr.length) {
@@ -57,24 +57,24 @@ const logHeapTree = function (heap) {
             if (index === 0) {
               return string + item;
             } else if (index % 2 === 0) {
-              return string + " ".repeat(gap) + item;
+              return string + ' '.repeat(gap) + item;
             } else {
-              return string + "-".repeat(gap) + item;
+              return string + '-'.repeat(gap) + item;
             }
-          }, "")
+          }, '')
       );
     }
   }
   // return resRows.join('\n');
-  resRows.unshift("*".padStart(totalWith, "*"));
-  resRows.push("*".padStart(totalWith, "*"));
-  console.log(resRows.join("\n"));
+  resRows.unshift('*'.padStart(totalWith, '*'));
+  resRows.push('*'.padStart(totalWith, '*'));
+  console.log(resRows.join('\n'));
 };
 
 /**
  * 打印二叉树链表
  */
-const logBinaryTree = function (root, valueKey = "val", leftKey = "left", rightKey = "right") {
+const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightKey = 'right') {
   if (!root) return console.log(null);
 
   const stack = [root];
@@ -88,21 +88,21 @@ const logBinaryTree = function (root, valueKey = "val", leftKey = "left", rightK
       stack.push(node[leftKey], node[rightKey]);
     } else {
       stack.push(null, null);
-      values.push("");
+      values.push('');
     }
   }
   logHeapTree(values);
 };
 
 // 工具函数
-const r = require("./log-color.js");
+const r = require('./log-color.js');
 const DIV_COUNT = 80;
 // 打印分割线
-const printDivider = (sym = "-") => console.log(sym.repeat(DIV_COUNT));
+const printDivider = (sym = '-') => console.log(sym.repeat(DIV_COUNT));
 // 打印结果
-const printResult = (passedCases, totalCases, sym = "*") => {
+const printResult = (passedCases, totalCases, sym = '*') => {
   const complete = passedCases === totalCases;
-  let text = ` passed / total: ${r(passedCases, complete ? "green" : "red")} / ${r(totalCases, "green")} `;
+  let text = ` passed / total: ${r(passedCases, complete ? 'green' : 'red')} / ${r(totalCases, 'green')} `;
   const prefix = DIV_COUNT <= text.length ? 0 : Math.floor((DIV_COUNT - text.length) / 2);
   printDivider(sym);
   console.log((sym.repeat(prefix) + text).padEnd(DIV_COUNT, sym));
@@ -110,7 +110,7 @@ const printResult = (passedCases, totalCases, sym = "*") => {
 };
 // 打印每条用例结果
 const printEach = (no, output, res, passed) => {
-  console.log(`${no}: expect:`, output, `, result:`, res, `, is ${passed ? r("passed", "green") : r("failed", "red")}`);
+  console.log(`${no}: expect:`, output, `, result:`, res, `, is ${passed ? r('passed', 'green') : r('failed', 'red')}`);
   printDivider();
 };
 // 运行测试用例
@@ -174,10 +174,10 @@ const logAssertDisorder = function (no, ...args) {
 };
 
 /**
- * 根据属猪创建链表
+ * 根据数组创建链表
  * @param {Array} arr 链表节点
  */
-const createLinkedListByArray = function (arr, valueKey = "val", nextKey = "next") {
+const createLinkedListByArray = function (arr, { valueKey = 'val', nextKey = 'next', tailNode = null } = {}) {
   const root = { [nextKey]: null };
   let current = root;
   for (let i = 0; i < arr.length; i++) {
@@ -187,6 +187,31 @@ const createLinkedListByArray = function (arr, valueKey = "val", nextKey = "next
     };
     current = current[nextKey];
   }
+  current[nextKey] = tailNode;
+  return root[nextKey];
+};
+
+/**
+ * 根据数组创建循环链表
+ * @param {Array} arr 链表节点
+ * @param {Number} index 循环的节点
+ */
+const createCircleLinkedListByArray = function (arr, index, { valueKey = 'val', nextKey = 'next' } = {}) {
+  const root = { [nextKey]: null };
+  let current = root;
+  let circleNode;
+  for (let i = 0; i < arr.length; i++) {
+    const node = {
+      [valueKey]: arr[i],
+      [nextKey]: null,
+    };
+    current[nextKey] = node;
+    current = current[nextKey];
+    if (i === index) {
+      circleNode = node;
+    }
+  }
+  current[nextKey] = circleNode;
   return root[nextKey];
 };
 
@@ -203,8 +228,8 @@ const createNode = function (arr, index, valueKey, leftKey, rightKey) {
     [rightKey]: createNode(arr, index * 2 + 2, valueKey, leftKey, rightKey),
   };
 };
-const createTreeByArray = function (arr, valueKey = "val", leftKey = "left", rightKey = "right") {
-  if (typeof arr !== "object" || !("length" in arr)) throw new TypeError("value must be an array");
+const createTreeByArray = function (arr, valueKey = 'val', leftKey = 'left', rightKey = 'right') {
+  if (typeof arr !== 'object' || !('length' in arr)) throw new TypeError('value must be an array');
 
   return createNode(arr, 0, valueKey, leftKey, rightKey);
 };
@@ -213,13 +238,31 @@ const createTreeByArray = function (arr, valueKey = "val", leftKey = "left", rig
  * 打印链表的值
  * @param {Object} node 链表对象
  */
-const logLinkedListByArray = function (node, valueKey = "val", nextKey = "next") {
+const logLinkedListByArray = function (node, valueKey = 'val', nextKey = 'next') {
+  const nodeMap = new Map();
   const res = [];
+  let index = 0;
+  let circleIndex = null;
   while (node) {
-    res.push(node[valueKey]);
+    if (nodeMap.has(node)) {
+      circleIndex = nodeMap.get(node);
+      break;
+    } else {
+      nodeMap.set(node, index++);
+    }
+    res.push(String(node[valueKey]));
     node = node[nextKey];
   }
-  console.log(res.join(" -> "));
+
+  const resString = res.join(' → ');
+  console.log(resString);
+
+  // 存在循环
+  if (circleIndex !== null) {
+    const leftItems = res.filter((_, ind) => ind < circleIndex);
+    const leftSpace = leftItems.reduce((sum, str) => sum + str.length, 0) + leftItems.length * 3;
+    console.log(' '.repeat(leftSpace) + '⭡' + '|'.padStart(resString.length - leftSpace - 2, '_'));
+  }
 };
 
 /**
@@ -246,7 +289,7 @@ const create2dArray = function (m, n, random = false) {
  */
 const log2dArray = function (arr) {
   for (let i = 0; i < arr.length; i++) {
-    const row = arr[i].map((it) => `${it}`.padStart(3, " ")).join(", ");
+    const row = arr[i].map((it) => `${it}`.padStart(3, ' ')).join(', ');
     console.log(row);
   }
 };
@@ -254,7 +297,7 @@ const log2dArray = function (arr) {
 /**
  * 打印分割线
  */
-const logDivider = function (char = "-", length = 60) {
+const logDivider = function (char = '-', length = 60) {
   console.log(char.repeat(length));
 };
 
@@ -269,6 +312,7 @@ module.exports = {
   log2dArray,
   logDivider,
   createLinkedListByArray,
+  createCircleLinkedListByArray,
   createTreeByArray,
   create2dArray,
 };
