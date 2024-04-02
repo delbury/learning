@@ -4,6 +4,39 @@
 牛客网：两道一星题，一道二星题
 
 二星题：给定一个正整数数字 n 和保留位数 k，从 n 中选择出 k 位数字，保持相对顺序，组成最小的新正整数
+```js
+const main = (n, k) => {
+  let res = '';
+  let l = 0;
+  let r = n.length - k;
+
+  while (r < n.length) {
+    if (l === r) {
+      res += n.substring(l);
+      break;
+    }
+    let min = n[l];
+    let minIndex = l;
+    while (l <= r) {
+      if (min > n[l]) {
+        min = n[l];
+        minIndex = l;
+      }
+      l++;
+    }
+    l = minIndex + 1;
+    res += min;
+    r++;
+  }
+  console.log(res);
+  return +res;
+};
+
+console.log(main('7861342', 3)); // 132
+console.log(main('7861342', 4)); // 1342
+console.log(main('786166342', 4)); // 1342, length: 9
+console.log(main('781912481293262132316611233342', 8)); // 1342, length: 9
+```
 
 ### 性格测试
 
@@ -34,6 +67,28 @@
 - 说一下 MVVM
 
 - 算法题：字符串对应下标上的字符`s[i]`（区分大小写）根据斐波那契数列向后偏移`f[i]`个字符，遇到z/Z返回开头字符a/A
+```js
+const fn = (str) => {
+  const gen = function* () {
+    let a = 0;
+    let b = 1;
+    while (true) {
+      [a, b] = [b, a + b];
+      yield a;
+    }
+  };
+  const g = gen();
+  let res = '';
+  for (let i = 0; i < str.length; i++) {
+    const fi = g.next().value;
+    const charCode = str.charCodeAt(i);
+    const codeBase = charCode >= 97 ? 97 : 65;
+    const offset = (charCode - codeBase + fi) % 26;
+    res += String.fromCharCode(codeBase + offset);
+  }
+  return res;
+};
+```
 
 - 反问：
 
