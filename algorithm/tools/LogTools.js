@@ -1,4 +1,5 @@
 const _ = require('./lodash.js');
+const r = require('./log-color.js');
 
 /**
  * log 调试等工具
@@ -95,7 +96,6 @@ const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightK
 };
 
 // 工具函数
-const r = require('./log-color.js');
 const DIV_COUNT = 80;
 // 打印分割线
 const printDivider = (sym = '-') => console.log(sym.repeat(DIV_COUNT));
@@ -301,6 +301,51 @@ const logDivider = function (char = '-', length = 60) {
   console.log(char.repeat(length));
 };
 
+/**
+ * 操作、参数、预期结果分别通过三个数组传入
+ * action的第一个参数为构造函数
+ */
+const runActionArgByArray = function (actions, args, { expects, stopAtError = false, stopAtIndex } = {}) {
+  if (typeof actions[0] !== 'function') {
+    console.error('第一个参数不是函数');
+    return;
+  }
+  if (actions.length !== args.length) {
+    console.warn(`actions: ${actions.length}, args: ${args.length}, 数量不相等`);
+  }
+  const instance = new actions[0]();
+  const res = [null];
+  for (let i = 1; i < actions.length; i++) {
+    const item = instance[actions[i]](...args[i]) ?? null;
+    res.push(item);
+
+    if (Number.isInteger(stopAtIndex) && stopAtIndex === i) {
+      console.log(`stop at custom index: ${i}, expect: ${expects[i]}, result: ${item}`);
+      console.log(`action is: ${actions[i]}, arg is ${args[i].toString() || r('empty', 'grey')}`);
+      console.log(r('current instance:', 'green'));
+      console.log(instance);
+      return res;
+    }
+
+    if (stopAtError && expects && !_.isEqual(item, expects[i])) {
+      console.log(`stop at error index: ${i}, expect: ${r(expects[i], 'green')}, result: ${r(item, 'red')}`);
+      console.log(`action is: ${actions[i]}, arg is ${args[i].toString() || r('empty', 'grey')}`);
+      console.log(r('current instance:', 'green'));
+      console.log(instance);
+      return res;
+    }
+  }
+  if (expects) {
+    const notEqualIndex = res.findIndex((it, ind) => !_.isEqual(it, expects[ind]));
+    if (notEqualIndex === -1) {
+      console.log('it is OK');
+    } else {
+      console.log(`error at index: ${notEqualIndex}`);
+    }
+  }
+  return res;
+};
+
 // exports
 module.exports = {
   logHeapTree,
@@ -315,4 +360,5 @@ module.exports = {
   createCircleLinkedListByArray,
   createTreeByArray,
   create2dArray,
+  runActionArgByArray,
 };
