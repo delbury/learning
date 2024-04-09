@@ -309,7 +309,11 @@ const logDivider = function (char = '-', length = 60) {
  * 传入expects的情况下设置stopAtError可以在结果出错时终止执行
  * 设置stopAtIndex，可以手动指定只执行到第几个操作
  */
-const runActionArgByArray = function (actions, args, { expects, stopAtError = false, stopAtIndex } = {}) {
+const runActionArgByArray = function (
+  actions,
+  args,
+  { expects, stopAtError = false, stopAtIndex, logInstance = false } = {}
+) {
   if (typeof actions[0] !== 'function') {
     console.error('第一个参数不是函数');
     return;
@@ -323,7 +327,7 @@ const runActionArgByArray = function (actions, args, { expects, stopAtError = fa
     const item = instance[actions[i]](...args[i]) ?? null;
     res.push(item);
 
-    const stopString = `stop at index: ${i}, expect: ${r.green(expects[i])}, result: ${r.red(item)}`;
+    const stopString = `stop at index: ${i}, expect: ${r.green(expects?.[i] ?? '-')}, result: ${r.red(item)}`;
     const actionString = `action is: ${actions[i]}, arg is ${args[i].toString() || r.grey('empty')}`;
 
     if (Number.isInteger(stopAtIndex) && stopAtIndex === i) {
@@ -349,6 +353,10 @@ const runActionArgByArray = function (actions, args, { expects, stopAtError = fa
     } else {
       console.log(`error at index: ${notEqualIndex}`);
     }
+  }
+  if (logInstance) {
+    console.log(r.green('current instance:'));
+    console.log(instance);
   }
   return res;
 };
