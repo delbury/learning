@@ -308,6 +308,5 @@ const act2 = [AnimalShelf, 'enqueue', 'enqueue', 'enqueue', 'enqueue', 'enqueue'
 const arg2 = [[], [[0, 0]], [[1, 1]], [[2, 0]], [[3, 0]], [[4, 1]], [[5, 0]]];
 const exp2 = [null, null, null, null, null, null, null];
 const { logAssert, runActionArgByArray } = require('../tools/LogTools.js');
-const res = runActionArgByArray(actions, args, { expects, stopAtError: true, stopAtIndex: 29 });
-// const res = runActionArgByArray(act2, arg2, { expects: exp2, stopAtError: true, stopAtIndex: 3 });
+const res = runActionArgByArray(actions, args, { expects, stopAtError: true });
 // console.log(res);

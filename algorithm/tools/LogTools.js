@@ -302,8 +302,12 @@ const logDivider = function (char = '-', length = 60) {
 };
 
 /**
- * 操作、参数、预期结果分别通过三个数组传入
- * action的第一个参数为构造函数
+ * 主要用来debug超长的一连串输入输出
+ * 操作actions、参数args分别通过两个数组传入
+ * actions的第一个参数为构造函数
+ * 可以传入预期结果expects来做实际输出校验
+ * 传入expects的情况下设置stopAtError可以在结果出错时终止执行
+ * 设置stopAtIndex，可以手动指定只执行到第几个操作
  */
 const runActionArgByArray = function (actions, args, { expects, stopAtError = false, stopAtIndex } = {}) {
   if (typeof actions[0] !== 'function') {
@@ -319,18 +323,21 @@ const runActionArgByArray = function (actions, args, { expects, stopAtError = fa
     const item = instance[actions[i]](...args[i]) ?? null;
     res.push(item);
 
+    const stopString = `stop at index: ${i}, expect: ${r.green(expects[i])}, result: ${r.red(item)}`;
+    const actionString = `action is: ${actions[i]}, arg is ${args[i].toString() || r.grey('empty')}`;
+
     if (Number.isInteger(stopAtIndex) && stopAtIndex === i) {
-      console.log(`stop at custom index: ${i}, expect: ${expects[i]}, result: ${item}`);
-      console.log(`action is: ${actions[i]}, arg is ${args[i].toString() || r('empty', 'grey')}`);
-      console.log(r('current instance:', 'green'));
+      console.log('custom', stopString);
+      console.log(actionString);
+      console.log(r.green('current instance:'));
       console.log(instance);
       return res;
     }
 
     if (stopAtError && expects && !_.isEqual(item, expects[i])) {
-      console.log(`stop at error index: ${i}, expect: ${r(expects[i], 'green')}, result: ${r(item, 'red')}`);
-      console.log(`action is: ${actions[i]}, arg is ${args[i].toString() || r('empty', 'grey')}`);
-      console.log(r('current instance:', 'green'));
+      console.log('error', stopString);
+      console.log(actionString);
+      console.log(r.green('current instance:'));
       console.log(instance);
       return res;
     }
@@ -338,7 +345,7 @@ const runActionArgByArray = function (actions, args, { expects, stopAtError = fa
   if (expects) {
     const notEqualIndex = res.findIndex((it, ind) => !_.isEqual(it, expects[ind]));
     if (notEqualIndex === -1) {
-      console.log('it is OK');
+      console.log(r.green('it is perfect'));
     } else {
       console.log(`error at index: ${notEqualIndex}`);
     }

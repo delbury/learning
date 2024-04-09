@@ -1,4 +1,5 @@
 // 终端打印的颜色
+// prettier-ignore
 const COLORS = {
   'bright'    : '\x1B[1m', // 亮色
   'grey'      : '\x1B[2m', // 灰色
@@ -29,5 +30,9 @@ const r = (str, color) => {
   const t = COLORS[color];
   return (t || '') + str + (t ? STOP : '');
 };
+
+for (const key of Object.keys(COLORS)) {
+  r[key] = (str) => r(str, key);
+}
 
 module.exports = r;
