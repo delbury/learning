@@ -29,7 +29,7 @@
 		"prefix": "logt",
 		"body": [
 			"const { log, logAssert, logBinaryTree, logHeapTree, createTreeByArray } = require('../tools/LogTools.js');",
-			"$0"
+			"const tree = createTreeByArray([$1]);$0"
 		],
 		"description": "log tools tree"
 	}
