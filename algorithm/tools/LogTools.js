@@ -30,7 +30,7 @@ const logHeapTree = function (heap) {
     let dividerArr = [];
     const max = Math.min(2 ** i - 1, heap.length);
     for (let j = 2 ** (i - 1) - 1; j < max; j++) {
-      let str = heap[j].toString();
+      let str = (heap[j] ?? '').toString();
       const pad = eachItemWith - str.length;
       const pStart = Math.ceil(pad / 2);
 
@@ -40,7 +40,7 @@ const logHeapTree = function (heap) {
       stringArr.push(str); // 不同深度每项宽度相同
 
       if (j !== 0) {
-        dividerArr.push('-'.repeat(str.length)); // 不同深度每项宽度相同
+        dividerArr.push((heap[j] === null ? ' ' : '-').repeat(str.length)); // 不同深度每项宽度相同
       }
     }
 
@@ -89,7 +89,7 @@ const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightK
       stack.push(node[leftKey], node[rightKey]);
     } else {
       stack.push(null, null);
-      values.push('');
+      values.push(null);
     }
   }
   logHeapTree(values);
@@ -216,7 +216,7 @@ const createCircleLinkedListByArray = function (arr, index, { valueKey = 'val', 
 };
 
 /**
- * 根据数据创建树
+ * 根据数组创建树
  * @param {Array} arr 树的节点
  */
 const createNode = function (arr, index, valueKey, leftKey, rightKey) {
@@ -363,6 +363,7 @@ const runActionArgByArray = function (
 
 // exports
 module.exports = {
+  log: console.log,
   logHeapTree,
   logBinaryTree,
   logAssert: planTask(logAssert),
