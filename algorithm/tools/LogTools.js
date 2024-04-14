@@ -57,7 +57,7 @@ const logHeapTree = function (heap) {
           dividerArr.reduce((string, item, index) => {
             if (index === 0) {
               return string + item;
-            } else if (index % 2 === 0 || (!string.trim().length && !item.trim().length)) {
+            } else if (index % 2 === 0 || !item.trim().length) {
               return string + ' '.repeat(gap) + item;
             } else {
               return string + '-'.repeat(gap) + item;
