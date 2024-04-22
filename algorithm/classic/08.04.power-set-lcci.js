@@ -41,5 +41,23 @@ const subsets = function (nums) {
   return res;
 };
 
+// 回溯
+const subsets2 = function (nums) {
+  const res = [];
+  const fn = (size, startIndex, arr) => {
+    if (arr.length === size) {
+      res.push(arr);
+      return;
+    }
+    for (let i = startIndex; i < nums.length; i++) {
+      fn(size, i + 1, [...arr, nums[i]]);
+    }
+  };
+  for (let i = 0; i <= nums.length; i++) {
+    fn(i, 0, []);
+  }
+  return res;
+};
+
 const { log, logAssert, logAssertDisorder } = require('../tools/LogTools.js');
-logAssertDisorder(subsets, [1, 2, 3], [[3], [1], [2], [1, 2, 3], [1, 3], [2, 3], [1, 2], []]);
+logAssertDisorder(subsets2, [1, 2, 3], [[3], [1], [2], [1, 2, 3], [1, 3], [2, 3], [1, 2], []]);
