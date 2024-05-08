@@ -4,14 +4,14 @@
  * 你可以将其视作是由递归公式定义的数字字符串序列：
  * countAndSay(1) = "1"
  * countAndSay(n) 是对 countAndSay(n-1) 的描述，然后转换成另一个数字字符串。
- * 
+ *
  * 前五项如下：
  * 1.     1
  * 2.     11
  * 3.     21
  * 4.     1211
  * 5.     111221
- * 第一项是数字 1 
+ * 第一项是数字 1
  * 描述前一项，这个数是 1 即 “ 一 个 1 ”，记作 "11"
  * 描述前一项，这个数是 11 即 “ 二 个 1 ” ，记作 "21"
  * 描述前一项，这个数是 21 即 “ 一 个 2 + 一 个 1 ” ，记作 "1211"
@@ -19,12 +19,12 @@
  * 要 描述 一个数字字符串，首先要将字符串分割为 最小 数量的组，每个组都由连续的最多 相同字符 组成。
  * 然后对于每个组，先描述字符的数量，然后描述字符，形成一个描述组。
  * 要将描述转换为数字字符串，先将每组中的字符数量用数字替换，再将所有描述组连接起来。
- * 
+ *
  * 示例 1：
  * 输入：n = 1
  * 输出："1"
  * 解释：这是一个基本样例。
- * 
+ *
  * 示例 2：
  * 输入：n = 4
  * 输出："1211"
@@ -33,22 +33,24 @@
  * countAndSay(2) = 读 "1" = 一 个 1 = "11"
  * countAndSay(3) = 读 "11" = 二 个 1 = "21"
  * countAndSay(4) = 读 "21" = 一 个 2 + 一 个 1 = "12" + "11" = "1211"
- *  
+ *
  * 提示：
  * 1 <= n <= 30
- * 
+ *
  * @param {number} n
  * @return {string}
  */
 
-const countAndSay = function(n) {
-  if(n === 1) return '1';
-  
+const countAndSay = function (n) {
+  if (n === 1) return '1';
+
   const prev = countAndSay(n - 1).split('');
-  let str = '', temp = 0, count = 0;
-  prev.forEach(item => {
-    if(temp !== item) {
-      if(temp !== 0) {
+  let str = '',
+    temp = 0,
+    count = 0;
+  prev.forEach((item) => {
+    if (temp !== item) {
+      if (temp !== 0) {
         str += count + temp;
       }
       temp = item;
@@ -64,15 +66,17 @@ const countAndSay = function(n) {
 // console.log(countAndSay(5));
 
 function better(string, n) {
-  if(n === 1) {
+  if (n === 1) {
     return string;
   }
 
   const prev = string.split('');
-  let str = '', temp = 0, count = 0;
-  prev.forEach(item => {
-    if(temp !== item) {
-      if(temp !== 0) {
+  let str = '',
+    temp = 0,
+    count = 0;
+  prev.forEach((item) => {
+    if (temp !== item) {
+      if (temp !== 0) {
         str += count + temp;
       }
       temp = item;
@@ -85,7 +89,27 @@ function better(string, n) {
   return better(str, n - 1);
 }
 
-const betterStart = function(n) {
+const betterStart = function (n) {
   return better('1', n);
 };
 
+// 2024.5.8
+const countAndSay2 = (n) => {
+  let res = '1';
+  while (n > 1) {
+    let count = 0;
+    let temp = '';
+    for (let i = 0; i < res.length; i++) {
+      if (i === 0 || res[i] === res[i - 1]) {
+        count++;
+      } else {
+        temp += `${count}${res[i - 1]}`;
+        count = 1;
+      }
+    }
+    temp += `${count}${res[res.length - 1]}`;
+    n--;
+    res = temp;
+  }
+  return res;
+};
