@@ -47,12 +47,29 @@ const permuteUnique = function (nums) {
 const permuteUnique2 = function (nums) {
   const res = [];
 
+  const fn = (indexSet) => {
+    if (indexSet.size === nums.length) {
+      res.push([...indexSet].map((i) => nums[i]));
+      return;
+    }
+
+    const valSet = new Set();
+    for (let i = 0; i < nums.length; i++) {
+      if (!valSet.has(nums[i]) && !indexSet.has(i)) {
+        valSet.add(nums[i]);
+        const newSet = new Set(indexSet);
+        newSet.add(i);
+        fn(newSet);
+      }
+    }
+  };
+  fn(new Set());
   return res;
 };
 
 const { log, logAssert, logAssertDisorder } = require('../tools/LogTools.js');
 // logAssert(
-//   permuteUnique,
+//   permuteUnique2,
 //   [1, 2, 3],
 //   [
 //     [1, 2, 3],
@@ -63,12 +80,13 @@ const { log, logAssert, logAssertDisorder } = require('../tools/LogTools.js');
 //     [3, 2, 1],
 //   ]
 // );
-logAssert(
-  permuteUnique2,
-  [1, 1, 2],
-  [
-    [1, 1, 2],
-    [1, 2, 1],
-    [2, 1, 1],
-  ]
-);
+// logAssert(
+//   permuteUnique2,
+//   [1, 1, 2],
+//   [
+//     [1, 1, 2],
+//     [1, 2, 1],
+//     [2, 1, 1],
+//   ]
+// );
+logAssert(permuteUnique2, [1], [[1]]);

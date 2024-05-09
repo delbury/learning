@@ -154,6 +154,19 @@ const logAssert = function (no, ...args) {
   return passed;
 };
 
+// 比较浮点数的差值
+const logAssertFloat = function (no, ...args) {
+  const [output, res] = run(...args);
+  let passed;
+  if (typeof res === 'number' && typeof output === 'number') {
+    passed = Math.abs(res - output) < Number.EPSILON * 1e4;
+  } else {
+    passed = _.isEqual(res, output);
+  }
+  printEach(no, output, res, passed);
+  return passed;
+};
+
 // 有序数组
 const logAssertOrder = function (no, ...args) {
   const [output, res] = run(...args);
@@ -369,6 +382,7 @@ module.exports = {
   logAssert: planTask(logAssert),
   logAssertDisorder: planTask(logAssertDisorder),
   logAssertOrder: planTask(logAssertOrder),
+  logAssertFloat: planTask(logAssertFloat),
   logLinkedListByArray,
   log2dArray,
   logDivider,
