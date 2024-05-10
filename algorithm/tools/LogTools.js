@@ -95,23 +95,27 @@ const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightK
   logHeapTree(values);
 };
 
-// 工具函数
+/**
+ * 打印分割线
+ */
 const DIV_COUNT = 80;
-// 打印分割线
-const printDivider = (sym = '-') => console.log(sym.repeat(DIV_COUNT));
+const logDivider = function (char = '-', length = 60) {
+  console.log(char.repeat(length));
+};
+
 // 打印结果
 const printResult = (passedCases, totalCases, sym = '*') => {
   const complete = passedCases === totalCases;
   let text = ` passed / total: ${r(passedCases, complete ? 'green' : 'red')} / ${r(totalCases, 'green')} `;
   const prefix = DIV_COUNT <= text.length ? 0 : Math.floor((DIV_COUNT - text.length) / 2);
-  printDivider(sym);
+  logDivider(sym, DIV_COUNT);
   console.log((sym.repeat(prefix) + text).padEnd(DIV_COUNT, sym));
-  printDivider(sym);
+  logDivider(sym, DIV_COUNT);
 };
 // 打印每条用例结果
 const printEach = (no, output, res, passed) => {
   console.log(`${no}: expect:`, output, `, result:`, res, `, is ${passed ? r('passed', 'green') : r('failed', 'red')}`);
-  printDivider();
+  logDivider();
 };
 // 运行测试用例
 const run = (fn, ...args) => {
@@ -308,13 +312,6 @@ const log2dArray = function (arr) {
 };
 
 /**
- * 打印分割线
- */
-const logDivider = function (char = '-', length = 60) {
-  console.log(char.repeat(length));
-};
-
-/**
  * 主要用来debug超长的一连串输入输出
  * 操作actions、参数args分别通过两个数组传入
  * actions的第一个参数为构造函数
@@ -374,9 +371,18 @@ const runActionArgByArray = function (
   return res;
 };
 
+// 直接 log
+const log = function (...args) {
+  if (typeof args[0] === 'function') {
+    console.log(args[0](...args.slice(1)));
+  } else {
+    console.log(...args);
+  }
+};
+
 // exports
 module.exports = {
-  log: console.log,
+  log,
   logHeapTree,
   logBinaryTree,
   logAssert: planTask(logAssert),

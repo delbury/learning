@@ -16,7 +16,6 @@ const spiralMatrix = (matrix) => {
   const res = [];
   let row = 0;
   let col = 0;
-  console.log(row, col);
 
   while (true) {
     // 右
