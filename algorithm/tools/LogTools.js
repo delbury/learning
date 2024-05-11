@@ -113,7 +113,11 @@ const printResult = (passedCases, totalCases, sym = '*') => {
   logDivider(sym, DIV_COUNT);
 };
 // 打印每条用例结果
-const printEach = (no, output, res, passed) => {
+const printEach = (no, output, res, passed, options) => {
+  if (options?.array2string) {
+    output = Array.isArray(output) ? r.yellow(`[ ${output.join(', ')} ]`) : output;
+    res = Array.isArray(res) ? r.yellow(`[ ${res.join(', ')} ]`) : res;
+  }
   console.log(`${no}: expect:`, output, `, result:`, res, `, is ${passed ? r('passed', 'green') : r('failed', 'red')}`);
   logDivider();
 };
@@ -126,6 +130,7 @@ const run = (fn, ...args) => {
 // 注册到 promise 队列
 let promise = null;
 let count = 0; // 计数
+const clearTaskCount = () => (count = 0);
 const tasks = [];
 const planTask =
   (fn) =>
@@ -382,6 +387,7 @@ const log = function (...args) {
 
 // exports
 module.exports = {
+  r,
   log,
   logHeapTree,
   logBinaryTree,
@@ -389,6 +395,7 @@ module.exports = {
   logAssertDisorder: planTask(logAssertDisorder),
   logAssertOrder: planTask(logAssertOrder),
   logAssertFloat: planTask(logAssertFloat),
+  clearTaskCount,
   logLinkedListByArray,
   log2dArray,
   logDivider,

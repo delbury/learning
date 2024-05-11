@@ -22,4 +22,49 @@
  * @param {number[][]} intervals
  * @return {number[][]}
  */
-const merge = function (intervals) {};
+const merge = function (intervals) {
+  // 按第一位、第二位进行排序
+  intervals.sort((a, b) => (a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]));
+  const res = [];
+  let start = null;
+  let end = null;
+  for (const item of intervals) {
+    if (start === null) {
+      start = item[0];
+      end = item[1];
+    } else if (end >= item[0]) {
+      end = Math.max(item[1], end);
+    } else {
+      res.push([start, end]);
+      start = item[0];
+      end = item[1];
+    }
+  }
+  res.push([start, end]);
+  return res;
+};
+
+const { log, logAssert, logAssertDisorder } = require('../tools/LogTools.js');
+logAssert(
+  merge,
+  [
+    [1, 3],
+    [2, 6],
+    [8, 10],
+    [15, 18],
+  ],
+  [
+    [1, 6],
+    [8, 10],
+    [15, 18],
+  ]
+);
+
+logAssert(
+  merge,
+  [
+    [1, 4],
+    [2, 3],
+  ],
+  [[1, 4]]
+);
