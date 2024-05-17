@@ -48,11 +48,40 @@ const setZeroes = function (matrix) {
   }
   return matrix;
 };
+
+const setZeroes2 = function (matrix) {
+  const m = matrix.length;
+  const n = matrix[0].length;
+  let firstColHas0 = false;
+  for (let r = 0; r < m; r++) {
+    if (matrix[r][0] === 0) {
+      firstColHas0 = true;
+    }
+    for (let c = 1; c < n; c++) {
+      if (!matrix[r][c]) {
+        matrix[r][0] = matrix[0][c] = 0;
+      }
+    }
+  }
+
+  for (let r = m - 1; r >= 0; r--) {
+    for (let c = n - 1; c > 0; c--) {
+      if (!matrix[r][0] || !matrix[0][c]) {
+        matrix[r][c] = 0;
+      }
+    }
+    if (firstColHas0) {
+      matrix[r][0] = 0;
+    }
+  }
+  return matrix;
+};
+
 const { log, logAssert, logAssertDisorder } = require('../tools/LogTools.js');
 logAssert(
-  setZeroes,
+  setZeroes2,
   [
-    [0, -11, 2, 0],
+    [0, 1, 2, 0],
     [3, 4, 5, 2],
     [1, 3, 1, 5],
   ],
@@ -60,5 +89,20 @@ logAssert(
     [0, 0, 0, 0],
     [0, 4, 5, 0],
     [0, 3, 1, 0],
+  ]
+);
+logAssert(
+  setZeroes2,
+  [
+    [1, 2, 3, 4],
+    [5, 0, 7, 8],
+    [0, 10, 11, 12],
+    [13, 14, 15, 0],
+  ],
+  [
+    [0, 0, 3, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
   ]
 );
