@@ -393,7 +393,7 @@
         this.a = a;
       }
       action() {
-        this.a.rund();
+        this.a.run();
       }
     }
     ```

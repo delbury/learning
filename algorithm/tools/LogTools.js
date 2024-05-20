@@ -118,14 +118,24 @@ const printEach = (no, output, res, passed, options) => {
     output = Array.isArray(output) ? r.yellow(`[ ${output.join(', ')} ]`) : output;
     res = Array.isArray(res) ? r.yellow(`[ ${res.join(', ')} ]`) : res;
   }
-  console.log(`${no}: expect:`, output, `, result:`, res, `, is ${passed ? r('passed', 'green') : r('failed', 'red')}`);
+  const time = options?.time ? r.grey(`, time: ${options.time.toFixed(3)}ms`) : '';
+  console.log(
+    `${no}: expect:`,
+    output,
+    `, result:`,
+    res,
+    `, is ${passed ? r('passed', 'green') : r('failed', 'red')} ${time}`
+  );
   logDivider();
 };
 // 运行测试用例
 const run = (fn, ...args) => {
   const input = args.slice(0, args.length - 1);
   const output = args[args.length - 1];
-  return [output, fn(...input)];
+  const t1 = performance.now();
+  const res = fn(...input);
+  const t2 = performance.now();
+  return [output, res, t2 - t1];
 };
 // 注册到 promise 队列
 let promise = null;
@@ -157,41 +167,41 @@ const planTask =
  * @param {any} output 输出
  */
 const logAssert = function (no, ...args) {
-  const [output, res] = run(...args);
+  const [output, res, time] = run(...args);
   const passed = _.isEqual(res, output);
-  printEach(no, output, res, passed);
+  printEach(no, output, res, passed, { time });
   return passed;
 };
 
 // 比较浮点数的差值
 const logAssertFloat = function (no, ...args) {
-  const [output, res] = run(...args);
+  const [output, res, time] = run(...args);
   let passed;
   if (typeof res === 'number' && typeof output === 'number') {
     passed = Math.abs(res - output) < Number.EPSILON * 1e4;
   } else {
     passed = _.isEqual(res, output);
   }
-  printEach(no, output, res, passed);
+  printEach(no, output, res, passed, { time });
   return passed;
 };
 
 // 有序数组
 const logAssertOrder = function (no, ...args) {
-  const [output, res] = run(...args);
+  const [output, res, time] = run(...args);
   const passed = res.length === output.length ? _.isEqual(output, res) : false;
-  printEach(no, output, res, passed);
+  printEach(no, output, res, passed, { time });
   return passed;
 };
 
 // 无序数组
 const logAssertDisorder = function (no, ...args) {
-  const [output, res] = run(...args);
+  const [output, res, time] = run(...args);
   const passed = _.isEqual(
     res.constructor === Array ? Array.prototype.sort.call(_.cloneDeep(res)) : res,
     output.constructor === Array ? Array.prototype.sort.call(_.cloneDeep(output)) : output
   );
-  printEach(no, output, res, passed);
+  printEach(no, output, res, passed, { time });
   return passed;
 };
 
