@@ -1,7 +1,16 @@
 # ECMAScript
-##
+## ES2023
+  1. 从后向前查找数组，Array.prototype.findLast() | Array.prototype.findLastIndex()
+  2. hashbang 也称为 shebang，即文件开头指定js执行的解释器，#!usr/bin/env node
+  3. WeakMap 支持使用 Symbol 作为 key
+  4. 不改变原数组的数组方法，会返回数组副本，
+     - 数组反转：Array.prototype.toReversed()
+     - 数组排序： Array.prototype.toSorted()
+     - 数组分割： Array.prototype.toSpliced()
+     - 修改下标（支持负数）对应的值 Array.prototype.width(index, newVal)
+## ES2022
   1. 正则表达式flag: d，在 indices 中返回匹配项的开始和结束索引
-  2. Top-Level await，可以在文件的顶层直接使用 await
+  2. Top-Level await，可以在模块文件的顶层直接使用 await
   3. 数组 .at 方法，可以查询负数索引的值，例 arr.at(-1) <==> arr[arr.length - 1]
   4. Object.hasOwn 方法，用来替代 Object.prototype.hasOwnProperty.call(obj, prop) <==> Object.hasOwn(obj, prop)
   5. Error cause，可以重新抛出包含 cause 的错误，如 throw new Error("some reason", { cause: err });
