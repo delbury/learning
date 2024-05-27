@@ -29,16 +29,16 @@
  */
 
 // 1. BFS + 双队列
-var levelOrderI = function(root) {
-  if(!root) return [];
+const levelOrderI = function (root) {
+  if (!root) return [];
   const queue1 = [root];
   const queue2 = [];
   const res = [];
   let cq = queue1;
   let oq = queue2;
-  while(queue1.length || queue2.length) {
+  while (queue1.length || queue2.length) {
     const t = [];
-    while(cq.length) {
+    while (cq.length) {
       const node = cq.shift();
       t.push(node.val);
       node.left && oq.push(node.left);
@@ -51,17 +51,17 @@ var levelOrderI = function(root) {
 };
 
 // 2. BFS
-var levelOrderII = function(root) {
-  if(!root) return [];
+var levelOrderII = function (root) {
+  if (!root) return [];
   const queue = [root, null];
   const res = [];
   let t = [];
-  while(queue.length) {
+  while (queue.length) {
     const node = queue.shift();
     t.push(node.val);
     node.left && queue.push(node.left);
     node.right && queue.push(node.right);
-    if(queue[0] === null) {
+    if (queue[0] === null) {
       queue.length !== 1 && queue.push(null);
       queue.shift();
       res.push(t);
@@ -72,11 +72,11 @@ var levelOrderII = function(root) {
 };
 
 // 3. DFS
-var levelOrder = function(root) {
+var levelOrder = function (root) {
   const res = [];
   const dfs = (node, deep) => {
-    if(!node) return;
-    if(!res[deep]) res[deep] = [node.val];
+    if (!node) return;
+    if (!res[deep]) res[deep] = [node.val];
     else res[deep].push(node.val);
 
     dfs(node.left, deep + 1);
@@ -87,8 +87,4 @@ var levelOrder = function(root) {
 };
 
 const { logAssert, createTreeByArray } = require('./tools/LogTools.js');
-logAssert(levelOrder, createTreeByArray([3,9,20,null,null,15,7]), [
-  [3],
-  [9,20],
-  [15,7]
-]);
+logAssert(levelOrder, createTreeByArray([3, 9, 20, null, null, 15, 7]), [[3], [9, 20], [15, 7]]);
