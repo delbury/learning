@@ -51,7 +51,7 @@ const levelOrderI = function (root) {
 };
 
 // 2. BFS
-var levelOrderII = function (root) {
+const levelOrderII = function (root) {
   if (!root) return [];
   const queue = [root, null];
   const res = [];
@@ -72,7 +72,7 @@ var levelOrderII = function (root) {
 };
 
 // 3. DFS
-var levelOrder = function (root) {
+const levelOrder = function (root) {
   const res = [];
   const dfs = (node, deep) => {
     if (!node) return;
