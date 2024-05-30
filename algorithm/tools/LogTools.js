@@ -267,6 +267,52 @@ const createTreeByArray = function (arr, valueKey = 'val', leftKey = 'left', rig
 };
 
 /**
+ * 根据数组创建树，每一层元素的个数由上一层不为 null 元素的个数决定
+ * @param {*} arr
+ * @returns
+ */
+const createTreeByArrayLayer = function (arr, valueKey = 'val', leftKey = 'left', rightKey = 'right') {
+  if (typeof arr !== 'object' || !('length' in arr)) throw new TypeError('value must be an array');
+
+  if (!arr.length || arr[0] === null) return null;
+
+  // 计算每一层的截止 index
+  const layerBorders = [];
+  let layer = 0;
+  let r = 0;
+  let notNullCount = 0;
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] !== null) notNullCount++;
+
+    if (r === i) {
+      // 一层结束
+      // 下一层的分界点
+      layerBorders[layer] = r;
+      r += 2 ** notNullCount;
+      notNullCount = 0;
+      layer++;
+    }
+  }
+  if (notNullCount) layerBorders[layer] = r;
+  // 计算每一层的起始 index
+  const layerStarts = layerBorders.map((border, index, arr) => (index === 0 ? border : arr[index - 1] + 1));
+
+  const create = (layer) => {
+    // 用来判断每一层遍历到的 index 是否超出了这一层的边界
+    if (layer >= layerStarts.length || layerStarts[layer] > layerBorders[layer]) return null;
+    const index = layerStarts[layer]++;
+    if (arr[index] === null) return null;
+    return {
+      [valueKey]: arr[index],
+      left: create(layer + 1),
+      right: create(layer + 1),
+    };
+  };
+
+  return create(0);
+};
+
+/**
  * 打印链表的值
  * @param {Object} node 链表对象
  */
@@ -412,6 +458,7 @@ module.exports = {
   createLinkedListByArray,
   createCircleLinkedListByArray,
   createTreeByArray,
+  createTreeByArrayLayer,
   create2dArray,
   runActionArgByArray,
 };

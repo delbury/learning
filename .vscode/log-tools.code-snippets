@@ -28,7 +28,7 @@
 		// "scope": "javascript,typescript",
 		"prefix": "logt",
 		"body": [
-			"const { log, logAssert, logBinaryTree, logHeapTree, createTreeByArray } = require('../tools/LogTools.js');",
+			"const { log, logAssert, logBinaryTree, createTreeByArray, createTreeByArrayLayer } = require('../tools/LogTools.js');",
 			"const tree = createTreeByArray([$1]);$0"
 		],
 		"description": "log tools tree"
