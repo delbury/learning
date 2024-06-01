@@ -301,7 +301,7 @@ const createTreeByArrayLayer = function (arr, valueKey = 'val', leftKey = 'left'
     // 用来判断每一层遍历到的 index 是否超出了这一层的边界
     if (layer >= layerStarts.length || layerStarts[layer] > layerBorders[layer]) return null;
     const index = layerStarts[layer]++;
-    if (arr[index] === null) return null;
+    if (arr[index] === null || index >= arr.length) return null;
     return {
       [valueKey]: arr[index],
       left: create(layer + 1),
