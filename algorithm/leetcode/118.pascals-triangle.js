@@ -62,4 +62,19 @@ const generate = function (numRows) {
   return res;
 };
 
+// 2024.6.3
+const generate3 = function (numRows) {
+  const res = [];
+
+  for (let r = 0; r < numRows; r++) {
+    const row = [];
+    for (let c = 0; c <= r; c++) {
+      if (c === 0 || c === r) row.push(1);
+      else row.push(res[r - 1][c] + res[r - 1][c - 1]);
+    }
+    res.push(row);
+  }
+  return res;
+};
+
 console.log(generate(6));
