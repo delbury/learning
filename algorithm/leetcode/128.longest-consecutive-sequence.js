@@ -21,6 +21,21 @@
  * @param {number[]} nums
  * @return {number}
  */
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+// var longestConsecutive = function(nums) {
+//   const set = new Set(nums);
+//   let max = 0;
+//   for (const i of set) {
+//     if (set.has(i - 1)) continue;
+//     let j = i;
+//     for (; set.has(j); j++) { };
+//     max = Math.max(max, j - i);
+//   }
+//   return max;
+// };
 const longestConsecutive = function (nums) {
   const set = new Set(nums);
   let res = 0;
