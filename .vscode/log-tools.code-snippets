@@ -21,6 +21,7 @@
 		"body": [
 			"const { log, logAssert, createLinkedListByArray, logLinkedListByArray } = require('../tools/LogTools.js');",
 			"const list = createLinkedListByArray([$1]);$0",
+			"logLinkedListByArray(list);"
 		],
 		"description": "log tools for linked list"
 	},
@@ -29,7 +30,8 @@
 		"prefix": "logt",
 		"body": [
 			"const { log, logAssert, logBinaryTree, createTreeByArray, createTreeByArrayLayer } = require('../tools/LogTools.js');",
-			"const tree = createTreeByArrayLayer([$1]);$0"
+			"const tree = createTreeByArrayLayer([$1]);$0",
+			"logBinaryTree(tree);"
 		],
 		"description": "log tools tree"
 	}
