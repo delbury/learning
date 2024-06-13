@@ -40,7 +40,6 @@ const longestConsecutive = function (nums) {
   const set = new Set(nums);
   let res = 0;
 
-  // 在 leetcode 中，遍历 set 更快？
   for (const n of set) {
     if (!set.has(n - 1)) {
       // 比它小 1 的数不存在，则为连续数字串中的开头的那个
