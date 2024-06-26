@@ -5,6 +5,29 @@ const r = require('./log-color.js');
  * log 调试等工具
  */
 
+// 直接 log
+const log = function (...args) {
+  if (typeof args[0] === 'function') {
+    console.log(args[0](...args.slice(1)));
+  } else {
+    console.log(...args);
+  }
+};
+
+// 将需要 log 的东西进行格式化
+const formatLogValue = function (value) {
+  const formattedRes = Array.isArray(value)
+    ? `[ ${value
+        .map((v) => {
+          let fv = String(v);
+          typeof v === 'number' && (fv = r.yellow(fv));
+          return fv;
+        })
+        .join(', ')} ]`
+    : value;
+  return formattedRes;
+};
+
 /**
  * 打印堆数组的树形结构图
  * @param {Array} heap
@@ -115,8 +138,8 @@ const printResult = (passedCases, totalCases, sym = '*') => {
 // 打印每条用例结果
 const printEach = (no, output, res, passed, options) => {
   if (options?.array2string) {
-    output = Array.isArray(output) ? r.yellow(`[ ${output.join(', ')} ]`) : output;
-    res = Array.isArray(res) ? r.yellow(`[ ${res.join(', ')} ]`) : res;
+    output = formatLogValue(output);
+    res = formatLogValue(res);
   }
   const time = options?.time ? r.grey(`, time: ${options.time.toFixed(3)}ms`) : '';
   console.log(
@@ -383,7 +406,7 @@ const log2dArray = function (arr) {
 const runActionArgByArray = function (
   actions,
   args,
-  { expects, stopAtError = false, stopAtIndex, logInstance = false } = {}
+  { expects, stopAtError = false, stoppedIndex, logInstance = false, logRes = false } = {}
 ) {
   if (typeof actions[0] !== 'function') {
     console.error('第一个参数不是函数');
@@ -392,7 +415,7 @@ const runActionArgByArray = function (
   if (actions.length !== args.length) {
     console.warn(`actions: ${actions.length}, args: ${args.length}, 数量不相等`);
   }
-  const instance = new actions[0]();
+  const instance = new actions[0](args[0]);
   const res = [null];
   for (let i = 1; i < actions.length; i++) {
     const item = instance[actions[i]](...args[i]) ?? null;
@@ -401,44 +424,42 @@ const runActionArgByArray = function (
     const stopString = `stop at index: ${i}, expect: ${r.green(expects?.[i] ?? '-')}, result: ${r.red(item)}`;
     const actionString = `action is: ${actions[i]}, arg is ${args[i].toString() || r.grey('empty')}`;
 
-    if (Number.isInteger(stopAtIndex) && stopAtIndex === i) {
-      console.log('custom', stopString);
-      console.log(actionString);
-      console.log(r.green('current instance:'));
-      console.log(instance);
+    if (Number.isInteger(stoppedIndex) && stoppedIndex === i) {
+      log('custom', stopString);
+      log(actionString);
+      log(r.green('current instance:'));
+      log(instance);
       return res;
     }
 
     if (stopAtError && expects && !_.isEqual(item, expects[i])) {
-      console.log('error', stopString);
-      console.log(actionString);
-      console.log(r.green('current instance:'));
-      console.log(instance);
+      log('error', stopString);
+      log(actionString);
+      log(r.green('current instance:'));
+      log(instance);
       return res;
     }
   }
   if (expects) {
     const notEqualIndex = res.findIndex((it, ind) => !_.isEqual(it, expects[ind]));
     if (notEqualIndex === -1) {
-      console.log(r.green('it is perfect'));
+      log(r.green('it is perfect'));
     } else {
-      console.log(`error at index: ${notEqualIndex}`);
+      log(
+        `error at index: ${r.yellow(notEqualIndex)}, result: ${r.red(res[notEqualIndex])}, expect: ${r.green(
+          expects[notEqualIndex]
+        )}`
+      );
     }
   }
   if (logInstance) {
-    console.log(r.green('current instance:'));
-    console.log(instance);
+    log(r.green('current instance:'));
+    log(instance);
   }
-  return res;
-};
+  logRes && expects && log(r.grey('expects:'), formatLogValue(expects));
+  logRes && log(r.grey('results:'), formatLogValue(res));
 
-// 直接 log
-const log = function (...args) {
-  if (typeof args[0] === 'function') {
-    console.log(args[0](...args.slice(1)));
-  } else {
-    console.log(...args);
-  }
+  return res;
 };
 
 // exports
