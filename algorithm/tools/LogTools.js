@@ -1,18 +1,24 @@
 const _ = require('./lodash.js');
-const r = require('./log-color.js');
+const { r, getPureStr } = require('./log-color.js');
 
 /**
  * log 调试等工具
  */
 
 // 直接 log
-const log = function (...args) {
+const LOG_FUNC = function (...args) {
+  // TODO 暂时只支持返回第一个 log 的参数
   if (typeof args[0] === 'function') {
-    console.log(args[0](...args.slice(1)));
+    const res = args[0](...args.slice(1));
+    console.log(res);
+    return res;
   } else {
     console.log(...args);
+    return args[0];
   }
 };
+// 用来做动态注入
+let log = LOG_FUNC;
 
 // 将需要 log 的东西进行格式化
 const formatLogValue = function (value) {
@@ -20,12 +26,24 @@ const formatLogValue = function (value) {
     ? `[ ${value
         .map((v) => {
           let fv = String(v);
-          typeof v === 'number' && (fv = r.yellow(fv));
+          const type = typeof v;
+          (type === 'number' || type === 'boolean') && (fv = r.yellow(fv));
           return fv;
         })
         .join(', ')} ]`
     : value;
   return formattedRes;
+};
+
+// 格式化并 log
+const flog = function (...args) {
+  log(...args.map((arg) => formatLogValue(arg)));
+};
+
+// process.stdout.write('string') 封装
+const wline = function (str = '', newLine = false) {
+  newLine && (str += '\n');
+  process.stdout.write(str, 'utf8');
 };
 
 /**
@@ -37,7 +55,7 @@ const formatLogValue = function (value) {
  *       12123   43123
  */
 const logHeapTree = function (heap) {
-  if (!heap.length) return console.log(null);
+  if (!heap.length) return log(null);
 
   let deep = Math.floor(Math.log2(heap.length) + 1); // 树的深度
   const eachItemWith = 4;
@@ -92,14 +110,14 @@ const logHeapTree = function (heap) {
   // return resRows.join('\n');
   resRows.unshift('*'.padStart(totalWith, '*'));
   resRows.push('*'.padStart(totalWith, '*'));
-  console.log(resRows.join('\n'));
+  log(resRows.join('\n'));
 };
 
 /**
  * 打印二叉树链表
  */
 const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightKey = 'right') {
-  if (!root) return console.log(null);
+  if (!root) return log(null);
 
   const stack = [root];
   const values = [];
@@ -123,7 +141,7 @@ const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightK
  */
 const DIV_COUNT = 80;
 const logDivider = function (char = '-', length = 60) {
-  console.log(char.repeat(length));
+  log(char.repeat(length));
 };
 
 // 打印结果
@@ -132,7 +150,7 @@ const printResult = (passedCases, totalCases, sym = '*') => {
   let text = ` passed / total: ${r(passedCases, complete ? 'green' : 'red')} / ${r(totalCases, 'green')} `;
   const prefix = DIV_COUNT <= text.length ? 0 : Math.floor((DIV_COUNT - text.length) / 2);
   logDivider(sym, DIV_COUNT);
-  console.log((sym.repeat(prefix) + text).padEnd(DIV_COUNT, sym));
+  log((sym.repeat(prefix) + text).padEnd(DIV_COUNT, sym));
   logDivider(sym, DIV_COUNT);
 };
 // 打印每条用例结果
@@ -142,13 +160,7 @@ const printEach = (no, output, res, passed, options) => {
     res = formatLogValue(res);
   }
   const time = options?.time ? r.grey(`, time: ${options.time.toFixed(3)}ms`) : '';
-  console.log(
-    `${no}: expect:`,
-    output,
-    `, result:`,
-    res,
-    `, is ${passed ? r('passed', 'green') : r('failed', 'red')} ${time}`
-  );
+  log(`${no}: expect:`, output, `, result:`, res, `, is ${passed ? r('passed', 'green') : r('failed', 'red')} ${time}`);
   logDivider();
 };
 // 运行测试用例
@@ -356,13 +368,13 @@ const logLinkedListByArray = function (node, valueKey = 'val', nextKey = 'next')
   }
 
   const resString = res.join(' → ');
-  console.log(resString);
+  log(resString);
 
   // 存在循环
   if (circleIndex !== null) {
     const leftItems = res.filter((_, ind) => ind < circleIndex);
     const leftSpace = leftItems.reduce((sum, str) => sum + str.length, 0) + leftItems.length * 3;
-    console.log(' '.repeat(leftSpace) + '⭡' + '|'.padStart(resString.length - leftSpace - 2, '_'));
+    log(' '.repeat(leftSpace) + '⭡' + '|'.padStart(resString.length - leftSpace - 2, '_'));
   }
 };
 
@@ -391,22 +403,32 @@ const create2dArray = function (m, n, random = false) {
 const log2dArray = function (arr) {
   for (let i = 0; i < arr.length; i++) {
     const row = arr[i].map((it) => `${it}`.padStart(3, ' ')).join(', ');
-    console.log(row);
+    log(row);
   }
 };
 
 /**
- * 主要用来debug超长的一连串输入输出
- * 操作actions、参数args分别通过两个数组传入
- * actions的第一个参数为构造函数
- * 可以传入预期结果expects来做实际输出校验
- * 传入expects的情况下设置stopAtError可以在结果出错时终止执行
- * 设置stopAtIndex，可以手动指定只执行到第几个操作
+ * 主要用来debug超长的一连串输入输出，操作actions、参数args分别通过两个数组传入
+ * @param {Array} actions 第一个参数为构造函数，其他为实例的函数名字符串
+ * @param {Array} args actions 中每一步操作需要传递的参数
+ * @param {*} params 额外的配置
+ * @returns
  */
 const runActionArgByArray = function (
   actions,
   args,
-  { expects, stopAtError = false, stoppedIndex, logInstance = false, logRes = false } = {}
+  {
+    // 每一步操作预计正确的结果数组，用来做实际输出的校验
+    expects,
+    // 当某一步的结果错误时是否停止接下来的执行
+    stopAtError = false,
+    // 手动设置需要停下来的某个一操作的 index
+    stoppedIndex,
+    // 执行完成后是否需要 log 整个实例
+    logInstance = false,
+    // 执行完成后是否需要 log 所有的执行结果
+    logRes = false,
+  } = {}
 ) {
   if (typeof actions[0] !== 'function') {
     console.error('第一个参数不是函数');
@@ -462,16 +484,218 @@ const runActionArgByArray = function (
   return res;
 };
 
+// 将字符串前后添加padding并保持居中
+const padStringCenter = function (
+  str,
+  count,
+  {
+    padChar = ' ',
+    padCharLeft,
+    padCharRight,
+    // 当可填充字符为奇数时，是否让左侧填充的字符大于右侧，默认是右侧大于左侧
+    leftFirst = false,
+    // 是否忽略字符串中的 color 控制符
+    ignoreColor = false,
+  } = {}
+) {
+  let strLength = str.length;
+  if (ignoreColor) {
+    const pureStr = getPureStr(str);
+    strLength = pureStr.length;
+  }
+  if (strLength >= count) return str;
+  if (str === padChar) return str.repeat(count);
+
+  let ps = '';
+  let pe = '';
+  const needPadCount = count - strLength;
+  let c;
+  if (needPadCount % 2 === 0) {
+    c = needPadCount / 2;
+  } else if (leftFirst) {
+    c = Math.ceil(needPadCount / 2);
+  } else {
+    c = Math.floor(needPadCount / 2);
+  }
+  ps = (padCharLeft ?? padChar).repeat(c);
+  pe = (padCharRight ?? padChar).repeat(needPadCount - c);
+  return ps + str + pe;
+};
+
+/**
+ * 将数组绘制到直角坐标系上
+ */
+const logArrayToCoordinateSystem = function (
+  arr,
+  {
+    // 坐标轴的高度
+    chartHeight = 10,
+    // x轴刻度的宽度
+    xScalePadding = 3,
+    // 高亮中点
+    highlightCenter = false,
+    // x轴不为奇数时，中点取靠右那一个，默认取左
+    centerRightFirst = false,
+    // 自定义高亮点，[key: index]: color
+    customHighlights = {},
+    // 忽略的点
+    ignoreIndexes = [],
+  } = {}
+) {
+  if (!Array.isArray(arr) || arr.some((it) => !!it && typeof it !== 'number')) {
+    throw new Error('params error !');
+  }
+  const ignoreIndexSet = new Set(ignoreIndexes);
+  const min = Math.min(...arr);
+  const max = Math.max(...arr);
+  const range = max - min;
+  const centerIndex = centerRightFirst ? Math.floor(arr.length / 2) : Math.floor((arr.length - 1) / 2);
+  // 取较小值
+  chartHeight = Math.min(max, chartHeight);
+  // 判断处理成每行的哪些index有值，生成值矩阵
+  const valueMatrix = Array.from({ length: chartHeight + 1 }, () => Array(arr.length).fill(null));
+  const normalizedValues = [];
+  arr.forEach((it, ind) => {
+    // 值归一化，归一化区间 [min(values), max(values)] => [0, chartHeight]
+    const nv = Math.floor(((it - min) / range) * chartHeight);
+    normalizedValues[ind] = nv;
+    valueMatrix[nv][ind] = '*';
+  });
+
+  for (let row = 0; row < valueMatrix.length; row++) {
+    for (let col = 0; col < arr.length; col++) {
+      if (row < normalizedValues[col]) {
+        valueMatrix[row][col] = r(
+          '┆',
+          customHighlights[col] ??
+            (highlightCenter && centerIndex === col ? 'green' : ignoreIndexSet.has(col) ? '_color_238' : 'grey')
+        );
+      }
+    }
+  }
+
+  // 转换成值字符串行
+  const valueRows = [];
+  const PAD_PREFIX = r._color_238('╌');
+  valueMatrix.forEach((row) => {
+    let rowStr = '';
+    const itemLastIndex = row.findLastIndex((it) => it === '*');
+    let padPrefix = itemLastIndex > 0 ? PAD_PREFIX : ' ';
+    for (let i = 0; i < row.length; i++) {
+      if (row[i] === '*' && i === itemLastIndex) padPrefix = ' ';
+
+      let char = row[i] === null ? padPrefix : row[i];
+      const hl = highlightCenter && i === centerIndex && row[i] === '*';
+      const ignore = ignoreIndexSet.has(i) && row[i] === '*';
+      char = r(ignore ? '•' : char, customHighlights[i] ?? (hl ? 'green' : ignore ? '_color_238' : void 0));
+
+      rowStr += padStringCenter(char, xScalePadding, {
+        ignoreColor: true,
+        padChar: padPrefix,
+        padCharLeft: row[i] === '*' ? PAD_PREFIX : void 0,
+      });
+    }
+    valueRows.push(rowStr);
+  });
+  valueRows.reverse();
+
+  // 坐标轴
+  const xAxisRows = [];
+  const xAxisStr = arr
+    .map((_, i) => {
+      const hl = highlightCenter && i === centerIndex;
+      const c = r('┼', customHighlights[i] ?? (hl ? 'green' : 'grey'));
+      return padStringCenter(c, xScalePadding, { padChar: r.grey('─'), ignoreColor: true });
+    })
+    .join('');
+  xAxisRows.push(xAxisStr);
+  xAxisRows.push(
+    Object.keys(arr)
+      .map((k, i) => {
+        let s = padStringCenter(k, xScalePadding);
+        s = r(s, customHighlights[i] ?? (highlightCenter && i === centerIndex ? 'green' : void 0));
+        return s;
+      })
+      .join('')
+  );
+
+  const cols = arr.length * xScalePadding + 1;
+  const divider = r._color_bg_237(' '.repeat(cols));
+  log(divider);
+  for (const r of [...valueRows, ...xAxisRows]) {
+    log(' ' + r);
+  }
+  log(divider);
+};
+
+/**
+ * 将多个输出区域并列放置
+ * 如：
+ *    ⿴
+ *    ⿴
+ *    ⿴
+ * 变成：
+ *    ⿴ ⿴ ⿴
+ * 需要传入一个 log function list，每个函数需要返回已绘制区域的最大行数和列数
+ */
+const logByColumn = function (logFuncList, { gap = 5, disabled = false } = {}) {
+  if (disabled) {
+    logFuncList.forEach((fn) => fn());
+    return;
+  }
+
+  const logResList = [];
+  let prevRows = 0;
+  let prevCols = 0;
+  for (let i = 0; i < logFuncList.length; i++) {
+    const logRes = { cols: 0, rows: 0 };
+    // 动态注入
+    log = (...args) => {
+      prevCols !== 0 && wline(r._csi_cha(prevCols));
+      const line = LOG_FUNC(...args);
+      if (typeof line !== 'string') return;
+      // 获取每一次 log 的信息
+      logRes.rows++;
+      logRes.cols = Math.max(getPureStr(line ?? '').length, logRes.cols);
+    };
+
+    const logFn = logFuncList[i];
+    // 执行 log
+    prevRows !== 0 && wline(r._csi_cuu(prevRows));
+    const size = logFn();
+
+    if (size) {
+      logRes.rows = size.rows;
+      logRes.cols = size.cols;
+    }
+    // 保存 log 信息
+    logResList[i] = logRes;
+
+    prevRows = logRes.rows;
+    prevCols += logRes.cols + gap + 1;
+  }
+  const maxRows = Math.max(...logResList.map((it) => it.rows));
+  if (maxRows > prevRows) {
+    wline(r._csi_cud(maxRows - prevRows));
+  }
+  // 还原
+  log = LOG_FUNC;
+};
+
 // exports
 module.exports = {
   r,
   log,
+  flog,
+  wline,
+  logByColumn,
   logHeapTree,
   logBinaryTree,
   logAssert: planTask(logAssert),
   logAssertDisorder: planTask(logAssertDisorder),
   logAssertOrder: planTask(logAssertOrder),
   logAssertFloat: planTask(logAssertFloat),
+  logArrayToCoordinateSystem,
   clearTaskCount,
   logLinkedListByArray,
   log2dArray,
