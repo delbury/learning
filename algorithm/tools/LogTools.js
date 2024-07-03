@@ -75,16 +75,16 @@ const logHeapTree = function (heap) {
     const max = Math.min(2 ** i - 1, heap.length);
     for (let j = 2 ** (i - 1) - 1; j < max; j++) {
       let str = (heap[j] ?? '').toString();
-      const pad = eachItemWith - str.length;
+      const pad = eachItemWith - getPureStr(str).length;
       const pStart = Math.ceil(pad / 2);
 
-      str = str.padStart(pStart + str.length, fillSymbol);
-      str = str.padEnd(pad - pStart + str.length, fillSymbol);
+      str = str.padStart(pStart + getPureStr(str).length, fillSymbol);
+      str = str.padEnd(pad - pStart + getPureStr(str).length, fillSymbol);
 
       stringArr.push(str); // 不同深度每项宽度相同
 
       if (j !== 0) {
-        dividerArr.push((heap[j] === null ? ' ' : '-').repeat(str.length)); // 不同深度每项宽度相同
+        dividerArr.push((heap[j] === null ? ' ' : '-').repeat(getPureStr(str).length)); // 不同深度每项宽度相同
       }
     }
 
@@ -115,7 +115,10 @@ const logHeapTree = function (heap) {
   resRows.forEach((row) => log(row));
 };
 
-const transferBinaryTreeToHeap = function (root, { valueKey = 'val', leftKey = 'left', rightKey = 'right' } = {}) {
+const transferBinaryTreeToHeap = function (
+  root,
+  { valueKey = 'val', leftKey = 'left', rightKey = 'right', valueFormatter, keepRawNode = false } = {}
+) {
   if (!root) return log([]);
   const stack = [root];
   const values = [];
@@ -124,11 +127,11 @@ const transferBinaryTreeToHeap = function (root, { valueKey = 'val', leftKey = '
     const node = stack.shift();
 
     if (node) {
-      values.push(node[valueKey]);
+      keepRawNode ? values.push(node) : values.push(valueFormatter ? valueFormatter(node) : node[valueKey]);
       stack.push(node[leftKey], node[rightKey]);
     } else {
-      stack.push(null, null);
       values.push(null);
+      stack.push(null, null);
     }
   }
   return values;
@@ -137,61 +140,107 @@ const transferBinaryTreeToHeap = function (root, { valueKey = 'val', leftKey = '
 /**
  * 打印二叉树链表
  */
-const logBinaryTree = function (root, { valueKey = 'val', leftKey = 'left', rightKey = 'right' } = {}) {
+const logBinaryTree = function (root, { valueKey = 'val', leftKey = 'left', rightKey = 'right', valueFormatter } = {}) {
   if (!root) return log(null);
-  logHeapTree(transferBinaryTreeToHeap(root, { valueKey, leftKey, rightKey }));
+  logHeapTree(transferBinaryTreeToHeap(root, { valueKey, leftKey, rightKey, valueFormatter }));
 };
 
 /**
  * 打印堆数组的树形结构图 V2
  * @param {Array} heap
  *
- *          123123
- *         ┌───┴───┐
- *       12123   43123
+ *            123            123     123
+ *         ┌───┴───┐        ┌─┘       └─┐
+ *       12123   43123     233         233
  */
 // 所有节点的距离 +diff
-const changeDistanceNode = function (node, diff) {
-  if (!node) return node;
+const changeDistanceNode = function (node, diff, { leftKey = 'left', rightKey = 'right' } = {}) {
+  if (!node || !diff) return;
   node.distance += diff;
   node.min += diff;
   node.max += diff;
-  changeDistanceNode(node.left, diff);
-  changeDistanceNode(node.right, diff);
+  changeDistanceNode(node[leftKey], diff, { leftKey, rightKey });
+  changeDistanceNode(node[rightKey], diff, { leftKey, rightKey });
 };
 // 构建距离树
-const createDistanceTree = (node, distance) => {
+const createDistanceTree = (
+  node,
+  distance,
+  { valueKey = 'val', leftKey = 'left', rightKey = 'right', valueFormatter } = {}
+) => {
   if (!node) return node;
   const newNode = {
-    val: distance,
+    val: node[valueKey],
+    // 值字符串宽度
+    valWidth: getPureStr(node[valueKey]).length,
+    // 当前节点的距离
     distance,
-    max: distance,
-    min: distance,
-    left: createDistanceTree(node.left, distance - 1),
-    right: createDistanceTree(node.right, distance + 1),
+    // 当前节点包括子树在内的最大距离
+    distanceMax: distance,
+    // 当前节点包括子树在内的最小距离
+    distanceMin: distance,
+    left: createDistanceTree(node[leftKey], distance - 1, { valueKey, leftKey, rightKey, valueFormatter }),
+    right: createDistanceTree(node[rightKey], distance + 1, { valueKey, leftKey, rightKey, valueFormatter }),
   };
-  if (newNode.left || newNode.right) {
-    newNode.max = Math.max(distance, newNode.left?.max ?? -Infinity, newNode.right?.max ?? -Infinity);
-    newNode.min = Math.min(distance, newNode.left?.min ?? Infinity, newNode.right?.min ?? Infinity);
+  // 当前节点包括子节点的最大值字符串宽度
+  newNode.nodeValueWidthMax = newNode.valWidth;
+  if (newNode[leftKey] || newNode[rightKey]) {
+    newNode.distanceMax = Math.max(
+      distance,
+      newNode[leftKey]?.distanceMax ?? -Infinity,
+      newNode[rightKey]?.distanceMax ?? -Infinity
+    );
+    newNode.distanceMin = Math.min(
+      distance,
+      newNode[leftKey]?.distanceMin ?? Infinity,
+      newNode[rightKey]?.distanceMin ?? Infinity
+    );
+    newNode.nodeValueWidthMax = Math.max(
+      newNode.nodeValueWidthMax,
+      newNode[leftKey]?.nodeValueWidthMax ?? -Infinity,
+      newNode[rightKey]?.nodeValueWidthMax ?? -Infinity
+    );
   }
-  // TODO debug 用，需要移除
-  newNode.val = `${newNode.val} ${r.grey(`(${newNode.min}, ${newNode.max})`)}`;
-  if (node.left && node.right) {
+  // 调整距离树
+  if (node[leftKey] && node[rightKey]) {
     // 当左右节点都有时，进行间距调整
-    const diff = node.right.min - node.left.max;
-    if (diff > 2) {
-      // 太远了，左右子树向中间靠拢
-    } else if (diff < -2) {
+    const diff = node[leftKey].max - node[rightKey].min;
+    if (diff >= 0) {
       // 太近了，左右子树向外扩张
+      const dl = Math.ceil((diff + 1) / 2);
+      const dr = diff + 1 - dl;
+      changeDistanceNode(newNode[leftKey], -dl);
+      changeDistanceNode(newNode[rightKey], dr);
     }
   }
   return newNode;
 };
-const logBinaryTreeV2 = function (root, { valueKey = 'val', leftKey = 'left', rightKey = 'right' } = {}) {
-  logBinaryTree(root);
-  const heap = transferBinaryTreeToHeap(root, { valueKey, leftKey, rightKey });
+const logBinaryTreeV2 = function (
+  root,
+  { valueKey = 'val', leftKey = 'left', rightKey = 'right', valueFormatter } = {}
+) {
+  if (!root) return log(null);
 
-  if (!heap.length) return log(null);
+  // TODO remove
+  logBinaryTree(root);
+
+  // 以根节点的距离为 0 开始，左直接点距离为 -1，右子节点距离为 +1
+  // 统计所有的子节点距离
+  // 计算每个节点的左子树的最大距离和右子树的最小距离
+  // 如果 lmax >= rmin 适当增加间距，控制间距在 [1, 2] 内
+  const distanceTree = createDistanceTree(root, 0, { valueFormatter });
+  logBinaryTree(distanceTree, {
+    valueFormatter: (node) =>
+      `${node.val} ${`(${r.red(node.distanceMin)}, ${r.green(node.distanceMax)}, ${r.blue(node.distance)})`}`,
+  });
+  const heap = transferBinaryTreeToHeap(distanceTree, {
+    valueKey,
+    leftKey,
+    rightKey,
+    valueFormatter,
+    keepRawNode: true,
+  });
+
   // 分层，每一层是完整的，包括所有 null
   const layerFullArr = [];
   let i = 0;
@@ -203,15 +252,54 @@ const logBinaryTreeV2 = function (root, { valueKey = 'val', leftKey = 'left', ri
     layerFullArr[l] = heap.slice(i, i + step);
     i += step;
   }
-  flog(heap, heap.length);
-  flog(layerFullArr);
-  // 以根节点的距离为 0 开始，左直接点距离为 -1，右子节点距离为 +1
-  // 统计所有的子节点距离
-  // 计算每个节点的左子树的最大距离和右子树的最小距离
-  // 如果 lmax < rmin 适当减少间距，否则 lmax >= rmin 适当增加间距，控制间距在 [1, 2] 内
-  const distanceTree = createDistanceTree(root, 0);
-  logBinaryTree(distanceTree);
-  // 调整距离树
+
+  // 绘制数组
+  const renderArr = [];
+  const rowOffset = distanceTree.distanceMin;
+  for (const row of layerFullArr) {
+    const rowArr = [];
+    let prevOffset = rowOffset;
+    for (const col of row) {
+      if (col) {
+        const os = col.distance - prevOffset;
+        prevOffset = col.distance + 1;
+        rowArr.push(...Array(os).fill(null), col);
+      }
+    }
+    renderArr.push(rowArr);
+  }
+  const scale = Math.max(distanceTree.nodeValueWidthMax, 5);
+  for (let i = 0; i < renderArr.length; i++) {
+    const row = renderArr[i];
+    let valStrArr = [];
+    let lineStrArr = [];
+    for (let j = 0; j < row.length; j++) {
+      const col = row[j];
+      if (col === null) valStrArr.push(' ');
+      else valStrArr.push(col.val);
+
+      // 非最后一行，打印辅助线
+      // ┌ ─ ┴ ┐ ┘ └
+      if (i !== renderArr.length - 1) {
+        const hasLeft = (col?.left ?? null) !== null;
+        const hasRight = (col?.right ?? null) !== null;
+        let padStr = ' ';
+        if (col === null) {
+          padStr = ' ';
+        } else if (hasLeft && hasRight) {
+          padStr = '┴';
+        } else if (hasLeft) {
+          padStr = '┘';
+        } else if (hasRight) {
+          padStr = '└';
+        }
+        lineStrArr.push(padStr);
+      }
+    }
+
+    log(valStrArr.map((it) => padStringCenter(it, scale)).join(''));
+    lineStrArr?.length && log(lineStrArr.map((it) => padStringCenter(it, scale)).join(''));
+  }
 };
 
 /**
@@ -615,6 +703,7 @@ const padStringCenter = function (
     ignoreColor = false,
   } = {}
 ) {
+  str = String(str);
   let strLength = str.length;
   if (ignoreColor) {
     const pureStr = getPureStr(str);

@@ -224,7 +224,7 @@ const proxyR = new Proxy(r, handlers);
 
 // 匹配含有控制字符的正则
 const colorESCReg = /\x1B\[.+?m/g;
-const getPureStr = (str) => str.replace(colorESCReg, '');
+const getPureStr = (str) => `${str}`.replace(colorESCReg, '');
 
 module.exports = {
   r: proxyR,
