@@ -285,7 +285,8 @@ const logBinaryTreeV2 = function (
         const hasRight = (col?.right ?? null) !== null;
         let padStr = ' ';
         if (col === null) {
-          padStr = ' ';
+          // 已经有值，则使用原值
+          padStr = lineStrArr[j] ?? ' ';
         } else if (hasLeft && hasRight) {
           padStr = '┴';
         } else if (hasLeft) {
@@ -293,7 +294,23 @@ const logBinaryTreeV2 = function (
         } else if (hasRight) {
           padStr = '└';
         }
-        lineStrArr.push(padStr);
+        lineStrArr[j] = padStr;
+        if (hasLeft) {
+          const curIndex = lineStrArr.length - 1;
+          const leftIndex = curIndex - (col.distance - col.left.distance);
+          for (let t = leftIndex + 1; t < curIndex; t++) {
+            lineStrArr[t] = '─';
+          }
+          lineStrArr[leftIndex] = '┌';
+        }
+        if (hasRight) {
+          const curIndex = lineStrArr.length - 1;
+          const rightIndex = curIndex - (col.distance - col.right.distance);
+          for (let t = curIndex + 1; t < rightIndex; t++) {
+            lineStrArr[t] = '─';
+          }
+          lineStrArr[rightIndex] = '┐';
+        }
       }
     }
 
