@@ -4,29 +4,48 @@
  * pop() —— 删除栈顶的元素。
  * top() —— 获取栈顶元素。
  * getMin() —— 检索栈中的最小元素。
- * 
- * initialize your data structure here.
- * 
+ *
+ * 示例 1:
+ * 输入：
+ * ["MinStack","push","push","push","getMin","pop","top","getMin"]
+ * [[],[-2],[0],[-3],[],[],[],[]]
+ * 输出：
+ * [null,null,null,null,-3,null,0,-2]
+ * 解释：
+ * MinStack minStack = new MinStack();
+ * minStack.push(-2);
+ * minStack.push(0);
+ * minStack.push(-3);
+ * minStack.getMin();   --> 返回 -3
+ * minStack.pop();
+ * minStack.top();      --> 返回 0
+ * minStack.getMin();   --> 返回 -2
+ *
+ * 提示：
+ * -2^31 <= val <= 2^31 - 1
+ * pop、top 和 getMin 操作总是在 非空栈 上调用
+ * push, pop, top, and getMin最多被调用 3 * 10^4 次
+ *
  * 思路：辅助栈，存放每个值对应的最小值
  * 时间复杂度：O(1)，空间复杂度：O(n)
- * 
+ *
  * 思路2：单栈，保存差值
- * 1. 空栈入栈，直接入栈 push(x)，min = x 
+ * 1. 空栈入栈，直接入栈 push(x)，min = x
  * 2. 非空栈入栈，push(x - min)，如果 x - min < 0，则 min = x
  */
-var MinStack = function() {
+var MinStack = function () {
   this.stack = [];
   this.mins = [];
 };
 
-/** 
+/**
  * @param {number} x
  * @return {void}
  */
-MinStack.prototype.push = function(x) {
+MinStack.prototype.push = function (x) {
   this.stack.push(x);
 
-  if(!this.mins.length) {
+  if (!this.mins.length) {
     this.mins.push(x);
   } else {
     this.mins.push(Math.min(x, this.mins[this.mins.length - 1]));
@@ -36,7 +55,7 @@ MinStack.prototype.push = function(x) {
 /**
  * @return {void}
  */
-MinStack.prototype.pop = function() {
+MinStack.prototype.pop = function () {
   this.mins.pop();
   return this.stack.pop();
 };
@@ -44,14 +63,14 @@ MinStack.prototype.pop = function() {
 /**
  * @return {number}
  */
-MinStack.prototype.top = function() {
+MinStack.prototype.top = function () {
   return this.stack[this.stack.length - 1];
 };
 
 /**
  * @return {number}
  */
-MinStack.prototype.getMin = function() {
+MinStack.prototype.getMin = function () {
   return this.mins[this.mins.length - 1];
 };
 
@@ -68,10 +87,10 @@ const minStack = new MinStack();
 minStack.push(-2);
 minStack.push(0);
 minStack.push(-3);
-minStack.getMin();   // --> 返回 -3.
+minStack.getMin(); // --> 返回 -3.
 minStack.pop();
-minStack.top();      // --> 返回 0.
-minStack.getMin();   // --> 返回 -2.
+minStack.top(); // --> 返回 0.
+minStack.getMin(); // --> 返回 -2.
 
 // 最小栈，单栈方法
 class MinStackAnoter {
@@ -81,14 +100,14 @@ class MinStackAnoter {
   }
 
   push(x) {
-    if(!this.stack.length) {
+    if (!this.stack.length) {
       // 空栈入栈
       this.stack.push(x);
       this.min = x;
     } else {
       // 非空栈入栈
       this.stack.push(x - this.min); // 入栈保存与最小值的差值
-      if(x < this.min) {
+      if (x < this.min) {
         // 若差值小于0，则更新最小值
         this.min = x;
       }
@@ -98,7 +117,7 @@ class MinStackAnoter {
     const temp = this.stack.pop();
     const tmin = this.min;
 
-    if(temp < 0) {
+    if (temp < 0) {
       // 若栈顶元素小于0，则说明该元素是最小值，出栈后需要更新最小值
       this.min -= temp;
     }
@@ -108,7 +127,9 @@ class MinStackAnoter {
     return temp > 0 && this.stack.length > 0 ? temp + tmin : tmin;
   }
   top() {
-    return this.stack[this.stack.length - 1] > 0 && this.stack.length > 1 ? this.stack[this.stack.length - 1] + this.min : this.min;
+    return this.stack[this.stack.length - 1] > 0 && this.stack.length > 1
+      ? this.stack[this.stack.length - 1] + this.min
+      : this.min;
   }
   getMin() {
     return this.min;
@@ -123,13 +144,13 @@ class MaxStack {
   }
 
   push(x) {
-    if(!this.stack.length) {
+    if (!this.stack.length) {
       this.stack.push(x);
       this.max = x;
     } else {
       this.stack.push(x - max);
 
-      if(x - max > 0) {
+      if (x - max > 0) {
         this.max = x;
       }
     }
@@ -138,7 +159,7 @@ class MaxStack {
     const temp = this.stack.pop();
     const tmax = this.max;
 
-    if(temp > 0) {
+    if (temp > 0) {
       this.max -= temp;
     }
 
@@ -148,11 +169,12 @@ class MaxStack {
   }
 
   top() {
-    return this.stack[this.stack.length - 1] < 0 && this.stack.length > 1 ? this.stack[this.stack.length - 1] + this.max : this.max;
+    return this.stack[this.stack.length - 1] < 0 && this.stack.length > 1
+      ? this.stack[this.stack.length - 1] + this.max
+      : this.max;
   }
 
   getMax() {
     return this.max;
   }
 }
-

@@ -22,16 +22,19 @@ let log = LOG_FUNC;
 
 // 将需要 log 的东西进行格式化
 const formatLogValue = function (value) {
-  const formattedRes = Array.isArray(value)
-    ? `[ ${value
-        .map((v) => {
-          let fv = String(v);
-          const type = typeof v;
-          (type === 'number' || type === 'boolean') && (fv = r.yellow(fv));
-          return fv;
-        })
-        .join(', ')} ]`
-    : value;
+  let formattedRes = value;
+  if (Array.isArray(value)) {
+    // 嵌套数组
+    formattedRes = `[ ${value
+      .map((v) => {
+        let fv = String(v);
+        const type = typeof v;
+        (type === 'number' || type === 'boolean') && (fv = r.yellow(fv));
+        if (Array.isArray(v)) fv = formatLogValue(v);
+        return fv;
+      })
+      .join(', ')} ]`;
+  }
   return formattedRes;
 };
 
@@ -51,8 +54,8 @@ const wline = function (str = '', newLine = false) {
  * @param {Array} heap
  *
  *          123123
- *         ╱      ╲
- *       12123   43123
+ *         --------
+ *     12123     43123
  */
 const logHeapTree = function (heap) {
   if (!heap.length) return log(null);
@@ -107,18 +110,13 @@ const logHeapTree = function (heap) {
       );
     }
   }
-  // return resRows.join('\n');
   resRows.unshift('*'.padStart(totalWith, '*'));
   resRows.push('*'.padStart(totalWith, '*'));
-  log(resRows.join('\n'));
+  resRows.forEach((row) => log(row));
 };
 
-/**
- * 打印二叉树链表
- */
-const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightKey = 'right') {
-  if (!root) return log(null);
-
+const transferBinaryTreeToHeap = function (root, { valueKey = 'val', leftKey = 'left', rightKey = 'right' } = {}) {
+  if (!root) return log([]);
   const stack = [root];
   const values = [];
 
@@ -133,7 +131,87 @@ const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightK
       values.push(null);
     }
   }
-  logHeapTree(values);
+  return values;
+};
+
+/**
+ * 打印二叉树链表
+ */
+const logBinaryTree = function (root, { valueKey = 'val', leftKey = 'left', rightKey = 'right' } = {}) {
+  if (!root) return log(null);
+  logHeapTree(transferBinaryTreeToHeap(root, { valueKey, leftKey, rightKey }));
+};
+
+/**
+ * 打印堆数组的树形结构图 V2
+ * @param {Array} heap
+ *
+ *          123123
+ *         ┌───┴───┐
+ *       12123   43123
+ */
+// 所有节点的距离 +diff
+const changeDistanceNode = function (node, diff) {
+  if (!node) return node;
+  node.distance += diff;
+  node.min += diff;
+  node.max += diff;
+  changeDistanceNode(node.left, diff);
+  changeDistanceNode(node.right, diff);
+};
+// 构建距离树
+const createDistanceTree = (node, distance) => {
+  if (!node) return node;
+  const newNode = {
+    val: distance,
+    distance,
+    max: distance,
+    min: distance,
+    left: createDistanceTree(node.left, distance - 1),
+    right: createDistanceTree(node.right, distance + 1),
+  };
+  if (newNode.left || newNode.right) {
+    newNode.max = Math.max(distance, newNode.left?.max ?? -Infinity, newNode.right?.max ?? -Infinity);
+    newNode.min = Math.min(distance, newNode.left?.min ?? Infinity, newNode.right?.min ?? Infinity);
+  }
+  // TODO debug 用，需要移除
+  newNode.val = `${newNode.val} ${r.grey(`(${newNode.min}, ${newNode.max})`)}`;
+  if (node.left && node.right) {
+    // 当左右节点都有时，进行间距调整
+    const diff = node.right.min - node.left.max;
+    if (diff > 2) {
+      // 太远了，左右子树向中间靠拢
+    } else if (diff < -2) {
+      // 太近了，左右子树向外扩张
+    }
+  }
+  return newNode;
+};
+const logBinaryTreeV2 = function (root, { valueKey = 'val', leftKey = 'left', rightKey = 'right' } = {}) {
+  logBinaryTree(root);
+  const heap = transferBinaryTreeToHeap(root, { valueKey, leftKey, rightKey });
+
+  if (!heap.length) return log(null);
+  // 分层，每一层是完整的，包括所有 null
+  const layerFullArr = [];
+  let i = 0;
+  while (i < heap.length) {
+    // 第几层
+    const l = layerFullArr.length;
+    // 这一层元素的个数
+    const step = 2 ** l;
+    layerFullArr[l] = heap.slice(i, i + step);
+    i += step;
+  }
+  flog(heap, heap.length);
+  flog(layerFullArr);
+  // 以根节点的距离为 0 开始，左直接点距离为 -1，右子节点距离为 +1
+  // 统计所有的子节点距离
+  // 计算每个节点的左子树的最大距离和右子树的最小距离
+  // 如果 lmax < rmin 适当减少间距，否则 lmax >= rmin 适当增加间距，控制间距在 [1, 2] 内
+  const distanceTree = createDistanceTree(root, 0);
+  logBinaryTree(distanceTree);
+  // 调整距离树
 };
 
 /**
@@ -142,6 +220,12 @@ const logBinaryTree = function (root, valueKey = 'val', leftKey = 'left', rightK
 const DIV_COUNT = 80;
 const logDivider = function (char = '-', length = 60) {
   log(char.repeat(length));
+};
+const withBgColor = function (str) {
+  return r._color_bg_237(str);
+};
+const logDividerBg = function (length = DIV_COUNT) {
+  log(withBgColor(' '.repeat(length)));
 };
 
 // 打印结果
@@ -323,7 +407,7 @@ const createTreeByArrayLayer = function (arr, valueKey = 'val', leftKey = 'left'
       // 一层结束
       // 下一层的分界点
       layerBorders[layer] = r;
-      r += 2 ** notNullCount;
+      r += 2 * notNullCount;
       notNullCount = 0;
       layer++;
     }
@@ -439,6 +523,7 @@ const runActionArgByArray = function (
   }
   const instance = new actions[0](args[0]);
   const res = [null];
+  let isError = false;
   for (let i = 1; i < actions.length; i++) {
     const item = instance[actions[i]](...args[i]) ?? null;
     res.push(item);
@@ -467,6 +552,7 @@ const runActionArgByArray = function (
     if (notEqualIndex === -1) {
       log(r.green('it is perfect'));
     } else {
+      isError = true;
       log(
         `error at index: ${r.yellow(notEqualIndex)}, result: ${r.red(res[notEqualIndex])}, expect: ${r.green(
           expects[notEqualIndex]
@@ -478,8 +564,39 @@ const runActionArgByArray = function (
     log(r.green('current instance:'));
     log(instance);
   }
-  logRes && expects && log(r.grey('expects:'), formatLogValue(expects));
-  logRes && log(r.grey('results:'), formatLogValue(res));
+  if (logRes || isError) {
+    expects && log(r.grey('expects:'), formatLogValue(expects));
+    log(r.grey('results:'), formatLogValue(res));
+
+    const flow = [];
+    const strResArr = [];
+    const strExpArr = [];
+    const maxLength = [];
+    for (let i = 0; i < actions.length; i++) {
+      const act = actions[i];
+      const params = args[i].join(' ,');
+      let str;
+      if (i === 0) {
+        str = `new ${act.name}(${params})`;
+      } else {
+        str = `${act}(${params})`;
+      }
+      const strRes = String(res[i]);
+      const strExp = expects ? String(expects[i]) : '';
+      const max = Math.max(str.length, strRes.length, strExp.length);
+      maxLength[i] = max;
+      flow.push(padStringCenter(str, max));
+      let sr = padStringCenter(strRes, max);
+      expects && strRes !== strExp && (sr = r.red(sr));
+      strResArr.push(sr);
+      strExp && strExpArr.push(padStringCenter(r.green(strExp), max, { ignoreColor: true }));
+    }
+    logDividerBg();
+    log(flow.join(r.grey(' => ')));
+    log(strResArr.join('    '));
+    expects && log(strExpArr.join('    '));
+    logDividerBg();
+  }
 
   return res;
 };
@@ -620,7 +737,7 @@ const logArrayToCoordinateSystem = function (
   );
 
   const cols = arr.length * xScalePadding + 1;
-  const divider = r._color_bg_237(' '.repeat(cols));
+  const divider = logDividerBg(cols);
   log(divider);
   for (const r of [...valueRows, ...xAxisRows]) {
     log(' ' + r);
@@ -652,7 +769,7 @@ const logByColumn = function (logFuncList, { gap = 5, disabled = false } = {}) {
     // 动态注入
     log = (...args) => {
       prevCols !== 0 && wline(r._csi_cha(prevCols));
-      const line = LOG_FUNC(...args);
+      const line = LOG_FUNC(...args) ?? '';
       if (typeof line !== 'string') return;
       // 获取每一次 log 的信息
       logRes.rows++;
@@ -691,6 +808,7 @@ module.exports = {
   logByColumn,
   logHeapTree,
   logBinaryTree,
+  logBinaryTreeV2,
   logAssert: planTask(logAssert),
   logAssertDisorder: planTask(logAssertDisorder),
   logAssertOrder: planTask(logAssertOrder),
@@ -700,6 +818,7 @@ module.exports = {
   logLinkedListByArray,
   log2dArray,
   logDivider,
+  logDividerBg,
   createLinkedListByArray,
   createCircleLinkedListByArray,
   createTreeByArray,
