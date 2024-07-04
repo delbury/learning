@@ -221,18 +221,12 @@ const logBinaryTreeV2 = function (
 ) {
   if (!root) return log(null);
 
-  // TODO remove
-  logBinaryTree(root);
-
   // 以根节点的距离为 0 开始，左直接点距离为 -1，右子节点距离为 +1
   // 统计所有的子节点距离
   // 计算每个节点的左子树的最大距离和右子树的最小距离
   // 如果 lmax >= rmin 适当增加间距，控制间距在 [1, 2] 内
   const distanceTree = createDistanceTree(root, 0, { valueFormatter });
-  logBinaryTree(distanceTree, {
-    valueFormatter: (node) =>
-      `${node.val} ${`(${r.red(node.distanceMin)}, ${r.green(node.distanceMax)}, ${r.blue(node.distance)})`}`,
-  });
+
   const heap = transferBinaryTreeToHeap(distanceTree, {
     valueKey,
     leftKey,
@@ -253,9 +247,25 @@ const logBinaryTreeV2 = function (
     i += step;
   }
 
-  // 绘制数组
+  // tableChars
+  const tcs = {
+    space: ' ',
+    lr: '─',
+    // br: '┌',
+    br: '╭',
+    // bl: '┐',
+    bl: '╮',
+    // tr: '└',
+    tr: '╰',
+    // tl: '┘',
+    tl: '╯',
+    tlr: '┴',
+  };
+  // 转换成二维数组
   const renderArr = [];
+  // 偏移量
   const rowOffset = distanceTree.distanceMin;
+  // 绘制
   for (const row of layerFullArr) {
     const rowArr = [];
     let prevOffset = rowOffset;
@@ -275,47 +285,58 @@ const logBinaryTreeV2 = function (
     let lineStrArr = [];
     for (let j = 0; j < row.length; j++) {
       const col = row[j];
-      if (col === null) valStrArr.push(' ');
+      if (col === null) valStrArr.push(tcs.space);
       else valStrArr.push(col.val);
 
       // 非最后一行，打印辅助线
       // ┌ ─ ┴ ┐ ┘ └
-      if (i !== renderArr.length - 1) {
-        const hasLeft = (col?.left ?? null) !== null;
-        const hasRight = (col?.right ?? null) !== null;
-        let padStr = ' ';
+      if (i !== renderArr.length - 1 && _.isNil(lineStrArr[j])) {
+        const hasLeft = !_.isNil(col?.left);
+        const hasRight = !_.isNil(col?.right);
+        let padStr = tcs.space;
         if (col === null) {
           // 已经有值，则使用原值
-          padStr = lineStrArr[j] ?? ' ';
+          padStr = tcs.space;
         } else if (hasLeft && hasRight) {
-          padStr = '┴';
+          padStr = tcs.tlr;
         } else if (hasLeft) {
-          padStr = '┘';
+          padStr = tcs.tl;
         } else if (hasRight) {
-          padStr = '└';
+          padStr = tcs.tr;
         }
         lineStrArr[j] = padStr;
         if (hasLeft) {
-          const curIndex = lineStrArr.length - 1;
-          const leftIndex = curIndex - (col.distance - col.left.distance);
-          for (let t = leftIndex + 1; t < curIndex; t++) {
-            lineStrArr[t] = '─';
+          const end = j;
+          j = j - (col.distance - col.left.distance);
+          lineStrArr[j++] = tcs.br;
+          while (j < end) {
+            lineStrArr[j++] = tcs.lr;
           }
-          lineStrArr[leftIndex] = '┌';
         }
         if (hasRight) {
-          const curIndex = lineStrArr.length - 1;
-          const rightIndex = curIndex - (col.distance - col.right.distance);
-          for (let t = curIndex + 1; t < rightIndex; t++) {
-            lineStrArr[t] = '─';
+          const rightIndex = j - (col.distance - col.right.distance);
+          for (let t = j + 1; t < rightIndex; t++) {
+            lineStrArr[t] = tcs.lr;
           }
-          lineStrArr[rightIndex] = '┐';
+          lineStrArr[rightIndex] = tcs.bl;
         }
       }
     }
 
     log(valStrArr.map((it) => padStringCenter(it, scale)).join(''));
-    lineStrArr?.length && log(lineStrArr.map((it) => padStringCenter(it, scale)).join(''));
+    lineStrArr?.length &&
+      log(
+        lineStrArr
+          .map((it) => {
+            return padStringCenter(it !== tcs.space ? r._color_240(it) : it, scale, {
+              ignoreColor: true,
+              padChar: r._color_240(it === tcs.tlr ? tcs.lr : void 0),
+              padCharLeft: r._color_240(it === tcs.tl || it === tcs.bl ? tcs.lr : void 0),
+              padCharRight: r._color_240(it === tcs.tr || it === tcs.br ? tcs.lr : void 0),
+            });
+          })
+          .join('')
+      );
   }
 };
 

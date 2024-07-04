@@ -60,7 +60,7 @@ const START = '\x1B[';
 const STOP = '\x1B[0m';
 
 const r = (str, color) => {
-  if (!color) return str;
+  if (!color || _.isNil(str)) return str;
   const t = COLORS[color];
   if (t) return t + str + STOP;
   return proxyR[color](str);
@@ -142,7 +142,7 @@ const handlers = {
         }
 
         code += 'm';
-        item = (str = '') => code + str + STOP;
+        item = (str) => (_.isNil(str) ? str : code + str + STOP);
       }
     }
 
