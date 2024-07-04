@@ -204,29 +204,53 @@ const createDistanceTree = (
   if (newNode.left && newNode.right) {
     // 计算每个节点的左子树的最大距离和右子树的最小距离
     // 如果 lmax >= rmin 适当增加间距，控制间距为 1 或者 2
-    const diff = newNode.left.distanceMax - newNode.right.distanceMin;
-    if (diff >= 0) {
-      // 太近了，左右子树向外扩张
-      const dl = Math.floor((diff + 1) / 2);
-      const dr = diff + 1 - dl;
-      changeDistanceNode(newNode.left, -dl);
-      changeDistanceNode(newNode.right, dr);
-      newNode.distanceMax += dr;
-      newNode.distanceMin -= dl;
-    }
+    // const diff = newNode.left.distanceMax - newNode.right.distanceMin;
+    // if (diff >= 0) {
+    //   // 太近了，左右子树向外扩张
+    //   const dl = Math.floor((diff + 1) / 2);
+    //   const dr = diff + 1 - dl;
+    //   changeDistanceNode(newNode.left, -dl);
+    //   changeDistanceNode(newNode.right, dr);
+    //   newNode.distanceMax += dr;
+    //   newNode.distanceMin -= dl;
+    // }
 
     // 对比左右子树的每一层
     // 取每一层的，左子树的 lmaxn 与 右子树的 rminn
     // 取所有层中最小的 rminn - lmaxn差值，diffmin = min(rmin1 - lmax1, ... , rminn - lmaxn)
     //    如果 diffmin <= 0，表示有节点重叠，则使左右子树分别向左和向右移动，使其间距为 1 或者 2
-    //    如果 diffmin > 1，表示子节点离得太远了，可以更靠近，则使左右子树分别向右和向左移动，使其间距为 1 或者 2
+    //    （实际生成的树不会出现这种情况）如果 diffmin > 1，表示子节点离得太远了，可以更靠近，则使左右子树分别向右和向左移动，使其间距为 1 或者 2
     // 两个左右节点的距离不能小于 2
-    let diffmin = newNode.right.distance - newNode.left.distance;
-    if (diffmin > 2) {
-      const leftNodes = [newNode.left];
-      const rightNodes = [newNode.right];
-      // while (leftNodes.length && rightNodes.length) {}
-      console.log(diffmin);
+    const diffRoot = newNode.right.distance - newNode.left.distance;
+    let diffmin = diffRoot;
+    let leftNodes = [newNode.left];
+    let rightNodes = [newNode.right];
+    while (leftNodes.length && rightNodes.length) {
+      const df = rightNodes.at(0).distance - leftNodes.at(-1).distance;
+      diffmin = Math.min(df, diffmin);
+      const nextLeftNodes = [];
+      const nextRightNodes = [];
+      while (leftNodes.length) {
+        const node = leftNodes.pop();
+        if (node.left) nextLeftNodes.push(node.left);
+        if (node.right) nextLeftNodes.push(node.right);
+      }
+      while (rightNodes.length) {
+        const node = rightNodes.pop();
+        if (node.left) nextRightNodes.push(node.left);
+        if (node.right) nextRightNodes.push(node.right);
+      }
+      leftNodes = nextLeftNodes;
+      rightNodes = nextRightNodes;
+    }
+    if (diffmin <= 0) {
+      // 外扩
+      const dl = Math.floor((-diffmin + 1) / 2);
+      const dr = -diffmin + 1 - dl;
+      changeDistanceNode(newNode.left, -dl);
+      changeDistanceNode(newNode.right, dr);
+      newNode.distanceMax += dr;
+      newNode.distanceMin -= dl;
     }
   }
   // debug
