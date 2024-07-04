@@ -24,16 +24,17 @@ let log = LOG_FUNC;
 const formatLogValue = function (value) {
   let formattedRes = value;
   if (Array.isArray(value)) {
-    // 嵌套数组
-    formattedRes = `[ ${value
-      .map((v) => {
+    // 存在嵌套数组
+    const hasChildArr = value.some((it) => Array.isArray(it));
+    formattedRes = `${hasChildArr ? '[\n' : '[ '}${value
+      .map((v, i) => {
         let fv = String(v);
         const type = typeof v;
         (type === 'number' || type === 'boolean') && (fv = r.yellow(fv));
-        if (Array.isArray(v)) fv = formatLogValue(v);
+        if (Array.isArray(v)) fv = (i === 0 ? '  ' : '\n  ') + formatLogValue(v);
         return fv;
       })
-      .join(', ')} ]`;
+      .join(', ')}${hasChildArr ? '\n]' : ' ]'}`;
   }
   return formattedRes;
 };
@@ -145,24 +146,20 @@ const logBinaryTree = function (root, { valueKey = 'val', leftKey = 'left', righ
   logHeapTree(transferBinaryTreeToHeap(root, { valueKey, leftKey, rightKey, valueFormatter }));
 };
 
-/**
- * 打印堆数组的树形结构图 V2
- * @param {Array} heap
- *
- *            123            123     123
- *         ┌───┴───┐        ┌─┘       └─┐
- *       12123   43123     233         233
- */
 // 所有节点的距离 +diff
 const changeDistanceNode = function (node, diff, { leftKey = 'left', rightKey = 'right' } = {}) {
   if (!node || !diff) return;
   node.distance += diff;
-  node.min += diff;
-  node.max += diff;
+  node.distanceMin += diff;
+  node.distanceMax += diff;
   changeDistanceNode(node[leftKey], diff, { leftKey, rightKey });
   changeDistanceNode(node[rightKey], diff, { leftKey, rightKey });
 };
-// 构建距离树
+/**
+ * 构建距离树
+ * 以根节点的距离为 0 开始，左直接点距离为 -1，右子节点距离为 +1
+ * 统计所有的子节点距离
+ */
 const createDistanceTree = (
   node,
   distance,
@@ -184,47 +181,73 @@ const createDistanceTree = (
   };
   // 当前节点包括子节点的最大值字符串宽度
   newNode.nodeValueWidthMax = newNode.valWidth;
-  if (newNode[leftKey] || newNode[rightKey]) {
+  if (newNode.left || newNode.right) {
     newNode.distanceMax = Math.max(
       distance,
-      newNode[leftKey]?.distanceMax ?? -Infinity,
-      newNode[rightKey]?.distanceMax ?? -Infinity
+      newNode.left?.distanceMax ?? -Infinity,
+      newNode.right?.distanceMax ?? -Infinity
     );
     newNode.distanceMin = Math.min(
       distance,
-      newNode[leftKey]?.distanceMin ?? Infinity,
-      newNode[rightKey]?.distanceMin ?? Infinity
+      newNode.left?.distanceMin ?? Infinity,
+      newNode.right?.distanceMin ?? Infinity
     );
     newNode.nodeValueWidthMax = Math.max(
       newNode.nodeValueWidthMax,
-      newNode[leftKey]?.nodeValueWidthMax ?? -Infinity,
-      newNode[rightKey]?.nodeValueWidthMax ?? -Infinity
+      newNode.left?.nodeValueWidthMax ?? -Infinity,
+      newNode.right?.nodeValueWidthMax ?? -Infinity
     );
   }
+
   // 调整距离树
-  if (node[leftKey] && node[rightKey]) {
-    // 当左右节点都有时，进行间距调整
-    const diff = node[leftKey].max - node[rightKey].min;
+  // 当左右节点都有时，进行间距调整
+  if (newNode.left && newNode.right) {
+    // 计算每个节点的左子树的最大距离和右子树的最小距离
+    // 如果 lmax >= rmin 适当增加间距，控制间距为 1 或者 2
+    const diff = newNode.left.distanceMax - newNode.right.distanceMin;
     if (diff >= 0) {
       // 太近了，左右子树向外扩张
-      const dl = Math.ceil((diff + 1) / 2);
+      const dl = Math.floor((diff + 1) / 2);
       const dr = diff + 1 - dl;
-      changeDistanceNode(newNode[leftKey], -dl);
-      changeDistanceNode(newNode[rightKey], dr);
+      changeDistanceNode(newNode.left, -dl);
+      changeDistanceNode(newNode.right, dr);
+      newNode.distanceMax += dr;
+      newNode.distanceMin -= dl;
+    }
+
+    // 对比左右子树的每一层
+    // 取每一层的，左子树的 lmaxn 与 右子树的 rminn
+    // 取所有层中最小的 rminn - lmaxn差值，diffmin = min(rmin1 - lmax1, ... , rminn - lmaxn)
+    //    如果 diffmin <= 0，表示有节点重叠，则使左右子树分别向左和向右移动，使其间距为 1 或者 2
+    //    如果 diffmin > 1，表示子节点离得太远了，可以更靠近，则使左右子树分别向右和向左移动，使其间距为 1 或者 2
+    // 两个左右节点的距离不能小于 2
+    let diffmin = newNode.right.distance - newNode.left.distance;
+    if (diffmin > 2) {
+      const leftNodes = [newNode.left];
+      const rightNodes = [newNode.right];
+      // while (leftNodes.length && rightNodes.length) {}
+      console.log(diffmin);
     }
   }
+  // debug
+  // logBinaryTree(newNode, { valueFormatter: (n) => `${n.distance},${n.distanceMin},${n.distanceMax}` });
   return newNode;
 };
+/**
+ * 打印堆数组的树形结构图 V2
+ * @param {TreeRoot} TreeRoot
+ *
+ *            123            123     123
+ *         ┌───┴───┐        ┌─┘       └─┐
+ *       12123   43123     233         233
+ */
 const logBinaryTreeV2 = function (
   root,
   { valueKey = 'val', leftKey = 'left', rightKey = 'right', valueFormatter } = {}
 ) {
   if (!root) return log(null);
 
-  // 以根节点的距离为 0 开始，左直接点距离为 -1，右子节点距离为 +1
-  // 统计所有的子节点距离
-  // 计算每个节点的左子树的最大距离和右子树的最小距离
-  // 如果 lmax >= rmin 适当增加间距，控制间距在 [1, 2] 内
+  // 构建距离树
   const distanceTree = createDistanceTree(root, 0, { valueFormatter });
 
   const heap = transferBinaryTreeToHeap(distanceTree, {
@@ -251,34 +274,42 @@ const logBinaryTreeV2 = function (
   const tcs = {
     space: ' ',
     lr: '─',
-    // br: '┌',
-    br: '╭',
-    // bl: '┐',
-    bl: '╮',
-    // tr: '└',
-    tr: '╰',
-    // tl: '┘',
-    tl: '╯',
+    br: ['╭', '┌'][0],
+    bl: ['╮', '┐'][0],
+    tr: ['╰', '└'][0],
+    tl: ['╯', '┘'][0],
     tlr: '┴',
   };
-  // 转换成二维数组
+  // 转换成树节点二维数组
   const renderArr = [];
   // 偏移量
   const rowOffset = distanceTree.distanceMin;
-  // 绘制
+  // 居中标记，用来标记当前数组位置要和前一个数组位置的具体节点共同来居中现实节点字符串
+  const usePrevSymbol = '_';
+
   for (const row of layerFullArr) {
     const rowArr = [];
     let prevOffset = rowOffset;
     for (const col of row) {
       if (col) {
         const os = col.distance - prevOffset;
-        prevOffset = col.distance + 1;
         rowArr.push(...Array(os).fill(null), col);
+        prevOffset = col.distance + 1;
+
+        if (!_.isNil(col.left) && !_.isNil(col.right) && (col.right.distance - col.left.distance) % 2 === 1) {
+          // 标记存在左右子节点，但根节点不居中的情况，即左右节点的距离差为奇数
+          // 靠左，则向右插入一个标记，表示用两个位置来居中表示一个节点
+          rowArr.push(usePrevSymbol);
+          prevOffset++;
+        }
       }
     }
     renderArr.push(rowArr);
   }
-  const scale = Math.max(distanceTree.nodeValueWidthMax, 5);
+
+  const outputRows = [];
+  // 每一个刻度的间距
+  const scale = Math.max(distanceTree.nodeValueWidthMax + 2, 4);
   for (let i = 0; i < renderArr.length; i++) {
     const row = renderArr[i];
     let valStrArr = [];
@@ -286,17 +317,20 @@ const logBinaryTreeV2 = function (
     for (let j = 0; j < row.length; j++) {
       const col = row[j];
       if (col === null) valStrArr.push(tcs.space);
+      else if (col === usePrevSymbol) valStrArr.push(col);
       else valStrArr.push(col.val);
 
       // 非最后一行，打印辅助线
       // ┌ ─ ┴ ┐ ┘ └
+      // 已经有值，不再设置
       if (i !== renderArr.length - 1 && _.isNil(lineStrArr[j])) {
         const hasLeft = !_.isNil(col?.left);
         const hasRight = !_.isNil(col?.right);
         let padStr = tcs.space;
         if (col === null) {
-          // 已经有值，则使用原值
           padStr = tcs.space;
+        } else if (col === usePrevSymbol) {
+          padStr = col;
         } else if (hasLeft && hasRight) {
           padStr = tcs.tlr;
         } else if (hasLeft) {
@@ -315,22 +349,43 @@ const logBinaryTreeV2 = function (
         }
         if (hasRight) {
           const rightIndex = j - (col.distance - col.right.distance);
-          for (let t = j + 1; t < rightIndex; t++) {
+          let start = j + 1;
+          if (row[j + 1] === usePrevSymbol) {
+            // 需要偏移，使用两个位置进行居中
+            row[j + 1] = usePrevSymbol;
+            start++;
+          }
+          for (let t = start; t < rightIndex; t++) {
             lineStrArr[t] = tcs.lr;
           }
           lineStrArr[rightIndex] = tcs.bl;
         }
       }
     }
-
-    log(valStrArr.map((it) => padStringCenter(it, scale)).join(''));
+    // 拼接值字符串行
+    outputRows.push(
+      valStrArr
+        .map((it, index, arr) => {
+          if (it === usePrevSymbol) return '';
+          let sc = scale;
+          // 合并居中
+          if (arr[index + 1] === usePrevSymbol) sc *= 2;
+          return padStringCenter(it, sc);
+        })
+        .join('')
+    );
+    // 拼接辅助字符串行
     lineStrArr?.length &&
-      log(
+      outputRows.push(
         lineStrArr
-          .map((it) => {
-            return padStringCenter(it !== tcs.space ? r._color_240(it) : it, scale, {
+          .map((it, index, arr) => {
+            if (it === usePrevSymbol) return '';
+            let sc = scale;
+            // 合并居中
+            if (arr[index + 1] === usePrevSymbol) sc *= 2;
+            return padStringCenter(it !== tcs.space ? r._color_240(it) : it, sc, {
               ignoreColor: true,
-              padChar: r._color_240(it === tcs.tlr ? tcs.lr : void 0),
+              padChar: r._color_240(it === tcs.tlr || it === tcs.lr ? tcs.lr : void 0),
               padCharLeft: r._color_240(it === tcs.tl || it === tcs.bl ? tcs.lr : void 0),
               padCharRight: r._color_240(it === tcs.tr || it === tcs.br ? tcs.lr : void 0),
             });
@@ -338,6 +393,11 @@ const logBinaryTreeV2 = function (
           .join('')
       );
   }
+  // 绘制
+  const colWidth = scale * (distanceTree.distanceMax - distanceTree.distanceMin + 1);
+  logDividerBg(colWidth);
+  outputRows.forEach((or) => log(or));
+  logDividerBg(colWidth);
 };
 
 /**
@@ -882,7 +942,17 @@ const logArrayToCoordinateSystem = function (
  *    ⿴ ⿴ ⿴
  * 需要传入一个 log function list，每个函数需要返回已绘制区域的最大行数和列数
  */
-const logByColumn = function (logFuncList, { gap = 5, disabled = false } = {}) {
+const logByColumn = function (
+  logFuncList,
+  {
+    // 每一个 func 输出块的间隔
+    gap = 5,
+    // 禁用按列排版功能
+    disabled = false,
+    // 当 logFuncList 数组中遇到 null 时，强制换行
+    wrapBreakIfNull = true,
+  } = {}
+) {
   if (disabled) {
     logFuncList.forEach((fn) => fn());
     return;
@@ -892,6 +962,15 @@ const logByColumn = function (logFuncList, { gap = 5, disabled = false } = {}) {
   let prevRows = 0;
   let prevCols = 0;
   for (let i = 0; i < logFuncList.length; i++) {
+    if (_.isNil(logFuncList[i])) {
+      if (wrapBreakIfNull) {
+        logResList.length = 0;
+        prevRows = 0;
+        prevCols = 0;
+      }
+      continue;
+    }
+
     const logRes = { cols: 0, rows: 0 };
     // 动态注入
     log = (...args) => {
