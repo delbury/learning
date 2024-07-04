@@ -330,7 +330,6 @@ const logBinaryTreeV2 = function (
     }
     renderArr.push(rowArr);
   }
-
   const outputRows = [];
   // 每一个刻度的间距
   const scale = Math.max(distanceTree.nodeValueWidthMax + 2, 4);
@@ -378,6 +377,9 @@ const logBinaryTreeV2 = function (
             // 需要偏移，使用两个位置进行居中
             row[j + 1] = usePrevSymbol;
             start++;
+
+            // 如果上一行是辅助线的话，也需要处理偏移
+            if (i > 0) outputRows.at(-1)[j + 1] = usePrevSymbol;
           }
           for (let t = start; t < rightIndex; t++) {
             lineStrArr[t] = tcs.lr;
@@ -387,8 +389,13 @@ const logBinaryTreeV2 = function (
       }
     }
     // 拼接值字符串行
-    outputRows.push(
-      valStrArr
+    outputRows.push(valStrArr);
+    // 拼接辅助字符串行
+    lineStrArr?.length && outputRows.push(lineStrArr);
+  }
+  const stringRows = outputRows.map((row, ind) => {
+    if (ind % 2 === 0) {
+      return row
         .map((it, index, arr) => {
           if (it === usePrevSymbol) return '';
           let sc = scale;
@@ -396,31 +403,28 @@ const logBinaryTreeV2 = function (
           if (arr[index + 1] === usePrevSymbol) sc *= 2;
           return padStringCenter(it, sc);
         })
-        .join('')
-    );
-    // 拼接辅助字符串行
-    lineStrArr?.length &&
-      outputRows.push(
-        lineStrArr
-          .map((it, index, arr) => {
-            if (it === usePrevSymbol) return '';
-            let sc = scale;
-            // 合并居中
-            if (arr[index + 1] === usePrevSymbol) sc *= 2;
-            return padStringCenter(it !== tcs.space ? r._color_240(it) : it, sc, {
-              ignoreColor: true,
-              padChar: r._color_240(it === tcs.tlr || it === tcs.lr ? tcs.lr : void 0),
-              padCharLeft: r._color_240(it === tcs.tl || it === tcs.bl ? tcs.lr : void 0),
-              padCharRight: r._color_240(it === tcs.tr || it === tcs.br ? tcs.lr : void 0),
-            });
-          })
-          .join('')
-      );
-  }
+        .join('');
+    } else {
+      return row
+        .map((it, index, arr) => {
+          if (it === usePrevSymbol) return '';
+          let sc = scale;
+          // 合并居中
+          if (arr[index + 1] === usePrevSymbol) sc *= 2;
+          return padStringCenter(it !== tcs.space ? r._color_240(it) : it, sc, {
+            ignoreColor: true,
+            padChar: r._color_240(it === tcs.tlr || it === tcs.lr ? tcs.lr : void 0),
+            padCharLeft: r._color_240(it === tcs.tl || it === tcs.bl ? tcs.lr : void 0),
+            padCharRight: r._color_240(it === tcs.tr || it === tcs.br ? tcs.lr : void 0),
+          });
+        })
+        .join('');
+    }
+  });
   // 绘制
   const colWidth = scale * (distanceTree.distanceMax - distanceTree.distanceMin + 1);
   logDividerBg(colWidth);
-  outputRows.forEach((or) => log(or));
+  stringRows.forEach((or) => log(or));
   logDividerBg(colWidth);
 };
 
@@ -1029,6 +1033,39 @@ const logByColumn = function (
   log = LOG_FUNC;
 };
 
+// 生成 min ~ max 的随机整数
+const createRandomInt = function (min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+};
+
+// 生成随机树
+const createRandomTree = function ({
+  treeDeep = Infinity,
+  nodeCount = Infinity,
+  valueMin = 1,
+  valueMax = 10,
+  valueKey = 'val',
+  leftKey = 'left',
+  rightKey = 'right',
+  nullNodeChange = 0.3,
+} = {}) {
+  if (treeDeep === Infinity && nodeCount === Infinity) throw new Error('param must have treeDeep or nodeCount');
+  let curCount = 0;
+
+  const fn = (deep = 0) => {
+    if (deep > treeDeep || curCount >= nodeCount) return null;
+    if (Math.random() < nullNodeChange) return null;
+    curCount++;
+    const node = {
+      [valueKey]: createRandomInt(valueMin, valueMax),
+      [leftKey]: fn(deep + 1),
+      [rightKey]: fn(deep + 1),
+    };
+    return node;
+  };
+  return fn();
+};
+
 // exports
 module.exports = {
   r,
@@ -1054,5 +1091,8 @@ module.exports = {
   createTreeByArray,
   createTreeByArrayLayer,
   create2dArray,
+  createRandomInt,
+  createRandomTree,
   runActionArgByArray,
+  transferBinaryTreeToHeap,
 };
