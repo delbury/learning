@@ -31,10 +31,10 @@ const formatLogValue = function (value) {
         let fv = String(v);
         const type = typeof v;
         (type === 'number' || type === 'boolean') && (fv = r.yellow(fv));
-        if (Array.isArray(v)) fv = (i === 0 ? '  ' : '\n  ') + formatLogValue(v);
+        if (Array.isArray(v)) fv = (i === 0 ? '  ' : '\n  ') + `${String(i).padStart(2, ' ')}: ` + formatLogValue(v);
         return fv;
       })
-      .join(', ')}${hasChildArr ? '\n]' : ' ]'}`;
+      .join(`${r.grey(',')} `)}${hasChildArr ? '\n]' : ' ]'}`;
   }
   return formattedRes;
 };
@@ -239,18 +239,28 @@ const createDistanceTree = (
     let diffmin = diffRoot;
     let leftNodes = [newNode.left];
     let rightNodes = [newNode.right];
+    let prevLeftDistance = -Infinity;
+    let prevRightDistance = Infinity;
     while (leftNodes.length && rightNodes.length) {
-      const df = rightNodes.at(0).distance - leftNodes.at(-1).distance;
+      const curLeftDistance = leftNodes.at(-1).distance;
+      const curRightDistance = rightNodes.at(0).distance;
+      let df = curRightDistance - curLeftDistance;
+      // 如果当前层，左子树的节点正上方（距离相同）存在右子树的节点，则最小距离 -1，右子树同理
+      if (prevLeftDistance === curRightDistance || prevRightDistance === curLeftDistance) {
+        df -= 1;
+      }
+      prevLeftDistance = curLeftDistance;
+      prevRightDistance = curRightDistance;
       diffmin = Math.min(df, diffmin);
       const nextLeftNodes = [];
       const nextRightNodes = [];
       while (leftNodes.length) {
-        const node = leftNodes.pop();
+        const node = leftNodes.shift();
         if (node.left) nextLeftNodes.push(node.left);
         if (node.right) nextLeftNodes.push(node.right);
       }
       while (rightNodes.length) {
-        const node = rightNodes.pop();
+        const node = rightNodes.shift();
         if (node.left) nextRightNodes.push(node.left);
         if (node.right) nextRightNodes.push(node.right);
       }
@@ -259,7 +269,7 @@ const createDistanceTree = (
     }
     if (diffmin <= 0) {
       // 外扩
-      diffmin = Math.max(-diffmin + 1, 2);
+      diffmin = -diffmin + 1;
       const dl = Math.floor(diffmin / 2);
       const dr = diffmin - dl;
       changeDistanceNode(newNode.left, -dl);
@@ -268,8 +278,6 @@ const createDistanceTree = (
       newNode.distanceMin -= dl;
     }
   }
-  // debug
-  // logBinaryTree(newNode, { valueFormatter: (n) => `${n.distance},${n.distanceMin},${n.distanceMax}` });
   return newNode;
 };
 /**
@@ -288,7 +296,7 @@ const logBinaryTreeV2 = function (
     rightKey = 'right',
     valueFormatter,
     // 按层扩张
-    compressedByLayer = false,
+    compressedByLayer = true,
   } = {}
 ) {
   if (!root) return log(null);
@@ -331,7 +339,11 @@ const logBinaryTreeV2 = function (
   // 偏移量
   const rowOffset = distanceTree.distanceMin;
   // 居中标记，用来标记当前数组位置要和前一个数组位置的具体节点共同来居中现实节点字符串
-  const usePrevSymbol = r.red('.');
+
+  // debug
+  // logBinaryTree(distanceTree, {
+  //   valueFormatter: (n) => `${r.green(n.val)},${n.distance}`,
+  // });
 
   for (const row of layerFullArr) {
     const rowArr = [];
@@ -339,24 +351,14 @@ const logBinaryTreeV2 = function (
     for (const col of row) {
       if (col) {
         const os = col.distance - prevOffset;
-
         rowArr.push(...Array(os).fill(null), col);
         prevOffset = col.distance + 1;
-
-        if (!_.isNil(col.left) && !_.isNil(col.right) && (col.right.distance - col.left.distance) % 2 === 1) {
-          // 标记存在左右子节点，但根节点不居中的情况，即左右节点的距离差为奇数
-          // 靠左，则向右插入一个标记，表示用两个位置来居中表示一个节点
-          rowArr.push(usePrevSymbol);
-          prevOffset++;
-        }
       }
     }
     renderArr.push(rowArr);
   }
-  flog(renderArr);
   const outputRows = [];
-  // 每一个刻度的间距
-  const scale = Math.max(distanceTree.nodeValueWidthMax + 2, 4);
+
   for (let i = 0; i < renderArr.length; i++) {
     const row = renderArr[i];
     let valStrArr = [];
@@ -364,7 +366,6 @@ const logBinaryTreeV2 = function (
     for (let j = 0; j < row.length; j++) {
       const col = row[j];
       if (col === null) valStrArr.push(tcs.space);
-      else if (col === usePrevSymbol) valStrArr.push(col);
       else valStrArr.push(col.val);
 
       // 非最后一行，打印辅助线
@@ -376,8 +377,6 @@ const logBinaryTreeV2 = function (
         let padStr = tcs.space;
         if (col === null) {
           padStr = tcs.space;
-        } else if (col === usePrevSymbol) {
-          padStr = col;
         } else if (hasLeft && hasRight) {
           padStr = tcs.tlr;
         } else if (hasLeft) {
@@ -397,20 +396,6 @@ const logBinaryTreeV2 = function (
         if (hasRight) {
           const rightIndex = j - (col.distance - col.right.distance);
           let start = j + 1;
-          if (row[j + 1] === usePrevSymbol) {
-            // 需要偏移，使用两个位置进行居中
-            row[j + 1] = usePrevSymbol;
-            start++;
-
-            // 如果上一行是辅助线的话，也需要处理偏移
-            if (
-              i > 0 &&
-              (outputRows.at(-1)[j + 1] === tcs.lr ||
-                outputRows.at(-1)[j + 1] === tcs.space ||
-                _.isNil(outputRows.at(-1)[j + 1]))
-            )
-              outputRows.at(-1)[j + 1] = usePrevSymbol;
-          }
           for (let t = start; t < rightIndex; t++) {
             lineStrArr[t] = tcs.lr;
           }
@@ -423,35 +408,109 @@ const logBinaryTreeV2 = function (
     // 拼接辅助字符串行
     lineStrArr?.length && outputRows.push(lineStrArr);
   }
+  // 数组补齐
+  const maxCols = Math.max(...outputRows.map((or) => or.length));
+  outputRows.forEach((or) => or.length < maxCols && or.push(...Array(maxCols - or.length).fill(tcs.space)));
+
+  // TODO remove
   flog(outputRows);
-  const stringRows = outputRows.map((row, ind) => {
-    if (ind % 2 === 0) {
-      return row
-        .map((it, index, arr) => {
-          if (it === usePrevSymbol) return '';
-          let sc = scale;
-          // 合并居中
-          if (arr[index + 1] === usePrevSymbol) sc *= 2;
-          return padStringCenter(it, sc);
-        })
-        .join('');
-    } else {
-      return row
-        .map((it, index, arr) => {
-          if (it === usePrevSymbol) return '';
-          let sc = scale;
-          // 合并居中
-          if (arr[index + 1] === usePrevSymbol) sc *= 2;
-          return padStringCenter(it !== tcs.space ? r._color_240(it) : it, sc, {
-            ignoreColor: true,
-            padChar: r._color_240(it === tcs.tlr || it === tcs.lr ? tcs.lr : void 0),
-            padCharLeft: r._color_240(it === tcs.tl || it === tcs.bl ? tcs.lr : void 0),
-            padCharRight: r._color_240(it === tcs.tr || it === tcs.br ? tcs.lr : void 0),
-          });
-        })
-        .join('');
+
+  // 每一行，每一列的字符偏移值，向右偏移的距离
+  const charOffsetMap = new Map();
+  // 计算偏移值
+  for (let i = outputRows.length - 1; i >= 0; i--) {
+    const row = outputRows[i];
+    // 0：停止计数，1：计左半部分数，2：计右半部分数
+    let countMode = 0;
+    // 左半部分计数值
+    let lcount;
+    // 右半部分计数值
+    let rcount;
+    // 中间分隔符的 index
+    let charIndex;
+    for (let j = 0; j < row.length; j++) {
+      const it = row[j];
+      if (it === tcs.br) {
+        // 遇到 ╭ 开始计数
+        lcount = 0;
+        rcount = 0;
+        countMode = 1;
+        // 如果底下辅助线行对应位置的存在偏移
+        const hash = `${i + 2},${j}`;
+        if (charOffsetMap.has(hash)) lcount -= charOffsetMap.get(hash);
+      } else if (it === tcs.tl) {
+        // 遇到 ╯ 终止计数
+        countMode = 0;
+      } else if (it === tcs.tlr) {
+        // 遇到 ┴ 完成左半部分计数并开始右半部分计数
+        countMode = 2;
+        charIndex = j;
+      } else if (it === tcs.bl && countMode) {
+        // 遇到 ╮ 完成右半部分计数
+        countMode = 0;
+        // 如果底下辅助线行对应位置的存在偏移
+        const hash = `${i + 2},${j}`;
+        if (charOffsetMap.has(hash)) rcount += charOffsetMap.get(hash);
+
+        const d = rcount - lcount;
+        if (d > 0) {
+          // 当前辅助线字符偏移
+          charOffsetMap.set(`${i},${charIndex}`, d / 2);
+          // 当前辅助线字符的上方对应的值字符偏移
+          charOffsetMap.set(`${i - 1},${charIndex}`, d / 2);
+          // 当前辅助线字符的上方对应的值字符对应的上一行辅助线字符偏移
+          charOffsetMap.set(`${i - 2},${charIndex}`, d / 2);
+        }
+      } else if (countMode) {
+        // 计数
+        countMode === 1 && lcount++;
+        countMode === 2 && rcount++;
+      }
     }
-  });
+  }
+
+  // 每一个刻度的间距
+  const scale = Math.max(distanceTree.nodeValueWidthMax + 2, 4);
+  // 已经转换成字符串的行
+  const stringRows = [];
+  // 最后一行开始绘制行
+  for (let i = outputRows.length - 1; i >= 0; i--) {
+    const row = outputRows[i];
+    let str = '';
+
+    for (let j = 0; j < row.length; j++) {
+      const it = row[j];
+
+      // 当前字符的偏移，存在偏移则用当前字符和 ceil(offset) 个字符来处理偏移
+      // 左边有 offset * scale * 2 个字符
+      const curOffset = charOffsetMap.get(`${i},${j}`);
+      let sc = scale;
+
+      if (i % 2 === 0) {
+        // 值
+        if (curOffset) {
+          sc *= 2;
+          j++;
+        }
+        str += padStringCenter(it, sc, { percent: curOffset });
+      } else {
+        // 辅助线
+        str += padStringCenter(it !== tcs.space ? r._color_240(it) : it, scale, {
+          ignoreColor: true,
+          padChar: r._color_240(it === tcs.tlr || it === tcs.lr ? tcs.lr : void 0),
+          padCharLeft: r._color_240(it === tcs.tl || it === tcs.bl ? tcs.lr : void 0),
+          padCharRight: r._color_240(it === tcs.tr || it === tcs.br ? tcs.lr : void 0),
+        });
+      }
+    }
+
+    stringRows.push(str);
+  }
+  stringRows.reverse();
+
+  // TODO remove
+  flog(charOffsetMap);
+
   // 绘制
   const colWidth = scale * (distanceTree.distanceMax - distanceTree.distanceMin + 1);
   logDividerBg(colWidth);
@@ -858,6 +917,8 @@ const padStringCenter = function (
     leftFirst = false,
     // 是否忽略字符串中的 color 控制符
     ignoreColor = false,
+    // str 中点位置相对于起点位置的百分比
+    percent,
   } = {}
 ) {
   str = String(str);
@@ -873,13 +934,19 @@ const padStringCenter = function (
   let pe = '';
   const needPadCount = count - strLength;
   let c;
-  if (needPadCount % 2 === 0) {
-    c = needPadCount / 2;
-  } else if (leftFirst) {
-    c = Math.ceil(needPadCount / 2);
+  if (!_.isNil(percent)) {
+    // 百分比
+    c = Math.max(Math.floor(count * percent - 0.5 * strLength), 0);
   } else {
-    c = Math.floor(needPadCount / 2);
+    if (needPadCount % 2 === 0) {
+      c = needPadCount / 2;
+    } else if (leftFirst) {
+      c = Math.ceil(needPadCount / 2);
+    } else {
+      c = Math.floor(needPadCount / 2);
+    }
   }
+
   ps = (padCharLeft ?? padChar).repeat(c);
   pe = (padCharRight ?? padChar).repeat(needPadCount - c);
   return ps + str + pe;
@@ -1078,19 +1145,18 @@ const createRandomTree = function ({
   valueKey = 'val',
   leftKey = 'left',
   rightKey = 'right',
-  nullNodeChange = 0.3,
+  nullNodeChange = 0.2,
 } = {}) {
   if (treeDeep === Infinity && nodeCount === Infinity) throw new Error('param must have treeDeep or nodeCount');
   let curCount = 0;
 
   const fn = (deep = 0) => {
     if (deep > treeDeep || curCount >= nodeCount) return null;
-    if (Math.random() < nullNodeChange) return null;
     curCount++;
     const node = {
       [valueKey]: createRandomInt(valueMin, valueMax),
-      [leftKey]: fn(deep + 1),
-      [rightKey]: fn(deep + 1),
+      [leftKey]: Math.random() < nullNodeChange ? null : fn(deep + 1),
+      [rightKey]: Math.random() < nullNodeChange ? null : fn(deep + 1),
     };
     return node;
   };
