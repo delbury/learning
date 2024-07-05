@@ -163,7 +163,7 @@ const changeDistanceNode = function (node, diff, { leftKey = 'left', rightKey = 
 const createDistanceTree = (
   node,
   distance,
-  { valueKey = 'val', leftKey = 'left', rightKey = 'right', valueFormatter } = {}
+  { valueKey = 'val', leftKey = 'left', rightKey = 'right', valueFormatter, compressedByLayer } = {}
 ) => {
   if (!node) return node;
   const newNode = {
@@ -176,8 +176,20 @@ const createDistanceTree = (
     distanceMax: distance,
     // 当前节点包括子树在内的最小距离
     distanceMin: distance,
-    left: createDistanceTree(node[leftKey], distance - 1, { valueKey, leftKey, rightKey, valueFormatter }),
-    right: createDistanceTree(node[rightKey], distance + 1, { valueKey, leftKey, rightKey, valueFormatter }),
+    left: createDistanceTree(node[leftKey], distance - 1, {
+      valueKey,
+      leftKey,
+      rightKey,
+      valueFormatter,
+      compressedByLayer,
+    }),
+    right: createDistanceTree(node[rightKey], distance + 1, {
+      valueKey,
+      leftKey,
+      rightKey,
+      valueFormatter,
+      compressedByLayer,
+    }),
   };
   // 当前节点包括子节点的最大值字符串宽度
   newNode.nodeValueWidthMax = newNode.valWidth;
@@ -201,20 +213,22 @@ const createDistanceTree = (
 
   // 调整距离树
   // 当左右节点都有时，进行间距调整
-  if (newNode.left && newNode.right) {
+  if (newNode.left && newNode.right && !compressedByLayer) {
     // 计算每个节点的左子树的最大距离和右子树的最小距离
     // 如果 lmax >= rmin 适当增加间距，控制间距为 1 或者 2
-    // const diff = newNode.left.distanceMax - newNode.right.distanceMin;
-    // if (diff >= 0) {
-    //   // 太近了，左右子树向外扩张
-    //   const dl = Math.floor((diff + 1) / 2);
-    //   const dr = diff + 1 - dl;
-    //   changeDistanceNode(newNode.left, -dl);
-    //   changeDistanceNode(newNode.right, dr);
-    //   newNode.distanceMax += dr;
-    //   newNode.distanceMin -= dl;
-    // }
-
+    const diff = newNode.left.distanceMax - newNode.right.distanceMin;
+    if (diff >= 0) {
+      // 太近了，左右子树向外扩张
+      const dl = Math.floor((diff + 1) / 2);
+      const dr = diff + 1 - dl;
+      changeDistanceNode(newNode.left, -dl);
+      changeDistanceNode(newNode.right, dr);
+      newNode.distanceMax += dr;
+      newNode.distanceMin -= dl;
+    }
+  }
+  // 另一种实现方式
+  if (newNode.left && newNode.right && compressedByLayer) {
     // 对比左右子树的每一层
     // 取每一层的，左子树的 lmaxn 与 右子树的 rminn
     // 取所有层中最小的 rminn - lmaxn差值，diffmin = min(rmin1 - lmax1, ... , rminn - lmaxn)
@@ -245,8 +259,9 @@ const createDistanceTree = (
     }
     if (diffmin <= 0) {
       // 外扩
-      const dl = Math.floor((-diffmin + 1) / 2);
-      const dr = -diffmin + 1 - dl;
+      diffmin = Math.max(-diffmin + 1, 2);
+      const dl = Math.floor(diffmin / 2);
+      const dr = diffmin - dl;
       changeDistanceNode(newNode.left, -dl);
       changeDistanceNode(newNode.right, dr);
       newNode.distanceMax += dr;
@@ -267,12 +282,19 @@ const createDistanceTree = (
  */
 const logBinaryTreeV2 = function (
   root,
-  { valueKey = 'val', leftKey = 'left', rightKey = 'right', valueFormatter } = {}
+  {
+    valueKey = 'val',
+    leftKey = 'left',
+    rightKey = 'right',
+    valueFormatter,
+    // 按层扩张
+    compressedByLayer = false,
+  } = {}
 ) {
   if (!root) return log(null);
 
   // 构建距离树
-  const distanceTree = createDistanceTree(root, 0, { valueFormatter });
+  const distanceTree = createDistanceTree(root, 0, { valueFormatter, compressedByLayer });
 
   const heap = transferBinaryTreeToHeap(distanceTree, {
     valueKey,
@@ -309,7 +331,7 @@ const logBinaryTreeV2 = function (
   // 偏移量
   const rowOffset = distanceTree.distanceMin;
   // 居中标记，用来标记当前数组位置要和前一个数组位置的具体节点共同来居中现实节点字符串
-  const usePrevSymbol = '_';
+  const usePrevSymbol = r.red('.');
 
   for (const row of layerFullArr) {
     const rowArr = [];
@@ -317,6 +339,7 @@ const logBinaryTreeV2 = function (
     for (const col of row) {
       if (col) {
         const os = col.distance - prevOffset;
+
         rowArr.push(...Array(os).fill(null), col);
         prevOffset = col.distance + 1;
 
@@ -330,6 +353,7 @@ const logBinaryTreeV2 = function (
     }
     renderArr.push(rowArr);
   }
+  flog(renderArr);
   const outputRows = [];
   // 每一个刻度的间距
   const scale = Math.max(distanceTree.nodeValueWidthMax + 2, 4);
@@ -379,7 +403,13 @@ const logBinaryTreeV2 = function (
             start++;
 
             // 如果上一行是辅助线的话，也需要处理偏移
-            if (i > 0) outputRows.at(-1)[j + 1] = usePrevSymbol;
+            if (
+              i > 0 &&
+              (outputRows.at(-1)[j + 1] === tcs.lr ||
+                outputRows.at(-1)[j + 1] === tcs.space ||
+                _.isNil(outputRows.at(-1)[j + 1]))
+            )
+              outputRows.at(-1)[j + 1] = usePrevSymbol;
           }
           for (let t = start; t < rightIndex; t++) {
             lineStrArr[t] = tcs.lr;
@@ -393,6 +423,7 @@ const logBinaryTreeV2 = function (
     // 拼接辅助字符串行
     lineStrArr?.length && outputRows.push(lineStrArr);
   }
+  flog(outputRows);
   const stringRows = outputRows.map((row, ind) => {
     if (ind % 2 === 0) {
       return row
