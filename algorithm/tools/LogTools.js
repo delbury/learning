@@ -297,6 +297,8 @@ const logBinaryTreeV2 = function (
     valueFormatter,
     // 按层扩张
     compressedByLayer = true,
+    // 严格居中
+    alignCenter = true,
   } = {}
 ) {
   if (!root) return log(null);
@@ -412,62 +414,67 @@ const logBinaryTreeV2 = function (
   const maxCols = Math.max(...outputRows.map((or) => or.length));
   outputRows.forEach((or) => or.length < maxCols && or.push(...Array(maxCols - or.length).fill(tcs.space)));
 
-  // TODO remove
-  flog(outputRows);
+  // debug
+  // flog(outputRows);
 
   // 每一行，每一列的字符偏移值，向右偏移的距离
   const charOffsetMap = new Map();
-  // 计算偏移值
-  for (let i = outputRows.length - 1; i >= 0; i--) {
-    const row = outputRows[i];
-    // 0：停止计数，1：计左半部分数，2：计右半部分数
-    let countMode = 0;
-    // 左半部分计数值
-    let lcount;
-    // 右半部分计数值
-    let rcount;
-    // 中间分隔符的 index
-    let charIndex;
-    for (let j = 0; j < row.length; j++) {
-      const it = row[j];
-      if (it === tcs.br) {
-        // 遇到 ╭ 开始计数
-        lcount = 0;
-        rcount = 0;
-        countMode = 1;
-        // 如果底下辅助线行对应位置的存在偏移
-        const hash = `${i + 2},${j}`;
-        if (charOffsetMap.has(hash)) lcount -= charOffsetMap.get(hash);
-      } else if (it === tcs.tl) {
-        // 遇到 ╯ 终止计数
-        countMode = 0;
-      } else if (it === tcs.tlr) {
-        // 遇到 ┴ 完成左半部分计数并开始右半部分计数
-        countMode = 2;
-        charIndex = j;
-      } else if (it === tcs.bl && countMode) {
-        // 遇到 ╮ 完成右半部分计数
-        countMode = 0;
-        // 如果底下辅助线行对应位置的存在偏移
-        const hash = `${i + 2},${j}`;
-        if (charOffsetMap.has(hash)) rcount += charOffsetMap.get(hash);
+  if (alignCenter) {
+    // 计算偏移值
+    for (let i = outputRows.length - 1; i >= 0; i--) {
+      const row = outputRows[i];
+      // 0：停止计数，1：计左半部分数，2：计右半部分数
+      let countMode = 0;
+      // 左半部分计数值
+      let lcount;
+      // 右半部分计数值
+      let rcount;
+      // 中间分隔符的 index
+      let charIndex;
+      for (let j = 0; j < row.length; j++) {
+        const it = row[j];
+        if (it === tcs.br) {
+          // 遇到 ╭ 开始计数
+          lcount = 0;
+          rcount = 0;
+          countMode = 1;
+          // 如果底下辅助线行对应位置的存在偏移
+          const hash = `${i + 2},${j}`;
+          if (charOffsetMap.has(hash)) lcount -= charOffsetMap.get(hash);
+        } else if (it === tcs.tl) {
+          // 遇到 ╯ 终止计数
+          countMode = 0;
+        } else if (it === tcs.tlr) {
+          // 遇到 ┴ 完成左半部分计数并开始右半部分计数
+          countMode = 2;
+          charIndex = j;
+        } else if (it === tcs.bl && countMode) {
+          // 遇到 ╮ 完成右半部分计数
+          countMode = 0;
+          // 如果底下辅助线行对应位置的存在偏移
+          const hash = `${i + 2},${j}`;
+          if (charOffsetMap.has(hash)) rcount += charOffsetMap.get(hash);
 
-        const d = rcount - lcount;
-        if (d > 0) {
-          // 当前辅助线字符偏移
-          charOffsetMap.set(`${i},${charIndex}`, d / 2);
-          // 当前辅助线字符的上方对应的值字符偏移
-          charOffsetMap.set(`${i - 1},${charIndex}`, d / 2);
-          // 当前辅助线字符的上方对应的值字符对应的上一行辅助线字符偏移
-          charOffsetMap.set(`${i - 2},${charIndex}`, d / 2);
+          const d = rcount - lcount;
+          if (d > 0) {
+            // 当前辅助线字符偏移
+            charOffsetMap.set(`${i},${charIndex}`, d / 2);
+            // 当前辅助线字符的上方对应的值字符偏移
+            charOffsetMap.set(`${i - 1},${charIndex}`, d / 2);
+            // 当前辅助线字符的上方对应的值字符对应的上一行辅助线字符偏移
+            charOffsetMap.set(`${i - 2},${charIndex}`, d / 2);
+          }
+        } else if (countMode) {
+          // 计数
+          countMode === 1 && lcount++;
+          countMode === 2 && rcount++;
         }
-      } else if (countMode) {
-        // 计数
-        countMode === 1 && lcount++;
-        countMode === 2 && rcount++;
       }
     }
   }
+
+  // debug
+  // flog(charOffsetMap);
 
   // 每一个刻度的间距
   const scale = Math.max(distanceTree.nodeValueWidthMax + 2, 4);
@@ -494,22 +501,45 @@ const logBinaryTreeV2 = function (
         }
         str += padStringCenter(it, sc, { percent: curOffset });
       } else {
+        let suffix = '';
+        if ((it === tcs.tlr || it === tcs.bl || it === tcs.br) && curOffset) {
+          sc *= 2;
+          j++;
+
+          const nextChar = outputRows[i][j];
+          const nextHash = `${i},${j}`;
+          if (charOffsetMap.has(nextHash)) {
+            // 下一个字符也存在偏偏移值
+            const cof = charOffsetMap.get(nextHash);
+            suffix = padStringCenter(nextChar, sc, {
+              padCharLeft: tcs.lr,
+              percent: cof,
+            });
+            suffix = suffix.substring(0, scale + 1);
+          } else if (nextChar === tcs.tl || nextChar === tcs.tlr) {
+            suffix = padStringCenter(nextChar, scale, {
+              ignoreColor: true,
+              padCharLeft: '',
+              padCharRight: it === tcs.tlr ? tcs.lr : void 0,
+            });
+          }
+        }
+
         // 辅助线
-        str += padStringCenter(it !== tcs.space ? r._color_240(it) : it, scale, {
-          ignoreColor: true,
-          padChar: r._color_240(it === tcs.tlr || it === tcs.lr ? tcs.lr : void 0),
-          padCharLeft: r._color_240(it === tcs.tl || it === tcs.bl ? tcs.lr : void 0),
-          padCharRight: r._color_240(it === tcs.tr || it === tcs.br ? tcs.lr : void 0),
+        const line = padStringCenter(it, sc, {
+          padChar: it === tcs.tlr || it === tcs.lr ? tcs.lr : void 0,
+          padCharLeft: it === tcs.tl || it === tcs.bl ? tcs.lr : void 0,
+          padCharRight: it === tcs.tr || it === tcs.br ? tcs.lr : void 0,
+          percent: curOffset,
         });
+
+        str += r._color_240(line.substring(0, line.length - suffix.length) + suffix);
       }
     }
 
     stringRows.push(str);
   }
   stringRows.reverse();
-
-  // TODO remove
-  flog(charOffsetMap);
 
   // 绘制
   const colWidth = scale * (distanceTree.distanceMax - distanceTree.distanceMin + 1);
@@ -948,7 +978,7 @@ const padStringCenter = function (
   }
 
   ps = (padCharLeft ?? padChar).repeat(c);
-  pe = (padCharRight ?? padChar).repeat(needPadCount - c);
+  pe = (padCharRight ?? padChar).repeat(Math.max(needPadCount - c, 0));
   return ps + str + pe;
 };
 
@@ -1068,6 +1098,15 @@ const logArrayToCoordinateSystem = function (
  *    ⿴ ⿴ ⿴
  * 需要传入一个 log function list，每个函数需要返回已绘制区域的最大行数和列数
  */
+const logByColumnWrapper = function (...args) {
+  const interval = args?.[1]?.interval;
+  if (interval) {
+    logByColumn(...args);
+    setInterval(() => logByColumn(...args), interval);
+  } else {
+    logByColumn(...args);
+  }
+};
 const logByColumn = function (
   logFuncList,
   {
@@ -1077,6 +1116,7 @@ const logByColumn = function (
     disabled = false,
     // 当 logFuncList 数组中遇到 null 时，强制换行
     wrapBreakIfNull = true,
+    // 循环执行
   } = {}
 ) {
   if (disabled) {
@@ -1169,7 +1209,7 @@ module.exports = {
   log,
   flog,
   wline,
-  logByColumn,
+  logByColumn: logByColumnWrapper,
   logHeapTree,
   logBinaryTree,
   logBinaryTreeV2,

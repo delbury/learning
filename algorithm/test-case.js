@@ -97,20 +97,23 @@ const arr2 = [
   1,
 ];
 
+const arr3 = [9, 9, 3, 1, 2, 4, 7, 5, 9, 5, null, 1, 5, 5, 9];
+
 logByColumn(
   [
     () => {
-      // const tree = createRandomTree({ treeDeep: 3 });
-      tree = createTreeByArray(arr2);
+      const tree = createRandomTree({ treeDeep: 3 });
+      // tree = createTreeByArray(arr3);
       const heap = transferBinaryTreeToHeap(tree);
       flog(heap);
       // logBinaryTreeV2(tree, { compressedByLayer: false });
-      logBinaryTreeV2(tree, { compressedByLayer: true });
+      logBinaryTreeV2(tree, { compressedByLayer: true, alignCenter: true });
     },
     // () => logBinaryTreeV2(createTreeByArray(arr2)),
     // () => logBinaryTreeV2(createTreeByArray(arr), { compressedByLayer: true }),
   ],
   {
     disabled: true,
+    // interval: 1500,
   }
 );
