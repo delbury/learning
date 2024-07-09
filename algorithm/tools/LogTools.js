@@ -163,7 +163,7 @@ const changeDistanceNode = function (node, diff, { leftKey = 'left', rightKey = 
 const createDistanceTree = (
   node,
   distance,
-  { valueKey = 'val', leftKey = 'left', rightKey = 'right', valueFormatter, compressedByLayer } = {}
+  { valueKey = 'val', leftKey = 'left', rightKey = 'right', valueFormatter, compressedByLayer, evenDistanceGap } = {}
 ) => {
   if (!node) return node;
   const newNode = {
@@ -182,6 +182,7 @@ const createDistanceTree = (
       rightKey,
       valueFormatter,
       compressedByLayer,
+      evenDistanceGap,
     }),
     right: createDistanceTree(node[rightKey], distance + 1, {
       valueKey,
@@ -189,6 +190,7 @@ const createDistanceTree = (
       rightKey,
       valueFormatter,
       compressedByLayer,
+      evenDistanceGap,
     }),
   };
   // 当前节点包括子节点的最大值字符串宽度
@@ -218,9 +220,11 @@ const createDistanceTree = (
     // 如果 lmax >= rmin 适当增加间距，控制间距为 1 或者 2
     const diff = newNode.left.distanceMax - newNode.right.distanceMin;
     if (diff >= 0) {
+      let total = diff + 1;
+      if (evenDistanceGap) total += +(total % 2 == 1);
       // 太近了，左右子树向外扩张
-      const dl = Math.floor((diff + 1) / 2);
-      const dr = diff + 1 - dl;
+      const dl = Math.floor(total / 2);
+      const dr = total - dl;
       changeDistanceNode(newNode.left, -dl);
       changeDistanceNode(newNode.right, dr);
       newNode.distanceMax += dr;
@@ -235,23 +239,17 @@ const createDistanceTree = (
     //    如果 diffmin <= 0，表示有节点重叠，则使左右子树分别向左和向右移动，使其间距为 1 或者 2
     //    （实际生成的树不会出现这种情况）如果 diffmin > 1，表示子节点离得太远了，可以更靠近，则使左右子树分别向右和向左移动，使其间距为 1 或者 2
     // 两个左右节点的距离不能小于 2
-    const diffRoot = newNode.right.distance - newNode.left.distance;
-    let diffmin = diffRoot;
     let leftNodes = [newNode.left];
     let rightNodes = [newNode.right];
-    let prevLeftDistance = -Infinity;
-    let prevRightDistance = Infinity;
+    const layerInfos = [];
     while (leftNodes.length && rightNodes.length) {
-      const curLeftDistance = leftNodes.at(-1).distance;
-      const curRightDistance = rightNodes.at(0).distance;
-      let df = curRightDistance - curLeftDistance;
-      // 如果当前层，左子树的节点正上方（距离相同）存在右子树的节点，则最小距离 -1，右子树同理
-      if (prevLeftDistance === curRightDistance || prevRightDistance === curLeftDistance) {
-        df -= 1;
-      }
-      prevLeftDistance = curLeftDistance;
-      prevRightDistance = curRightDistance;
-      diffmin = Math.min(df, diffmin);
+      layerInfos.push({
+        curLeftDistance: leftNodes.at(-1).distance,
+        curRightDistance: rightNodes.at(0).distance,
+        curLeft: leftNodes.at(-1),
+        curRight: rightNodes.at(0),
+      });
+
       const nextLeftNodes = [];
       const nextRightNodes = [];
       while (leftNodes.length) {
@@ -267,11 +265,61 @@ const createDistanceTree = (
       leftNodes = nextLeftNodes;
       rightNodes = nextRightNodes;
     }
-    if (diffmin <= 0) {
-      // 外扩
-      diffmin = -diffmin + 1;
-      const dl = Math.floor(diffmin / 2);
-      const dr = diffmin - dl;
+
+    let dl = 0;
+    let dr = 0;
+    do {
+      let diffmin = Infinity;
+      const rawDl = dl;
+      const rawDr = dr;
+
+      for (let i = 0; i < layerInfos.length; i++) {
+        const { curRightDistance: crd, curLeftDistance: cld } = layerInfos[i];
+        const prev = layerInfos[i - 1];
+        const prevLeft = prev?.curLeft;
+        const prevRight = prev?.curRight;
+        const prevLeftDistance = prev?.curLeftDistance - dl;
+        const prevRightDistance = prev?.curRightDistance + dr;
+        const curLeftDistance = cld - dl;
+        const curRightDistance = crd + dr;
+
+        let df = curRightDistance - curLeftDistance;
+        if (
+          // 如果当前层，左子树的节点正上方（距离相同）存在右子树的节点，则最小距离 -1
+          prevLeftDistance === curRightDistance ||
+          // 右子树同理
+          prevRightDistance === curLeftDistance ||
+          // 当前层和上一层，最左右节点之间距离相等，并且不是同为左节点或右节点
+          (prevRightDistance - prevLeftDistance === df &&
+            ((prevLeft?.left && prevRight?.left) || (prevLeft?.right && prevRight?.right)))
+        ) {
+          df -= 1;
+        }
+        diffmin = Math.min(df, diffmin);
+      }
+
+      if (diffmin <= 0) {
+        // 外扩
+        let total = -diffmin + 1;
+        if (evenDistanceGap) total += +(total % 2 === 1);
+        dl = Math.floor(total / 2);
+        dr = total - dl;
+      } else if (diffmin > 1) {
+        // 内缩
+        const diffRoot = newNode.right.distance - newNode.left.distance + dl + dr;
+        const total = Math.max(Math.min(diffmin - 1, diffRoot - 2), 0);
+        if (total > 0) {
+          const ndl = Math.floor(total / 2);
+          const ndr = total - ndl;
+          dl -= ndl;
+          dr -= ndr;
+        }
+      }
+      break;
+      if (dl === rawDl && dr === rawDr) break;
+    } while (true);
+
+    if (dl > 0 || dr > 0) {
       changeDistanceNode(newNode.left, -dl);
       changeDistanceNode(newNode.right, dr);
       newNode.distanceMax += dr;
@@ -297,14 +345,21 @@ const logBinaryTreeV2 = function (
     valueFormatter,
     // 按层扩张
     compressedByLayer = true,
-    // 严格居中
-    alignCenter = true,
+    // 左右子树和根节点的距离相等
+    evenDistanceGap = false,
+    // 按字符粒度调整居中
+    // TODO 有 bug，有心情的了再考虑怎么完善吧（大概？）
+    alignCenterByCharBeta = false,
   } = {}
 ) {
   if (!root) return log(null);
 
   // 构建距离树
-  const distanceTree = createDistanceTree(root, 0, { valueFormatter, compressedByLayer });
+  const distanceTree = createDistanceTree(root, 0, {
+    valueFormatter,
+    compressedByLayer,
+    evenDistanceGap,
+  });
 
   const heap = transferBinaryTreeToHeap(distanceTree, {
     valueKey,
@@ -414,12 +469,9 @@ const logBinaryTreeV2 = function (
   const maxCols = Math.max(...outputRows.map((or) => or.length));
   outputRows.forEach((or) => or.length < maxCols && or.push(...Array(maxCols - or.length).fill(tcs.space)));
 
-  // debug
-  // flog(outputRows);
-
   // 每一行，每一列的字符偏移值，向右偏移的距离
   const charOffsetMap = new Map();
-  if (alignCenter) {
+  if (alignCenterByCharBeta) {
     // 计算偏移值
     for (let i = outputRows.length - 1; i >= 0; i--) {
       const row = outputRows[i];
@@ -475,6 +527,7 @@ const logBinaryTreeV2 = function (
 
   // debug
   // flog(charOffsetMap);
+  // flog(outputRows);
 
   // 每一个刻度的间距
   const scale = Math.max(distanceTree.nodeValueWidthMax + 2, 4);
@@ -494,14 +547,49 @@ const logBinaryTreeV2 = function (
       let sc = scale;
 
       if (i % 2 === 0) {
-        // 值
+        // 值行
+        // 一个值的前后都是空白，存在合并的话，直接与相邻字符进行合并居中
+
         if (curOffset) {
           sc *= 2;
           j++;
         }
         str += padStringCenter(it, sc, { percent: curOffset });
       } else {
+        /**
+         * 辅助线行
+         * 居中情况下，一个符号的前后可能有其他字符，需要额外判断
+         * 并且其上方最近的一行辅助线也会收到当前行进行过居中调整的影响
+         * 各种情况、规则：
+         * * 字符偏移：当前某个坐标的字符需要向右偏移的距离，通常为小数
+         * * charOffsetMap 保存了字符可能存在的偏移 [row,col] => offset
+         * * 当前辅助线行的字符偏移，会影响最近的上一行辅助线行对应位置的字符偏移
+         * * 字符偏移会累加，因为下行辅助线的偏移会导致当前行的字符不再居中，也需要偏移来保持居中
+         * * 从最后一行开始处理辅助线行，最后一行辅助线不可能存在字符偏移
+         * * TODO 有一个问题，当层数多了之后，偏移累加，有可能导致上层的两个节点重叠甚至反向
+         *
+         * * 常见当前行字符偏移情况：
+         * * * ╭ ┴ ─ ╮
+         *     0 1 2 3
+         * 第1个字符存在偏移0.5
+         * 如果第0个字符和第3个字符存在受下行影响产生的偏移x和y，那么第1个字符的偏移为0.5 + (y + x) / 2
+         * 同理，第1个字符的上一行值行和上上一行辅助线行对应的位置的偏移和第1个字符的偏移是相等的
+         * 即 offset[row - 2][col] = offset[row - 1][col] = offset[row][col]
+         *
+         * * 因下行偏移导致当前行偏移的情况：
+         * * * ╭ ┴ ╮
+         *     0 1 2
+         *
+         * * * ╰ ╮
+         *     0 1
+         *
+         * * * ╭ ╯
+         *     0 1
+         *
+         */
+
         let suffix = '';
+        let addStr = '';
         if ((it === tcs.tlr || it === tcs.bl || it === tcs.br) && curOffset) {
           sc *= 2;
           j++;
@@ -511,21 +599,26 @@ const logBinaryTreeV2 = function (
           if (charOffsetMap.has(nextHash)) {
             // 下一个字符也存在偏偏移值
             const cof = charOffsetMap.get(nextHash);
-            suffix = padStringCenter(nextChar, sc, {
+            suffix = padStringCenter(nextChar, scale * 2, {
               padCharLeft: tcs.lr,
+              padCharRight: nextChar === tcs.tlr ? tcs.lr : void 0,
               percent: cof,
             });
-            suffix = suffix.substring(0, scale + 1);
-          } else if (nextChar === tcs.tl || nextChar === tcs.tlr) {
+
+            if (it === tcs.br) {
+              j++;
+              addStr = suffix.substring(scale, scale * 2);
+              suffix = '';
+            } else suffix = suffix.substring(0, scale + 1);
+          } else if (nextChar === tcs.tl || nextChar === tcs.tlr || nextChar === tcs.tr) {
             suffix = padStringCenter(nextChar, scale, {
               ignoreColor: true,
               padCharLeft: '',
-              padCharRight: it === tcs.tlr ? tcs.lr : void 0,
+              padCharRight: it !== tcs.tlr ? void 0 : tcs.lr,
             });
           }
         }
 
-        // 辅助线
         const line = padStringCenter(it, sc, {
           padChar: it === tcs.tlr || it === tcs.lr ? tcs.lr : void 0,
           padCharLeft: it === tcs.tl || it === tcs.bl ? tcs.lr : void 0,
@@ -533,7 +626,7 @@ const logBinaryTreeV2 = function (
           percent: curOffset,
         });
 
-        str += r._color_240(line.substring(0, line.length - suffix.length) + suffix);
+        str += r._color_240(line.substring(0, line.length - suffix.length) + suffix + addStr);
       }
     }
 
@@ -1098,16 +1191,21 @@ const logArrayToCoordinateSystem = function (
  *    ⿴ ⿴ ⿴
  * 需要传入一个 log function list，每个函数需要返回已绘制区域的最大行数和列数
  */
-const logByColumnWrapper = function (...args) {
+const logByColumn = function (...args) {
   const interval = args?.[1]?.interval;
   if (interval) {
-    logByColumn(...args);
-    setInterval(() => logByColumn(...args), interval);
+    let round = 0;
+    log('round: ', round++);
+    innerLogByColumn(...args);
+    setInterval(() => {
+      log('round: ', round++);
+      innerLogByColumn(...args);
+    }, interval);
   } else {
-    logByColumn(...args);
+    innerLogByColumn(...args);
   }
 };
-const logByColumn = function (
+const innerLogByColumn = function (
   logFuncList,
   {
     // 每一个 func 输出块的间隔
@@ -1185,18 +1283,25 @@ const createRandomTree = function ({
   valueKey = 'val',
   leftKey = 'left',
   rightKey = 'right',
-  nullNodeChange = 0.2,
 } = {}) {
   if (treeDeep === Infinity && nodeCount === Infinity) throw new Error('param must have treeDeep or nodeCount');
   let curCount = 0;
 
+  const k = 1 / treeDeep ** 4;
+
   const fn = (deep = 0) => {
     if (deep > treeDeep || curCount >= nodeCount) return null;
+
+    // 每个节点为 null 的概率，满足函数 f(deep) = 1 - 1 / (deep + 1)
+    const change = deep ** 4 * k;
+    if (Math.random() < change) return null;
+
     curCount++;
+    const leftFirst = Math.random() >= 0.5;
     const node = {
       [valueKey]: createRandomInt(valueMin, valueMax),
-      [leftKey]: Math.random() < nullNodeChange ? null : fn(deep + 1),
-      [rightKey]: Math.random() < nullNodeChange ? null : fn(deep + 1),
+      [leftFirst ? leftKey : rightKey]: fn(deep + 1),
+      [leftFirst ? rightKey : leftKey]: fn(deep + 1),
     };
     return node;
   };
@@ -1209,7 +1314,7 @@ module.exports = {
   log,
   flog,
   wline,
-  logByColumn: logByColumnWrapper,
+  logByColumn,
   logHeapTree,
   logBinaryTree,
   logBinaryTreeV2,
