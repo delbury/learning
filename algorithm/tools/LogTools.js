@@ -196,16 +196,8 @@ const createDistanceTree = (
   // 当前节点包括子节点的最大值字符串宽度
   newNode.nodeValueWidthMax = newNode.valWidth;
   if (newNode.left || newNode.right) {
-    newNode.distanceMax = Math.max(
-      distance,
-      newNode.left?.distanceMax ?? -Infinity,
-      newNode.right?.distanceMax ?? -Infinity
-    );
-    newNode.distanceMin = Math.min(
-      distance,
-      newNode.left?.distanceMin ?? Infinity,
-      newNode.right?.distanceMin ?? Infinity
-    );
+    newNode.distanceMax = Math.max(distance, newNode.left?.distanceMax ?? -Infinity, newNode.right?.distanceMax ?? -Infinity);
+    newNode.distanceMin = Math.min(distance, newNode.left?.distanceMin ?? Infinity, newNode.right?.distanceMin ?? Infinity);
     newNode.nodeValueWidthMax = Math.max(
       newNode.nodeValueWidthMax,
       newNode.left?.nodeValueWidthMax ?? -Infinity,
@@ -666,12 +658,14 @@ const printResult = (passedCases, totalCases, sym = '*') => {
 };
 // 打印每条用例结果
 const printEach = (no, output, res, passed, options) => {
-  if (options?.array2string) {
+  const { time, oneOfOutput, array2string } = options;
+  if (array2string) {
     output = formatLogValue(output);
     res = formatLogValue(res);
   }
-  const time = options?.time ? r.grey(`, time: ${options.time.toFixed(3)}ms`) : '';
-  log(`${no}: expect:`, output, `, result:`, res, `, is ${passed ? r('passed', 'green') : r('failed', 'red')} ${time}`);
+  const timeStr = time ? r.grey(`, time: ${time.toFixed(3)}ms`) : '';
+  const expectStr = oneOfOutput ? 'expect in' : 'expect';
+  log(`${no}. ${expectStr}:`, output, `, result:`, res, `, is ${passed ? r.green('passed', '') : r.red('failed')} ${timeStr}`);
   logDivider();
 };
 // 运行测试用例
@@ -716,6 +710,15 @@ const logAssert = function (no, ...args) {
   const [output, res, time] = run(...args);
   const passed = _.isEqual(res, output);
   printEach(no, output, res, passed, { time });
+  return passed;
+};
+
+// 输出结果为其中一个值即为正确
+const logAssertSome = function (no, ...args) {
+  const [output, res, time] = run(...args);
+  if (!Array.isArray(output)) throw new Error('output must be an array');
+  const passed = output.some((ot) => _.isEqual(res, ot));
+  printEach(no, output, res, passed, { time, oneOfOutput: true });
   return passed;
 };
 
@@ -981,9 +984,7 @@ const runActionArgByArray = function (
     } else {
       isError = true;
       log(
-        `error at index: ${r.yellow(notEqualIndex)}, result: ${r.red(res[notEqualIndex])}, expect: ${r.green(
-          expects[notEqualIndex]
-        )}`
+        `error at index: ${r.yellow(notEqualIndex)}, result: ${r.red(res[notEqualIndex])}, expect: ${r.green(expects[notEqualIndex])}`
       );
     }
   }
@@ -1081,6 +1082,8 @@ const padStringCenter = function (
 const logArrayToCoordinateSystem = function (
   arr,
   {
+    // 根据数组的最大值最小值自动计算高度
+    autoHeight = true,
     // 坐标轴的高度
     chartHeight = 10,
     // x轴刻度的宽度
@@ -1089,40 +1092,66 @@ const logArrayToCoordinateSystem = function (
     highlightCenter = false,
     // x轴不为奇数时，中点取靠右那一个，默认取左
     centerRightFirst = false,
+    // 预设的高亮点
+    presetHighlights = [],
+    // 预设的高亮点的颜色，按照此数组进行循环
+    presetHighlightColors = ['red', 'yellow', 'blue'],
     // 自定义高亮点，[key: index]: color
     customHighlights = {},
     // 忽略的点
     ignoreIndexes = [],
+    // 展示轴label
+    yShowLabel = true,
   } = {}
 ) {
   if (!Array.isArray(arr) || arr.some((it) => !!it && typeof it !== 'number')) {
     throw new Error('params error !');
   }
-  const ignoreIndexSet = new Set(ignoreIndexes);
   const min = Math.min(...arr);
   const max = Math.max(...arr);
   const range = max - min;
-  const centerIndex = centerRightFirst ? Math.floor(arr.length / 2) : Math.floor((arr.length - 1) / 2);
   // 取较小值
-  chartHeight = Math.min(max, chartHeight);
+  chartHeight = autoHeight ? Math.floor(range) : Math.min(max, chartHeight);
   // 判断处理成每行的哪些index有值，生成值矩阵
   const valueMatrix = Array.from({ length: chartHeight + 1 }, () => Array(arr.length).fill(null));
+  // 原始值分组
+  const rawValueRows = new Map();
   const normalizedValues = [];
   arr.forEach((it, ind) => {
     // 值归一化，归一化区间 [min(values), max(values)] => [0, chartHeight]
     const nv = Math.floor(((it - min) / range) * chartHeight);
     normalizedValues[ind] = nv;
     valueMatrix[nv][ind] = '*';
+    if (rawValueRows.has(nv)) rawValueRows.get(nv).push(it);
+    else rawValueRows.set(nv, [it]);
   });
+
+  const presetIndexMap = new Map(presetHighlights.map((xi, ind) => [xi, ind]));
+  const ignoreIndexSet = new Set(ignoreIndexes);
+  const centerIndex = centerRightFirst ? Math.floor(arr.length / 2) : Math.floor((arr.length - 1) / 2);
+  // 计算颜色
+  const getColor = (index, defaultColor, { isIgnoreExtra = true, isHighlightCenterExtra = true, isPresetExtra = true } = {}) => {
+    // 是否是自定义高亮点
+    if (customHighlights[index]) return customHighlights[index];
+
+    // 预设的高亮点
+    if (presetIndexMap.has(index) && isPresetExtra)
+      return presetHighlightColors[presetIndexMap.get(index) % presetHighlightColors.length];
+
+    // 是否开启且为高亮中点
+    const isHighlightCenter = highlightCenter && centerIndex === index;
+    if (isHighlightCenter && isHighlightCenterExtra) return 'green';
+
+    // 是否是忽略点
+    if (ignoreIndexSet.has(index) && isIgnoreExtra) return '_color_238';
+
+    return defaultColor;
+  };
 
   for (let row = 0; row < valueMatrix.length; row++) {
     for (let col = 0; col < arr.length; col++) {
       if (row < normalizedValues[col]) {
-        valueMatrix[row][col] = r(
-          '┆',
-          customHighlights[col] ??
-            (highlightCenter && centerIndex === col ? 'green' : ignoreIndexSet.has(col) ? '_color_238' : 'grey')
-        );
+        valueMatrix[row][col] = r('┆', getColor(col, 'grey'));
       }
     }
   }
@@ -1138,9 +1167,14 @@ const logArrayToCoordinateSystem = function (
       if (row[i] === '*' && i === itemLastIndex) padPrefix = ' ';
 
       let char = row[i] === null ? padPrefix : row[i];
-      const hl = highlightCenter && i === centerIndex && row[i] === '*';
       const ignore = ignoreIndexSet.has(i) && row[i] === '*';
-      char = r(ignore ? '•' : char, customHighlights[i] ?? (hl ? 'green' : ignore ? '_color_238' : void 0));
+      char = r(
+        ignore ? '•' : char,
+        getColor(i, void 0, {
+          isHighlightCenterExtra: row[i] === '*',
+          isIgnoreExtra: row[i] === '*',
+        })
+      );
 
       rowStr += padStringCenter(char, xScalePadding, {
         ignoreColor: true,
@@ -1156,8 +1190,7 @@ const logArrayToCoordinateSystem = function (
   const xAxisRows = [];
   const xAxisStr = arr
     .map((_, i) => {
-      const hl = highlightCenter && i === centerIndex;
-      const c = r('┼', customHighlights[i] ?? (hl ? 'green' : 'grey'));
+      const c = r('┼', getColor(i, 'grey', { isIgnoreExtra: false }));
       return padStringCenter(c, xScalePadding, { padChar: r.grey('─'), ignoreColor: true });
     })
     .join('');
@@ -1166,19 +1199,36 @@ const logArrayToCoordinateSystem = function (
     Object.keys(arr)
       .map((k, i) => {
         let s = padStringCenter(k, xScalePadding);
-        s = r(s, customHighlights[i] ?? (highlightCenter && i === centerIndex ? 'green' : void 0));
+        s = r(s, getColor(i));
         return s;
       })
       .join('')
   );
 
-  const cols = arr.length * xScalePadding + 1;
-  const divider = logDividerBg(cols);
-  log(divider);
-  for (const r of [...valueRows, ...xAxisRows]) {
-    log(' ' + r);
+  // 计算y轴label
+  let maxLabelLength = 0;
+  const rowLabelMap = yShowLabel
+    ? new Map(
+        [...rawValueRows.entries()].map(([ind, arr]) => {
+          const label = arr.join(',');
+          maxLabelLength = Math.max(maxLabelLength, label.length);
+          return [ind, label];
+        })
+      )
+    : new Map();
+  const cols = arr.length * xScalePadding + 1 + maxLabelLength;
+  const mergedRows = [...valueRows, ...xAxisRows];
+  logDividerBg(cols);
+  for (let i = 0; i < mergedRows.length; i++) {
+    let prefix = ' ';
+    if (i < valueRows.length) {
+      const ind = valueRows.length - 1 - i;
+      prefix = rowLabelMap.get(ind) ?? prefix;
+    }
+    prefix = r._color_238(prefix.padStart(maxLabelLength, ' '));
+    log(prefix + ' ' + mergedRows[i]);
   }
-  log(divider);
+  logDividerBg(cols);
 };
 
 /**
@@ -1319,6 +1369,7 @@ module.exports = {
   logBinaryTree,
   logBinaryTreeV2,
   logAssert: planTask(logAssert),
+  logAssertSome: planTask(logAssertSome),
   logAssertDisorder: planTask(logAssertDisorder),
   logAssertOrder: planTask(logAssertOrder),
   logAssertFloat: planTask(logAssertFloat),
