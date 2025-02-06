@@ -70,7 +70,7 @@ b+树
 
 主要作用是将主机名和域名转换为IP地址，他是一个分布式数据库，功能是联系域名和ip地址。域名与ip的对应关系，被称为记录(record)，可分为各种类型
 
-DNS是一种分层结构，在整个互联网中组成一个树状系统，顶层是系统的根域名，下层为TLD以及二级域名，叶子就构成了所谓的FQDN（Fully Qualified Domain Names），根域名通常使用"."来表示，其实际上也是由域名组成，全世界目前有13组域名根节点，由少数几个国家进行管理，而国内仅有几台根节点镜像。
+DNS是一种分层结构，在整个互联网中组成一个树状系统，顶层是系统的根域名，下层为TLD以及二级域名，叶子就构成了所谓的FQDN（Fully Qualified Domain Names），根域名通常使用"."来表示，其实际上也是由域名组成，全世界目前有13组IPv4域名根节点，由少数几个国家进行管理，而国内仅有几台根节点镜像。
 
 ### DNS解析流程
 ```
@@ -82,7 +82,7 @@ DNS 解析 `tlab.cloud.tencent.com `
   2. 操作系统缓存 DNS 缓存
   3. 本地 hosts 文件：通过修改本地 hosts 文件，变更访问对应域名的 ip
   4. DNS 服务器缓存
-  5. DNS 服务器递归查找，想根域名服务器(Root Server)请求解析
+  5. DNS 服务器递归查找，向根域名服务器(Root Server)请求解析
      1. 询问根域名，获取顶级域名(TLD) .com 的 NS(Name Server) 和 A(Address)，NS为顶级域名的名字，A即NS对应的ip地址
      2. 询问顶级域名，获取二级域名 .tencnet.com 的NS 和 A
      3. 询问二级域名，获取三级域名 .cloud.tencent.com 的NS 和 A
@@ -95,7 +95,8 @@ DNS 解析 `tlab.cloud.tencent.com `
   1. DNS prefetching：DNS 预解析
       ```html
       <!-- 
-        DNS 预读取是一项使浏览器主动去执行域名解析的功能，其范围包括文档的所有链接，无论是图片的，CSS 的，还是 JavaScript 等其他用户能够点击的 URL。
+        DNS 预读取是一项使浏览器主动去执行域名解析的功能，
+        其范围包括文档的所有链接，无论是图片的，CSS 的，还是 JavaScript 等其他用户能够点击的 URL。
         因为预读取会在后台执行，所以 DNS 很可能在链接对应的东西出现之前就已经解析完毕。这能够减少用户点击链接时的延迟。
       -->
       <meta http-equiv="x-dns-prefetch-control" content="on">
@@ -105,7 +106,10 @@ DNS 解析 `tlab.cloud.tencent.com `
       <!-- 
         首先，dns-prefetch 仅对跨域域上的 DNS查找有效
         其次，还可以通过使用 HTTP链接字段将 dns-prefetch（以及其他资源提示）指定为 HTTP标头
-        第三，考虑将 dns-prefetch 与 preconnect(预连接)提示配对。尽管 dns-prefetch 仅执行 DNS查找，但preconnect 会建立与服务器的连接。如果站点是通过HTTPS服务的，则此过程包括DNS解析，建立TCP连接以及执行TLS握手。将两者结合起来可提供进一步减少跨域请求的感知延迟的机会。
+        第三，考虑将 dns-prefetch 与 preconnect(预连接)提示配对。
+        尽管 dns-prefetch 仅执行 DNS查找，但preconnect 会建立与服务器的连接。
+        如果站点是通过HTTPS服务的，则此过程包括DNS解析，建立TCP连接以及执行TLS握手。
+        将两者结合起来可提供进一步减少跨域请求的感知延迟的机会。
       -->
       <link rel="dns-prefetch" href="https://fonts.googleapis.com">
 

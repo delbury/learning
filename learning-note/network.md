@@ -72,7 +72,7 @@
 # 安全
 
 ## XSS (Cross Site Scrioting, 跨站脚本)
-
+- 攻击者脚本 嵌入 被攻击网站，获取用户cookie等隐私信息
 - 目的：想尽一切办法将脚本内容在目标网站中目标用户的浏览器上解析
 - 类型
   1. 反射型 XSS （非持久型）
@@ -81,12 +81,20 @@
      - 提价的输入会存储在服务端
   3. DOM XSS
      - 不需要服务器的参与，靠浏览器端的 DOM 解析
+- 防御
+  1. 文本过滤或转义
+  2. 使用 CSP
+  3. 设置 Cookie 的 HttpOnly 属性
 
 ## CSRF (Cross Site Request Forgery, 跨站请求伪造)
-
+- 已登录用户 访问 攻击者网站，攻击网站向被攻击网站发起恶意请求（利用浏览器会自动携带cookie）
 - 关键点：
   1. 跨站点的请求
   2. 请求是伪造的
+- 防御
+  1. 设置 Cookie 的 SameSite
+  2. 服务端判断 Referer 和 Origin 请求头、
+  3. CSRF Token
 
 ## 界面操作劫持
 

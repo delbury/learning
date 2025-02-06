@@ -783,6 +783,8 @@ Object.prototype.create = function(prototype) {
   - Object.isExtensible()
   - Object.isFrozen()
   - Object.isSealed()
+  - Object.isPrototypeOf()
+  - Object.is()
 
 
 ## this
@@ -1405,7 +1407,7 @@ scrollTop：滚动后被隐藏的高度，获取对象相对于由offsetParent�
 2. ES6: Reflect.defineProperty() | Proxy
 
 
-## ==和===、以及Object.is的区别
+## `==` 和 `===`、以及 `Object.is` 的区别
 - ==：存在类型转换
 - ===：左右两边类型相等，值相等
 - Object.is 主要区别是 NaN/0/-0的区别

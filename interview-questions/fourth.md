@@ -11,17 +11,17 @@
 
 ## 单点登录 (single sign on)
   [淘宝/天猫的SSO](https://blog.csdn.net/weixin_34055910/article/details/85846159)
-  > 用户首次登录过程：<br>
-  用户第一次访问，未登录则重定向认证中心 <br>
-  登录成功，颁发Token给用户 <br>
-  重定向系统A，带上Token访问系统A <br>
-  系统A拿到Token与认证中心比较，正确则创建session局部会话 <br>
+  > 用户首次登录过程：
+  用户第一次访问，未登录则重定向认证中心 
+  登录成功，颁发Token给用户 
+  重定向系统A，带上Token访问系统A 
+  系统A拿到Token与认证中心比较，正确则创建session局部会话 
   
-  > 用户非首次登录过程：<br>
-  用户带上Token访问系统B <br>
-  系统B拿到Token与认证中心比较，正确则创建session局部会话 <br>
+  > 用户非首次登录过程：
+  用户带上Token访问系统B 
+  系统B拿到Token与认证中心比较，正确则创建session局部会话 
 
-  > 跨域问题 <br>
+  > 跨域问题 
   我们请求系统A/B的时候，会带上Token，一般来说我们可以把Token存储到客户端的浏览器中，以cookie的形式保存。我们可以把cookie写到浏览器的时候设置Cookie的domain，domain是可以设置二级域名跨域的。也可以把Token保存在 SessionStorage | LocalStorage 中
 
   > 淘宝(www.taobao.com)/天猫(www.tmall.com) 单点登录：
@@ -33,18 +33,18 @@
 
 ## 前后端鉴权
   [关于前后端鉴权的几种方式](http://blog.alanwu.website/2020/03/04/Authorization/)
-  > HTTP Basic Authentication：<br>
+  > HTTP Basic Authentication：
   在HTTP中，基本认证是允许http用户代理（浏览器）在请求时，提供用户名和密码的一种方式。是一种十分简单的技术，使用的是HTTP头部字段强制用户访问网络资源，而不是通过cookie、sessionId、登陆页面等非获取访问控制的手段。
 
-  > session-cookie机制：<br>
+  > session-cookie机制：
   利用服务端的session和浏览器的cookie来实现前后端鉴权，我们知道http是一种无状态的请求，用户请求完成就会关闭。如果要维持状态就需要浏览器第一次请求的时候在服务端创建一个session，session有一个唯一的标识就是sessionId。一般生产sessionId之后经过加密（可不用加密）返回给客户端，以cookie的形式保存在浏览器中。当下一次请求时就会在请求头中加入cookie信息，服务器取出sessionId与之前生成的sessionId比对是否一致，来判断请求是否合法。
 
-  > Token验证：<br>
-  Token又称为一个令牌，比如我们熟悉的QQ都有一个令牌，而且这个令牌隔一段时间是会变化的，上一种利用cookie的形式是不会变的。所以Token的鉴权方式更为安全也用的比较多。<br>
+  > Token验证：
+  Token又称为一个令牌，比如我们熟悉的QQ都有一个令牌，而且这个令牌隔一段时间是会变化的，上一种利用cookie的形式是不会变的。所以Token的鉴权方式更为安全也用的比较多。
   session和cookie机制是在客户端与服务端之间保持一个状态，服务端创建session对象也是需要开辟一定的内存空间来保存登陆状态的，但是利用Token的话就不会保持状态，只需比对令牌是否有效即可。
 
-  > OAuth开放授权：[OAuth 2.0 的四种方式](http://www.ruanyifeng.com/blog/2019/04/oauth-grant-types.html)<br>
-  > 步骤：<br>
+  > OAuth开放授权：[OAuth 2.0 的四种方式](http://www.ruanyifeng.com/blog/2019/04/oauth-grant-types.html)
+  > 步骤：
   > 1. 向用户请求授权
   > 1. 用户授权，返回凭证code给第三方（CSDN/掘金）
   > 1. 利用code向授权服务器请求Access Token

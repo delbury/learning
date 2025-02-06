@@ -120,8 +120,13 @@ bc.onmessageerror = function(ev) {};
 ## 如何中断ajax请求？
   > HMLHttpRequest： HMLHttpRequest.abort() 
 
-  > Fetch：new AbortController() | fetch(url, { signal: ac.signal })
+  > fetch：new AbortController() | fetch(url, { signal: ac.signal })
 
+## 如何实现下载进度条？
+  HMLHttpRequest：在 xhr.onprogress 事件中，通过 event.loaded 和 event.total 来计算进度
+
+  fetch: 通过 Response.body.getReader() 获取，即（ReadableStream.getReader()）
+  通过 header 中的 Content-Length，和 reader 每次 read 获取到的数据长度计算请求进度
 
 ## 编码/解码
 ```js
@@ -137,6 +142,7 @@ decodeURIComponent(encodeURIComponent(url)); // url
 decodeURI(encodeURI(url)); // url
 
 // 将字符串编码为 base-64
+// Binary to ASCII
 btoa(url);
 
 // 对经过 base-64 编码的字符串进行解码

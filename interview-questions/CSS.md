@@ -26,15 +26,10 @@
 
   > box-shadow: 0 0 0 0.5px black;
   
-  > border-image: 使用 5x5 的图片，切宽为 2px 的图片设置为 1px 的边框 <br>
-  > border: 1px solid transparent; <br>
-  > border-image: url(border1.png) 2 repeat; <br>
+  > border-image: 使用 5x5 的图片，切宽为 2px 的图片设置为 1px 的边框
+  > border: 1px solid transparent;
+  > border-image: url(border1.png) 2 repeat;
   > border-image-width: 1px;
-
-## 说一下盒模型？
-  > content，padding， border，margin 组成；
-
-  > box-sizing：content-box | border-box。
 
 ## 画一个三角形？
   > 使用 border 的一条或两条边，其余的边透明。
@@ -44,18 +39,18 @@
 
   > BFC：块级格式化上下文（独立的布局环境，其中的元素布局是不受外界的影响）；
 
-  > 规则：<br>
-  内部的Box会在垂直方向，一个接一个地放置 <br>
-  Box垂直方向的距离由margin决定。属于同一个BFC的两个相邻Box的margin会发生重叠 <br>
-  每个盒子（块盒与行盒）的margin box的左边，与包含块border box的左边相接触(对于从左往右的格式化，否则相反)。即使存在浮动也是如此 <br>
-  BFC的区域不会与float box重叠 <br>
-  BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之也如此 <br>
+  > 规则：
+  内部的Box会在垂直方向，一个接一个地放置 
+  Box垂直方向的距离由margin决定。属于同一个BFC的两个相邻Box的margin会发生重叠 
+  每个盒子（块盒与行盒）的margin box的左边，与包含块border box的左边相接触(对于从左往右的格式化，否则相反)。即使存在浮动也是如此 
+  BFC的区域不会与float box重叠 
+  BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之也如此 
   计算BFC的高度时，浮动元素也参与计算 
 
-  > 创建：<br>
-  float的值不是none <br>
-  position的值不是static或者relative <br>
-  display的值是inline-block、table-cell、flex、table-caption或者inline-flex <br>
+  > 创建：
+  float的值不是none 
+  position的值不是static或者relative 
+  display的值是inline-block、table-cell、flex、table-caption或者inline-flex 
   overflow的值不是visible 
 
   > 作用：防止 margin 重叠、自适应两栏布局、清除浮动
@@ -110,12 +105,13 @@
     }
     ```
   
-  - vw / vh / vmin / vmax
+  - vw / vh / vmin（使用vw/vh中较小的那一个） / vmax（使用vw/vh中较大的那一个）
 
 
 ## 说一下css盒模型
-  > 就是用来装页面上的元素的矩形区域。CSS中的盒子模型包括IE盒子模型和标准的W3C盒子模型。<br>
+  > 就是用来装页面上的元素的矩形区域。CSS中的盒子模型包括IE盒子模型和标准的W3C盒子模型。
   > margin, border, padding, content
+  > box-sizing：content-box | border-box。
   ```
   box-sizing: border-box | content-box;
 
