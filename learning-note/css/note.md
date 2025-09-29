@@ -49,11 +49,56 @@ all: revert-layer;
 - ch：字符 0 的宽度
 - em：当前元素的 font-size
 - ex：小写字母 "x" 的高度
-- ic：全宽字符的宽度，例如汉字的 "水"
+- ic：全宽字符的平均宽度，例如汉字的 "水"
 - lh：当前元素的行高
 ## 根字体相对长度
-## 视口单位
+相对于根元素的对应值大小，对于 HTML 来说，根元素为 html，可以用优先级更高的伪类 :root
+- rcap
+- rch
+- rem
+- rex
+- ric
+- rlh
+## 默认视口单位
+默认视口尺寸由浏览器定义
+- vb：1% of viewport's size in the root element's block axis
+- vi：1% of viewport's size in the root element's inline axis
+- vh：1% of viewport's height
+- vw：1% of viewport's width
+- vmax：1% of viewport's larger dimension
+- vmin：1% of viewport's smaller dimension
+## 大视口单位
+视口大小假设任何动态扩展和缩回的 UA 界面都没有展开，地址栏和工具栏等都没出现时的页面尺寸
+- lvb
+- lvi
+- lvh
+- lvw
+- lvmax
+- lvmin
+## 小视口单位
+视口大小假设任何动态扩展和缩回的 UA 界面都展开了，地址栏和工具栏等都出现时的页面尺寸
+- svb
+- svi
+- svh
+- svw
+- svmax
+- svmin
+## 动态视口单位
+动态视口尺寸可使内容完全适合视口，而与浏览器界面的动态变化无关，页面尺寸为实际可见的部分
+- dvb
+- dvi
+- dvh
+- dvw
+- dvmax
+- dvmin
+
 ## 容器单位
+- cqh：1% of a query container's height
+- cqw：1% of a query container's width
+- cqb：1% of a query container's block size
+- cqi：1% of a query container's inline size
+- cqmax：The larger value of cqi or cqb
+- cqmin：The smaller value of cqi or cqb
 ## 绝对长度单位
 - cm：1cm = 96px/2.54
 - in：1in = 2.54cm = 96px
