@@ -136,7 +136,11 @@ all: revert-layer;
 
 # mask 遮罩
 <https://www.zhangxinxu.com/wordpress/2017/11/css-css3-mask-masks/>
+所谓遮罩，就是背景图片/颜色，被遮罩图片进行裁剪后，再对裁剪后的形状做样式处理
 ## 相关属性
+### mask
+<https://developer.mozilla.org/zh-CN/docs/Web/CSS/mask>
+以下多个属性的简写
 ### mask-image
 遮罩使用的图片
 可以是 url() 引入的静态图片，如：jpg/png/svg/webp 等
