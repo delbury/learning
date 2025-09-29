@@ -43,6 +43,51 @@ all: revert-layer;
 它可以应用于任何 CSS 属性
 
 # 数值单位
+<https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Values_and_Units/Numeric_data_types>
+## 本地字体相对长度
+- cap：大写字母的高度
+- ch：字符 0 的宽度
+- em：当前元素的 font-size
+- ex：小写字母 "x" 的高度
+- ic：全宽字符的宽度，例如汉字的 "水"
+- lh：当前元素的行高
+## 根字体相对长度
+## 视口单位
+## 容器单位
+## 绝对长度单位
+- cm：1cm = 96px/2.54
+- in：1in = 2.54cm = 96px
+- mm：1mm = 1/10th of 1cm
+- pc：1pc = 1/6th of 1in
+- pt：1pt = 1/72th of 1in
+- px：1px = 1/96th of 1in
+- Q：1Q = 1/40th of 1cm
+## 角度单位
+<https://developer.mozilla.org/zh-CN/docs/Web/CSS/angle>
+- deg：There are 360 degrees in a full circle
+- grad：There are 400 gradians in a full circle
+- rad：There are 2π radians in a full circle
+- turn：There is 1 turn in a full circle
+## 时间单位
+<https://developer.mozilla.org/zh-CN/docs/Web/CSS/time>
+- ms：There are 1,000 milliseconds in a second
+- s：second
+## 频率单位
+<https://developer.mozilla.org/zh-CN/docs/Web/CSS/frequency>
+- Hz：Represents the number of occurrences per second
+- kHz：A kiloHertz is 1000 Hertz
+## 弹性单位
+<https://developer.mozilla.org/zh-CN/docs/Web/CSS/flex_value>
+- fr：Represents a flexible length within a grid container
+## 分辨率单位
+<https://developer.mozilla.org/zh-CN/docs/Web/CSS/resolution>
+- dpi：Dots per inch
+- dpcm：Dots per centimeter，1dpcm ≈ 2.54dpi
+- dppx：Dots per px unit，1dppx = 96dpi
+- x：Same as dppx
+## 百分比单位
+<https://developer.mozilla.org/zh-CN/docs/Web/CSS/percentage>
+- %：一般是相对于父元素的百分比
 
 # mask 遮罩
 <https://www.zhangxinxu.com/wordpress/2017/11/css-css3-mask-masks/>
