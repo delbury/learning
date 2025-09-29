@@ -16,6 +16,7 @@ all: revert-layer;
 ## 属性值
 <https://www.zhangxinxu.com/wordpress/2020/01/css-initial-unset/>
 <https://www.zhangxinxu.com/wordpress/2021/02/css-revert/>
+<https://www.zhangxinxu.com/wordpress/2023/03/css-revert-layer-global-keyword/>
 ### initial
 将属性值还原成 css 语法规定中的初始（默认）值，而非浏览器默认值
 它可以应用于任何 CSS 属性
@@ -37,6 +38,8 @@ all: revert-layer;
 它可以应用于任何 CSS 属性
 
 ### revert-layer
+将属性值还原成上一层 @layer 中设置的相同属性
+若没有上一层 @layer 或属性不存在，则表现为 revert
 它可以应用于任何 CSS 属性
 
 # 数值单位
@@ -81,4 +84,101 @@ mask-image: unset;
 ### mask-type
 ### mask-composite
 
-# container 容器
+# @supports 特性查询
+
+# @container 容器查询
+<https://www.zhangxinxu.com/wordpress/2022/09/css-container-rule/>
+
+# @layer 层级规则
+<https://www.zhangxinxu.com/wordpress/2022/05/deep-in-css-cascade/>
+<https://www.zhangxinxu.com/wordpress/2022/05/css-layer-rule/>
+## 作用
+同一个 css 上下文中，在层级的方面来控制 css 优先级，不受 css 选择器的权重影响
+## CSS 级联优先级
+1. 常规CSS： css 文件、style 元素、 HTML style 内联的 css 样式
+2. @layer 规则
+3. 用户设置
+4. 浏览器内置（用户代理）
+
+规则：
+- 继承是最底层，低于所有的级联规则
+- 每一种优先级的都是高于下一个，除非使用 !important
+- 同一级联规则内的优先级按照选择器权重和先后顺序决定
+
+完整优先级：
+1. 级联
+  1. 浏览器内置（用户代理）!important
+  2. 用户设置 !important
+  3. @layer 规则 !important
+  4. 常规 CSS !important
+  5. 常规 CSS
+    1. style 内联
+    2. id 选择器
+    3. 类、属性选择器
+    4. 标签选择器
+    5. 通配符选择器
+  6. @layer 规则
+  7. 用户设置
+  8. 浏览器内置（用户代理）
+2. 继承
+
+## 语法
+```css
+/* 命名层 */
+@layer layerName {
+  .container { /* ... */ }
+  div { /* ... */ }
+  /* ... */
+}
+
+/* 导入为命名层 */
+@import './xxx.css' layer(layerName);
+
+/* 导入为匿名层 */
+@import './xxx.css' layer;
+
+/* 命名层，但不指定样式 */
+@layer layerName;
+
+/* 命名层，同时定义多个，按顺序来指定优先级：低（左） --> 高（右），必须先写才会生效 */
+@layer layerName1, layerName2, layerName3;
+
+/* 匿名层，创建时不指定名字 */
+@layer {
+  /* ... */
+}
+
+/* 嵌套层，允许嵌套，使用 "." 来引用内层，优先级：低（内） --> 高（外） */
+@layer layerOuter {
+  /* 优先级更高 */
+  /* ... */
+  @layer layerInner {
+    /* 优先级更低 */
+    /* ... */
+  }
+}
+
+/* 级联写法 */
+@layer layerOuter.layerInner {
+  div { /* ... */ }
+}
+```
+
+```html
+<!-- 未正式支持 -->
+
+<!-- zxx-lib.css的样式属于名为 lib 的级联层 -->
+<link rel="stylesheet" href="./xxx.css" layer="layerName">
+
+<!-- 样式引入到一个匿名级联层中 -->
+<link rel="stylesheet" href="./xxx.css" layer>
+
+<!-- 扩展 support，支持 media 查询 -->
+<link rel="stylesheet" href="./xxx.css" layer="layerName" media="supports(at-rule(@layer))">
+```
+## 规则
+- 默认情况下，同一层内的属性和同一级的层的优先级是按照前后顺序来的，即：低（前） --> 高（后）
+- 类似 z-index，同级的多个嵌套层，其内层的优先级由同级外层的优先级控制，即：若优先级 A > B，则 A > A.* > B > B.*
+- 在已经声明层叠层的名字后，它们的顺序随即被确立
+- 可以重复声明某层叠层的名字来向其添加 CSS 规则，这些样式将被附加到该层的末尾，且层叠层之间的顺序不会改变。
+- 其他不属于任何一层叠层的样式将被集中到同一匿名层，并置于所有层的后部，任何在层外声明的样式都会覆盖在层内声明的样式
