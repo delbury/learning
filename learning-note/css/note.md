@@ -42,16 +42,17 @@ all: revert-layer;
 若没有上一层 @layer 或属性不存在，则表现为 revert
 它可以应用于任何 CSS 属性
 
-# 数值单位
+# 属性值和单位
 <https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Values_and_Units/Numeric_data_types>
-## 本地字体相对长度
+## <length> 长度值
+### 本地字体相对长度
 - cap：大写字母的高度
 - ch：字符 0 的宽度
 - em：当前元素的 font-size
 - ex：小写字母 "x" 的高度
 - ic：全宽字符的平均宽度，例如汉字的 "水"
 - lh：当前元素的行高
-## 根字体相对长度
+### 根字体相对长度
 相对于根元素的对应值大小，对于 HTML 来说，根元素为 html，可以用优先级更高的伪类 :root
 - rcap
 - rch
@@ -59,7 +60,7 @@ all: revert-layer;
 - rex
 - ric
 - rlh
-## 默认视口单位
+### 默认视口单位
 默认视口尺寸由浏览器定义
 - vb：1% of viewport's size in the root element's block axis
 - vi：1% of viewport's size in the root element's inline axis
@@ -67,7 +68,7 @@ all: revert-layer;
 - vw：1% of viewport's width
 - vmax：1% of viewport's larger dimension
 - vmin：1% of viewport's smaller dimension
-## 大视口单位
+### 大视口单位
 视口大小假设任何动态扩展和缩回的 UA 界面都没有展开，地址栏和工具栏等都没出现时的页面尺寸
 - lvb
 - lvi
@@ -75,7 +76,7 @@ all: revert-layer;
 - lvw
 - lvmax
 - lvmin
-## 小视口单位
+### 小视口单位
 视口大小假设任何动态扩展和缩回的 UA 界面都展开了，地址栏和工具栏等都出现时的页面尺寸
 - svb
 - svi
@@ -83,7 +84,7 @@ all: revert-layer;
 - svw
 - svmax
 - svmin
-## 动态视口单位
+### 动态视口单位
 动态视口尺寸可使内容完全适合视口，而与浏览器界面的动态变化无关，页面尺寸为实际可见的部分
 - dvb
 - dvi
@@ -91,15 +92,14 @@ all: revert-layer;
 - dvw
 - dvmax
 - dvmin
-
-## 容器单位
+### 容器单位
 - cqh：1% of a query container's height
 - cqw：1% of a query container's width
 - cqb：1% of a query container's block size
 - cqi：1% of a query container's inline size
 - cqmax：The larger value of cqi or cqb
 - cqmin：The smaller value of cqi or cqb
-## 绝对长度单位
+### 绝对长度单位
 - cm：1cm = 96px/2.54
 - in：1in = 2.54cm = 96px
 - mm：1mm = 1/10th of 1cm
@@ -107,32 +107,57 @@ all: revert-layer;
 - pt：1pt = 1/72th of 1in
 - px：1px = 1/96th of 1in
 - Q：1Q = 1/40th of 1cm
-## 角度单位
+
+## <percentage> 百分比值
+### 百分比单位
+<https://developer.mozilla.org/zh-CN/docs/Web/CSS/percentage>
+- %：一般是相对于父元素的百分比
+
+## <angle> 角度值
+### 角度单位
 <https://developer.mozilla.org/zh-CN/docs/Web/CSS/angle>
 - deg：There are 360 degrees in a full circle
 - grad：There are 400 gradians in a full circle
 - rad：There are 2π radians in a full circle
 - turn：There is 1 turn in a full circle
-## 时间单位
+
+## <time> 时间值
+### 时间单位
 <https://developer.mozilla.org/zh-CN/docs/Web/CSS/time>
 - ms：There are 1,000 milliseconds in a second
 - s：second
-## 频率单位
+
+## <frequency> 频率值
+### 频率单位
 <https://developer.mozilla.org/zh-CN/docs/Web/CSS/frequency>
 - Hz：Represents the number of occurrences per second
 - kHz：A kiloHertz is 1000 Hertz
-## 弹性单位
+
+## <flex> 弹性值
+### 弹性单位
 <https://developer.mozilla.org/zh-CN/docs/Web/CSS/flex_value>
 - fr：Represents a flexible length within a grid container
-## 分辨率单位
+
+## <resolution> 分辨率值
+### 分辨率单位
 <https://developer.mozilla.org/zh-CN/docs/Web/CSS/resolution>
 - dpi：Dots per inch
 - dpcm：Dots per centimeter，1dpcm ≈ 2.54dpi
 - dppx：Dots per px unit，1dppx = 96dpi
 - x：Same as dppx
-## 百分比单位
-<https://developer.mozilla.org/zh-CN/docs/Web/CSS/percentage>
-- %：一般是相对于父元素的百分比
+
+## <integer> 整数值
+纯数字整数，如：1、2、0、-0、+0、-1、-2、+1、+2
+
+## <number> 数值
+纯数值，扩展了 <integer>，包含整数、小数、正负数，允许科学记数法和不带 0 的小数，如：0.0、-0.0、+0.0、0.6、.6、-.6、10e3、-3.4e-2
+
+# CSS 值函数
+<https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Values_and_Units/CSS_Value_Functions>
+类似与编程语言中的函数调用
+## 数学函数
+### 基本运算
+- calc()
 
 # mask 遮罩
 <https://www.zhangxinxu.com/wordpress/2017/11/css-css3-mask-masks/>
