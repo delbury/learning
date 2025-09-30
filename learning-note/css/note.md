@@ -152,12 +152,55 @@ all: revert-layer;
 ## <number> 数值
 纯数值，扩展了 <integer>，包含整数、小数、正负数，允许科学记数法和不带 0 的小数，如：0.0、-0.0、+0.0、0.6、.6、-.6、10e3、-3.4e-2
 
+## <dimension> 度量值
+带单位的 <number>，如：10px、1rem、200ms等
+
 # CSS 值函数
 <https://developer.mozilla.org/zh-CN/docs/Web/CSS/CSS_Values_and_Units/CSS_Value_Functions>
 类似与编程语言中的函数调用
 ## 数学函数
 ### 基本运算
 - calc()
+  - 参数：calc(expression)
+  - 可用属性：<length>、<frequency>, <angle>、<time>、<percentage>、<number>、或 <integer>
+  - 计算基本的加减乘除操作表达式（"+", "-", "*", "/"）
+  - 乘法中，必须有一个数是 <number>
+  - 除法中，右边的数必须是 <number>
+  - 可以使用小括号（"()"）改变运算优先级
+  - "+" 和 "-" 号，前后必须要有空白；"*" 和 "/" 则不是必须的
+  - 除数为 0，元素直接解析异常
+### 比较函数
+- min()
+  - 参数：min(expression [, expression])
+  - 可用属性：<length>, <frequency>, <angle>, <time>, <percentage>,<number>, 或者 <integer>
+  - 选择入参中最小的值并返回
+- max()
+  - 参数、可用属性，同 min()
+  - 选择入参中最大的值并返回
+- clamp()
+  - 参数：clamp(MIN, VAL, MAX)
+  - 可用属性：<length>, <frequency>, <angle>, <time>, <percentage>,<number>, 或者 <integer>
+  - 把一个值限制在一个上限和下限之间，其实就是 max(MIN, min(VAL, MAX)) 的语法糖
+### 阶跃值函数
+- round()
+  - 参数：round(<rounding-strategy>, valueToRound, roundingInterval)
+  - 可用属性：<number>、<dimension> 或 <percentage>
+  - 将 valueToRound 的值，舍入到最接近的 roundingInterval 的较低或较高整数倍，具体取决于舍入策略
+  - <rounding-strategy>：舍入策略
+    - up：向上取整数倍，Math.ceil()
+    - down：向下取整数倍，Math.floor()
+    - nearest：取到最近的整数倍，Math.round()
+    - to-zero：直接舍弃整数倍的小数部分，Math.trunc()
+  - valueToRound：需要进行舍入的值
+  - roundingInterval：摄入间隔
+- mod()
+  - 参数：mod(dividend, divisor)
+  - 可用属性：<length>、<angle>、<time> 或 <frequency>
+  - 取模，符号与除数 divisor 相同
+- rem()
+  - 参数：rem(dividend, divisor)
+  - 可用属性：<length>、<angle>、<time> 或 <frequency>
+  - 取余数，符号与被除数 dividend 相同，"%" 运算
 
 # mask 遮罩
 <https://www.zhangxinxu.com/wordpress/2017/11/css-css3-mask-masks/>
